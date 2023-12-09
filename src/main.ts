@@ -22,17 +22,17 @@ function sleep(time: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, time));
 }
 
-/** Escapes a string for it to be used in a markdown message.
- * @param {string} input - The input message.
- * @returns {string} The escaped message.
- */
-function escapeForMarkdown(input: string): string {
-    return input.replace('_', '\\_')
-        .replace('*', '\\*')
-        .replace('[', '\\[')
-        .replace('`', '\\`')
-        .replace('.', '\\.');
-}
+// /** Escapes a string for it to be used in a markdown message.
+//  * @param {string} input - The input message.
+//  * @returns {string} The escaped message.
+//  */
+// function escapeForMarkdown(input: string): string {
+//     return input.replace('_', '\\_')
+//         .replace('*', '\\*')
+//         .replace('[', '\\[')
+//         .replace('`', '\\`')
+//         .replace('.', '\\.');
+// }
 
 /** Formats the data about a message to be used later as a history for the AI in case
  * CONTINUOUS_CONVERSATION is `true`.
@@ -57,7 +57,7 @@ function formatVariables(input: string, optionalParameters?: {
 }): string {
     return input.replace('$personality', userConfig.personality || PARAMETERS.PERSONALITY)
         .replace('$name', userConfig.botName || PARAMETERS.BOT_NAME)
-        .replace('$username', optionalParameters?.username || 'username')
+        .replace('$username', optionalParameters?.username || 'user' )
         .replace('$command', optionalParameters?.command || 'command');
 }
 
@@ -71,26 +71,18 @@ function removeCommandNameFromCommand(input: string): string {
     return ar.join(' ');
 }
 
-/** Switches the bot's personality sent at the beggining of the prompt for OpenAI's completion.
- * @param {string} personality - The bot's new personality.
-*/
-function switchPersonality(personality: string) {
-    userConfig.personality = personality;
-    fs.writeFileSync('user-config.json', JSON.stringify(userConfig), 'utf8');
-}
-
-/** Switches the bot's name sent to OpenAI for completion.
- * @param {string} name - The bot's new name.
- */
-function switchBotName(name: string) {
-    userConfig.botName = name;
-    fs.writeFileSync('user-config.json', JSON.stringify(userConfig), 'utf8');
-}
+// /** Switches the bot's personality sent at the beggining of the prompt for OpenAI's completion.
+//  * @param {string} personality - The bot's new personality.
+// */
+// function switchPersonality(personality: string) {
+//     userConfig.personality = personality;
+//     fs.writeFileSync('user-config.json', JSON.stringify(userConfig), 'utf8');
+// }
 
 /** Switches bot's language for pre-generated messages
- * @param {'en' | 'pt' | string} language - The language the bot will now speak.
+ * @param {'en' | de' | string} language - The language the bot will now speak.
  */
-function switchLanguage(language: 'en' | 'pt' | string) {
+function switchLanguage(language: 'en' | 'de' | string) {
     userConfig.language = language;
     fs.writeFileSync('user-config.json', JSON.stringify(userConfig), 'utf8');
 }
@@ -152,11 +144,12 @@ const MODEL_PRICES: {
 
 let lastMessage = '';
 
-let userConfig: { personality: string, botName: string, language: string } ;
+let userConfig: { chatId: string, personality: string, botName: string, language: string } ;
 if (fs.existsSync('./user-config.json')) {
     userConfig = JSON.parse(fs.readFileSync('./user-config.json').toString());
 } else {
     userConfig = {
+        chatId: '',
         personality: '',
         botName: '',
         language: ''
@@ -164,10 +157,9 @@ if (fs.existsSync('./user-config.json')) {
 }
 
 const TRANSLATIONS: {
-    [key: 'en' | 'pt' | string]: {
+    [key: 'en' | 'de' | string]: {
         general: {
-            'personality-switch': string,
-            'name-switch': string,
+            //'personality-switch': string,
             'default-start': string,
             'default-personality': string,
             'memory-reset': string,
@@ -175,8 +167,7 @@ const TRANSLATIONS: {
             'start-message': string
         },
         'command-descriptions': {
-            personality: string,
-            name: string,
+            //personality: string,
             reset: string,
             imagine: string,
             language: string,
@@ -197,16 +188,11 @@ bot.setMyCommands([
         description: TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
             'command-descriptions'].start
     },
-    {
-        command: 'personality',
-        description: TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
-            'command-descriptions'].personality
-    },
-    {
-        command: 'name',
-        description: TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
-            'command-descriptions'].name
-    },
+    // {
+    //     command: 'personality',
+    //     description: TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
+    //         'command-descriptions'].personality
+    // },
     {
         command: 'imagine',
         description: TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
@@ -233,7 +219,7 @@ bot.on('message', async (msg) => {
     if (msg.text && (msg.chat.type == 'private' || msg.text?.includes(`@${botUsername}`))) {
         const text = msg.text?.replace('@' + botUsername + ' ', '')
             .replace('@' + botUsername, '').replace('#', '\\#');
-        const username = msg.from?.username || 'user';
+        const username = msg.from?.username || msg.chat.id.toString();
 
         const suffix = formatVariables(PARAMETERS.INPUT_SUFFIX, { username });
         const promptStart = formatVariables(PARAMETERS.PROMPT_START, { username });
@@ -343,27 +329,17 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/ , async (msg, match) => {
             { reply_to_message_id: msg.message_id }
         );
         break;
-    case '/personality':
-        switchPersonality(input);
-        await bot.sendMessage(
-            msg.chat.id,
-            formatVariables(
-                TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE]
-                    .general['personality-switch']
-            ),
-            { reply_to_message_id: msg.message_id }
-        );
-        break;
-    case '/name':
-        switchBotName(input);
-        await bot.sendMessage(
-            msg.chat.id,
-            formatVariables(
-                TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general['name-switch']
-            ),
-            { reply_to_message_id: msg.message_id }
-        );
-        break;
+    // case '/personality':
+    //     switchPersonality(input);
+    //     await bot.sendMessage(
+    //         msg.chat.id,
+    //         formatVariables(
+    //             TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE]
+    //                 .general['personality-switch']
+    //         ),
+    //         { reply_to_message_id: msg.message_id }
+    //     );
+    //     break;
     case '/reset':
         resetBotMemory();
         await bot.sendMessage(
