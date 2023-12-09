@@ -55,7 +55,7 @@ function buildLastMessage(lastUser: string, lastInput: string, lastAnswer: strin
 function formatVariables(input: string, optionalParameters?: {
     username?: string, command?: string
 }): string {
-    return input.replace('$personality', userConfig.personality || PARAMETERS.PERSONALITY)
+    return input.replace('$personality', PARAMETERS.PERSONALITY)
         .replace('$name', userConfig.botName || PARAMETERS.BOT_NAME)
         .replace('$username', optionalParameters?.username || 'user' )
         .replace('$command', optionalParameters?.command || 'command');
@@ -71,21 +71,15 @@ function removeCommandNameFromCommand(input: string): string {
     return ar.join(' ');
 }
 
-// /** Switches the bot's personality sent at the beggining of the prompt for OpenAI's completion.
-//  * @param {string} personality - The bot's new personality.
-// */
-// function switchPersonality(personality: string) {
-//     userConfig.personality = personality;
-//     fs.writeFileSync('user-config.json', JSON.stringify(userConfig), 'utf8');
-// }
-
-/** Switches bot's language for pre-generated messages
- * @param {'en' | de' | string} language - The language the bot will now speak.
+/**
+ * Switches bot's language for a specific user.
+ * @param {'en' | 'de' | string} language - The language the bot will now speak.
  */
 function switchLanguage(language: 'en' | 'de' | string) {
     userConfig.language = language;
     fs.writeFileSync('user-config.json', JSON.stringify(userConfig), 'utf8');
 }
+
 
 /** Resets the bot's memory about previous messages. */
 function resetBotMemory() {
@@ -144,13 +138,12 @@ const MODEL_PRICES: {
 
 let lastMessage = '';
 
-let userConfig: { chatId: string, personality: string, botName: string, language: string } ;
+let userConfig: { chatId: string, botName: string, language: string } ;
 if (fs.existsSync('./user-config.json')) {
     userConfig = JSON.parse(fs.readFileSync('./user-config.json').toString());
 } else {
     userConfig = {
         chatId: '',
-        personality: '',
         botName: '',
         language: ''
     };
@@ -220,6 +213,12 @@ bot.on('message', async (msg) => {
         const text = msg.text?.replace('@' + botUsername + ' ', '')
             .replace('@' + botUsername, '').replace('#', '\\#');
         const username = msg.from?.username || msg.chat.id.toString();
+        const chatId = msg.chat.id.toString();
+        
+        if (userConfig.chatId != chatId) {
+            userConfig.chatId = chatId;
+            fs.writeFileSync('user-config.json', JSON.stringify(userConfig), 'utf8');
+        }
 
         const suffix = formatVariables(PARAMETERS.INPUT_SUFFIX, { username });
         const promptStart = formatVariables(PARAMETERS.PROMPT_START, { username });
@@ -291,6 +290,8 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/ , async (msg, match) => {
 
     let command: string | undefined;
 
+
+
     if (match.input.split(' ').length != 1) {
         command = match.input.split(' ').shift();
     } else {
@@ -350,7 +351,11 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/ , async (msg, match) => {
         break;
     case '/language':
         if (Object.keys(TRANSLATIONS).includes(input)) {
-            switchLanguage(input);
+            // const chatId = msg.chat.id.toString();
+            const language = input as 'en' | 'de' | string;
+        
+            switchLanguage(language);
+        
             await bot.sendMessage(
                 msg.chat.id,
                 TRANSLATIONS[input].general['language-switch'],
@@ -358,6 +363,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/ , async (msg, match) => {
             );
             break;
         }
+        
 
         await bot.sendMessage(
             msg.chat.id,
