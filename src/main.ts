@@ -19,7 +19,7 @@ if (!process.env.TELEGRAM_BOT_API_KEY) {
  * console.log('Two seconds have passed.');
  */
 function sleep(time: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, time));
+    return new Promise((resolve) => setTimeout(resolve, time));
 }
 
 // /** Escapes a string for it to be used in a markdown message.
@@ -41,8 +41,14 @@ function sleep(time: number): Promise<void> {
  * @param {string} lastAnswer - The AI's completion.
  * @returns {string} The formatted message.
  */
-function buildLastMessage(lastUser: string, lastInput: string, lastAnswer: string): string {
-    return formatVariables(`${lastUser}: ###${lastInput}###\n$name: ###${lastAnswer}###\n`);
+function buildLastMessage(
+    lastUser: string,
+    lastInput: string,
+    lastAnswer: string
+): string {
+    return formatVariables(
+        `${lastUser}: ###${lastInput}###\n$name: ###${lastAnswer}###\n`
+    );
 }
 
 /** Replace `$placeholders` for the actual values of the variables.
@@ -52,19 +58,24 @@ function buildLastMessage(lastUser: string, lastInput: string, lastAnswer: strin
  * The `username` or the `command` variables.
  * @returns {string} The formatted string.
  */
-function formatVariables(input: string, optionalParameters?: {
-    username?: string, command?: string
-}): string {
-    return input.replace('$personality', PARAMETERS.PERSONALITY)
-        .replace('$name', userConfig.botName || PARAMETERS.BOT_NAME)
-        .replace('$username', optionalParameters?.username || 'user' )
+function formatVariables(
+    input: string,
+    optionalParameters?: {
+    username?: string;
+    command?: string;
+  }
+): string {
+    return input
+        .replace('$personality', PARAMETERS.PERSONALITY)
+        .replace('$name', PARAMETERS.BOT_NAME)
+        .replace('$username', optionalParameters?.username || 'user')
         .replace('$command', optionalParameters?.command || 'command');
 }
 
 /** Removes the name of the command from the command's message.
  * @param {string} input - The raw message.
  * @returns {string} The message without the `/command`.
-*/
+ */
 function removeCommandNameFromCommand(input: string): string {
     const ar = input.split(' ');
     ar.shift();
@@ -80,7 +91,6 @@ function switchLanguage(language: 'en' | 'de' | string) {
     fs.writeFileSync('user-config.json', JSON.stringify(userConfig), 'utf8');
 }
 
-
 /** Resets the bot's memory about previous messages. */
 function resetBotMemory() {
     lastMessage = '';
@@ -89,15 +99,18 @@ function resetBotMemory() {
 /** Generates a picture using DALL·E 2.
  * @param {string} input - The prompt for the picture.
  * @returns {Promise<string>} The URL of the generated image.
-*/
+ */
 async function generatePicture(input: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        openai.createImage({
-            prompt: input,
-            response_format: 'url'
-        }).then(data => {
-            resolve(data.data.data[0].url || '');
-        }).catch((e) => reject(e));
+        openai
+            .createImage({
+                prompt: input,
+                response_format: 'url',
+            })
+            .then((data) => {
+                resolve(data.data.data[0].url || '');
+            })
+            .catch((e) => reject(e));
     });
 }
 
@@ -105,7 +118,9 @@ const token = process.env.TELEGRAM_BOT_API_KEY;
 const bot = new TelegramBot(token, { polling: true });
 const botUsername = (await bot.getMe()).username;
 
-const openai = new OpenAIApi(new Configuration({ apiKey: process.env.OPENAI_API_KEY }));
+const openai = new OpenAIApi(
+    new Configuration({ apiKey: process.env.OPENAI_API_KEY })
+);
 
 const PARAMETERS = {
     PROMPT_START: process.env.PROMPT_START || 'Conversation with $personality.',
@@ -113,103 +128,138 @@ const PARAMETERS = {
     BOT_NAME: process.env.BOT_NAME || 'openAI',
     INPUT_SUFFIX: process.env.INPUT_SUFFIX || '$username',
     MODEL: process.env.MODEL || 'text-davinci-003',
-    MAX_TOKENS: Number.parseFloat(process.env.MAX_TOKENS || '300'),
+    MAX_TOKENS: Number.parseFloat(process.env.MAX_TOKENS || '3000'),
     TEMPERATURE: Number.parseFloat(process.env.TEMPERATURE || '0.5'),
-    PRESENCE_PENALTY: process.env.PRESENCE_PENALTY ?
-        Number.parseFloat(process.env.PRESENCE_PENALTY) : undefined,
+    PRESENCE_PENALTY: process.env.PRESENCE_PENALTY
+        ? Number.parseFloat(process.env.PRESENCE_PENALTY)
+        : undefined,
     FREQUENCY_PENALTY: Number.parseFloat(process.env.FREQUENCY_PENALTY || '1'),
-    CONTINUOUS_CONVERSATION: process.env.CONTINUOUS_CONVERSATION ?
-        JSON.parse(process.env.CONTINUOUS_CONVERSATION) as boolean : true,
-    LANGUAGE: process.env.LANGUAGE || 'en'
+    CONTINUOUS_CONVERSATION: process.env.CONTINUOUS_CONVERSATION
+        ? (JSON.parse(process.env.CONTINUOUS_CONVERSATION) as boolean)
+        : true,
+    LANGUAGE: process.env.LANGUAGE || 'en',
 };
 
 const MODEL_PRICES: {
-    [key:
-        'text-davinci-003' | 'text-curie-001' |
-        'text-babbage-001' | 'text-ada-001' |
-        'code-davinci-002' | 'code-cushman-001' | string
-    ]: number
+  [
+    key:
+      | 'text-davinci-003'
+      | 'text-curie-001'
+      | 'text-babbage-001'
+      | 'text-ada-001'
+      | 'code-davinci-002'
+      | 'code-cushman-001'
+      | string
+  ]: number;
 } = {
-    'text-davinci-003': .00002,
-    'text-curie-001': .000002,
-    'text-babbage-001': .0000005,
+    'text-davinci-003': 0.00002,
+    'text-curie-001': 0.000002,
+    'text-babbage-001': 0.0000005,
     'text-ada-001': 0.0000004,
 };
 
 let lastMessage = '';
 
-let userConfig: { chatId: string, botName: string, language: string } ;
+let userConfig: { chatId: string;  language: string };
 if (fs.existsSync('./user-config.json')) {
     userConfig = JSON.parse(fs.readFileSync('./user-config.json').toString());
 } else {
     userConfig = {
         chatId: '',
-        botName: '',
-        language: ''
+        language: '',
     };
 }
 
 const TRANSLATIONS: {
-    [key: 'en' | 'de' | string]: {
-        general: {
-            //'personality-switch': string,
-            'default-start': string,
-            'default-personality': string,
-            'memory-reset': string,
-            'language-switch': string,
-            'start-message': string
-        },
-        'command-descriptions': {
-            //personality: string,
-            reset: string,
-            imagine: string,
-            language: string,
-            start: string
-        }
-        errors: {
-            'generic-error': string,
-            'image-safety': string,
-            'no-parameter-command': string,
-            'invalid-language': string
-        }
-    }
+  [key: 'en' | 'de' | string]: {
+    general: {
+      'default-start': string;
+      'default-personality': string;
+      'memory-reset': string;
+      'language-switch': string;
+      'start-message': string;
+      'donate': string;
+    };
+    'command-descriptions': {
+      reset: string;
+      imagine: string;
+      language: string;
+      start: string;
+      donate: string;
+    };
+    errors: {
+      'generic-error': string;
+      'image-safety': string;
+      'no-parameter-command': string;
+      'invalid-language': string;
+    };
+  };
 } = JSON.parse(fs.readFileSync('./translations.json').toString());
 
 bot.setMyCommands([
     {
         command: 'start',
-        description: TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
-            'command-descriptions'].start
+        description:
+      TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
+          'command-descriptions'
+      ].start,
     },
     {
         command: 'imagine',
-        description: TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
-            'command-descriptions'].imagine
+        description:
+      TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
+          'command-descriptions'
+      ].imagine,
     },
     {
         command: 'reset',
-        description: TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
-            'command-descriptions'].reset
+        description:
+      TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
+          'command-descriptions'
+      ].reset,
     },
     {
         command: 'language',
+        description:
+      TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
+          'command-descriptions'
+      ].language,
+    },
+    {
+        command: 'donate',
         description: TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
-            'command-descriptions'].language
+            'command-descriptions' 
+        ].donate,
     },
 ]);
 
 // Messages for conversations.
 bot.on('message', async (msg) => {
-    for (const command of (await bot.getMyCommands())) {
+    for (const command of await bot.getMyCommands()) {
+        if (msg.text === '/donate') {
+            await bot.sendMessage(
+                msg.chat.id,
+                TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general[
+                    'donate'
+                ],
+            );
+            return;
+            
+        } 
         if (msg.text?.startsWith('/' + command.command)) return;
     }
 
-    if (msg.text && (msg.chat.type == 'private' || msg.text?.includes(`@${botUsername}`))) {
-        const text = msg.text?.replace('@' + botUsername + ' ', '')
-            .replace('@' + botUsername, '').replace('#', '\\#');
+    if (
+        msg.text &&
+    (msg.chat.type == 'private' || msg.text?.includes(`@${botUsername}`))
+    ) {
+        const text = msg.text
+            ?.replace('@' + botUsername + ' ', '')
+            .replace('@' + botUsername, '')
+            .replace('#', '\\#');
         const username = msg.from?.username || msg.chat.id.toString();
         const chatId = msg.chat.id.toString();
-        
+
         if (userConfig.chatId != chatId) {
             userConfig.chatId = chatId;
             fs.writeFileSync('user-config.json', JSON.stringify(userConfig), 'utf8');
@@ -217,9 +267,19 @@ bot.on('message', async (msg) => {
 
         const suffix = formatVariables(PARAMETERS.INPUT_SUFFIX, { username });
         const promptStart = formatVariables(PARAMETERS.PROMPT_START, { username });
-        const botName = formatVariables(userConfig.botName || PARAMETERS.BOT_NAME, { username });
-        const prompt = promptStart + '\n\n' + (lastMessage ? lastMessage : '') +
-            suffix + ': ###' + text + '###\n' + botName + ': ###';
+        const botName = formatVariables(PARAMETERS.BOT_NAME, {
+            username,
+        });
+        const prompt =
+      promptStart +
+      '\n\n' +
+      (lastMessage ? lastMessage : '') +
+      suffix +
+      ': ###' +
+      text +
+      '###\n' +
+      botName +
+      ': ###';
 
         let response: string;
         try {
@@ -232,7 +292,7 @@ bot.on('message', async (msg) => {
                 }
             })();
 
-            const ai = (await openai.createCompletion({
+            const ai = await openai.createCompletion({
                 prompt,
                 model: PARAMETERS.MODEL,
                 temperature: PARAMETERS.TEMPERATURE,
@@ -240,7 +300,7 @@ bot.on('message', async (msg) => {
                 frequency_penalty: PARAMETERS.FREQUENCY_PENALTY,
                 presence_penalty: PARAMETERS.PRESENCE_PENALTY,
                 stop: ['###'],
-            }));
+            });
             done = true;
 
             const price = MODEL_PRICES[PARAMETERS.MODEL] || 0;
@@ -250,7 +310,7 @@ bot.on('message', async (msg) => {
             console.log(`\n${suffix}: "${text}"\n${botName}: "${response}"`);
             console.log(
                 `[usage: ${ai.data.usage?.total_tokens || -1} tokens ` +
-                `($${(ai.data.usage?.total_tokens || 0) * price})]`
+          `($${(ai.data.usage?.total_tokens || 0) * price})]`
             );
 
             if (PARAMETERS.CONTINUOUS_CONVERSATION) {
@@ -259,8 +319,9 @@ bot.on('message', async (msg) => {
                     'history.jsonl',
                     JSON.stringify({
                         prompt: `${suffix}: ###${text}###\n${botName}: ###`,
-                        completion: response
-                    }) + '\n');
+                        completion: response,
+                    }) + '\n'
+                );
             } else {
                 lastMessage = buildLastMessage(suffix, text, response);
             }
@@ -271,7 +332,9 @@ bot.on('message', async (msg) => {
         } catch (e) {
             await bot.sendMessage(
                 msg.chat.id,
-                TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].errors['generic-error'],
+                TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].errors[
+                    'generic-error'
+                ],
                 { reply_to_message_id: msg.message_id }
             );
             console.error(e);
@@ -280,7 +343,7 @@ bot.on('message', async (msg) => {
     }
 });
 
-bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/ , async (msg, match) => {
+bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
     if (!match) return;
 
     let command: string | undefined;
@@ -289,18 +352,21 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/ , async (msg, match) => {
         command = match.input.split(' ').shift();
     } else {
         command = match.input;
-        if (!(command.startsWith('/reset') || command.startsWith('/start'))) {
+        if (!(command.startsWith('/reset') || 
+            command.startsWith('/start') || 
+            command.startsWith('/donate'))) {
             await bot.sendMessage(
                 msg.chat.id,
                 formatVariables(
-                    TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE]
-                        .errors['no-parameter-command'],
+                    TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].errors[
+                        'no-parameter-command'
+                    ],
                     { command }
                 ),
                 { reply_to_message_id: msg.message_id }
             );
             return;
-        }
+        } 
     }
 
     if (command?.endsWith('@' + botUsername)) {
@@ -317,8 +383,9 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/ , async (msg, match) => {
         await bot.sendMessage(
             msg.chat.id,
             formatVariables(
-                TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE]
-                    .general['start-message']
+                TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general[
+                    'start-message'
+                ]
             ),
             { reply_to_message_id: msg.message_id }
         );
@@ -327,17 +394,19 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/ , async (msg, match) => {
         resetBotMemory();
         await bot.sendMessage(
             msg.chat.id,
-            TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general['memory-reset'],
+            TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general[
+                'memory-reset'
+            ],
             { reply_to_message_id: msg.message_id }
         );
         break;
     case '/language':
         if (Object.keys(TRANSLATIONS).includes(input)) {
-            // const chatId = msg.chat.id.toString();
+        // const chatId = msg.chat.id.toString();
             const language = input as 'en' | 'de' | string;
-        
+
             switchLanguage(language);
-        
+
             await bot.sendMessage(
                 msg.chat.id,
                 TRANSLATIONS[input].general['language-switch'],
@@ -347,8 +416,9 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/ , async (msg, match) => {
         }
         await bot.sendMessage(
             msg.chat.id,
-            TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE]
-                .errors['invalid-language'].replace('$language', input),
+            TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].errors[
+                'invalid-language'
+            ].replace('$language', input),
             { reply_to_message_id: msg.message_id }
         );
         break;
@@ -362,13 +432,17 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/ , async (msg, match) => {
 
         try {
             const imageUrl = await generatePicture(input);
-            await bot.sendPhoto(msg.chat.id, imageUrl, { reply_to_message_id: msg.message_id });
+            await bot.sendPhoto(msg.chat.id, imageUrl, {
+                reply_to_message_id: msg.message_id,
+            });
             done = true;
         } catch (e) {
             await bot.sendMessage(
                 msg.chat.id,
-                TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].errors['image-safety'],
-                { reply_to_message_id: msg.message_id}
+                TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].errors[
+                    'image-safety'
+                ],
+                { reply_to_message_id: msg.message_id }
             );
             done = true;
         }

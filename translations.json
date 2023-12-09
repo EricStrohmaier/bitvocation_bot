@@ -6,14 +6,16 @@
             "default-start": "Conversation with $personality.",
             "default-personality": "an AI",
             "memory-reset": "I just forgot everything.",
-            "language-switch": "Language is now english."
+            "language-switch": "Language is now english.",
+            "donate": "If you like this bot, you can support us here: 'comming soon!!"
         },
         "command-descriptions": {
             "name": "Sets the AI's name.",
             "reset": "Make the AI forget the past messages.",
             "imagine": "Generate a 512x512 image.",
             "language": "Changes the bot's language.",
-            "start": "Starts the conversation."
+            "start": "Starts the conversation.",
+            "donate": "Support the bot's creator."
         },
         "errors": {
             "generic-error": "An error occured :(",
@@ -29,14 +31,16 @@
             "default-start": "Unterhaltung mit $personality.",
             "default-personality": "eine KI",
             "memory-reset": "Ich habe gerade alles vergessen.",
-            "language-switch": "Die Sprache ist jetzt Deutsch."
+            "language-switch": "Die Sprache ist jetzt Deutsch.",
+            "donate": "Wenn Ihnen dieser Bot gefällt, können Sie uns unterstützen unter: 'comming soon!!"
         },
         "command-descriptions": {
             "name": "Legt den Namen der KI fest.",
             "reset": "Lässt die KI die vergangenen Nachrichten vergessen.",
             "imagine": "Generiert ein Bild mit einer Auflösung von 512x512.",
             "language": "Ändert die Sprache des Bots.",
-            "start": "Startet die Unterhaltung."
+            "start": "Startet die Unterhaltung.",
+            "donate": "Unterstützt die Ersteller des Bots."
         },
         "errors": {
             "generic-error": "Ein Fehler ist aufgetreten :(",

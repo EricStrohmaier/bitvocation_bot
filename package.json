@@ -13,8 +13,10 @@
   "license": "MIT",
   "dependencies": {
     "dotenv": "^16.0.3",
+    "lnurl": "^0.25.1",
     "node-telegram-bot-api": "^0.61.0",
     "openai": "^3.1.0",
+    "qrcode": "^1.5.3",
     "tsx": "^3.12.2"
   },
   "devDependencies": {
