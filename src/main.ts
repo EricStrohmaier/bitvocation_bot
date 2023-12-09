@@ -181,11 +181,6 @@ bot.setMyCommands([
         description: TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
             'command-descriptions'].start
     },
-    // {
-    //     command: 'personality',
-    //     description: TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
-    //         'command-descriptions'].personality
-    // },
     {
         command: 'imagine',
         description: TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
@@ -290,8 +285,6 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/ , async (msg, match) => {
 
     let command: string | undefined;
 
-
-
     if (match.input.split(' ').length != 1) {
         command = match.input.split(' ').shift();
     } else {
@@ -330,17 +323,6 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/ , async (msg, match) => {
             { reply_to_message_id: msg.message_id }
         );
         break;
-    // case '/personality':
-    //     switchPersonality(input);
-    //     await bot.sendMessage(
-    //         msg.chat.id,
-    //         formatVariables(
-    //             TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE]
-    //                 .general['personality-switch']
-    //         ),
-    //         { reply_to_message_id: msg.message_id }
-    //     );
-    //     break;
     case '/reset':
         resetBotMemory();
         await bot.sendMessage(
@@ -363,8 +345,6 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/ , async (msg, match) => {
             );
             break;
         }
-        
-
         await bot.sendMessage(
             msg.chat.id,
             TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE]
