@@ -4,6 +4,11 @@ dotenv.config();
 import TelegramBot from 'node-telegram-bot-api';
 import fs from 'fs';
 import { Configuration, OpenAIApi } from 'openai';
+import { generatePicture, removeCommandNameFromCommand,
+    resetBotMemory, sleep, switchLanguage } from './functions';
+import { PARAMETERS } from './parameters';
+import { MODEL_PRICES } from './model-price';
+import { TRANSLATIONS } from './translation';
 
 if (!process.env.TELEGRAM_BOT_API_KEY) {
     console.error('Please provide your bot\'s API key on the .env file.');
@@ -12,27 +17,6 @@ if (!process.env.TELEGRAM_BOT_API_KEY) {
     console.error('Please provide your openAI API key on the .env file.');
     process.exit();
 }
-
-/** A simple async sleep function.
- * @example
- * await sleep(2000);
- * console.log('Two seconds have passed.');
- */
-function sleep(time: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, time));
-}
-
-// /** Escapes a string for it to be used in a markdown message.
-//  * @param {string} input - The input message.
-//  * @returns {string} The escaped message.
-//  */
-// function escapeForMarkdown(input: string): string {
-//     return input.replace('_', '\\_')
-//         .replace('*', '\\*')
-//         .replace('[', '\\[')
-//         .replace('`', '\\`')
-//         .replace('.', '\\.');
-// }
 
 /** Formats the data about a message to be used later as a history for the AI in case
  * CONTINUOUS_CONVERSATION is `true`.
@@ -66,52 +50,8 @@ function formatVariables(
   }
 ): string {
     return input
-        .replace('$personality', PARAMETERS.PERSONALITY)
-        .replace('$name', PARAMETERS.BOT_NAME)
         .replace('$username', optionalParameters?.username || 'user')
         .replace('$command', optionalParameters?.command || 'command');
-}
-
-/** Removes the name of the command from the command's message.
- * @param {string} input - The raw message.
- * @returns {string} The message without the `/command`.
- */
-function removeCommandNameFromCommand(input: string): string {
-    const ar = input.split(' ');
-    ar.shift();
-    return ar.join(' ');
-}
-
-/**
- * Switches bot's language for a specific user.
- * @param {'en' | 'de' | string} language - The language the bot will now speak.
- */
-function switchLanguage(language: 'en' | 'de' | string) {
-    userConfig.language = language;
-    fs.writeFileSync('user-config.json', JSON.stringify(userConfig), 'utf8');
-}
-
-/** Resets the bot's memory about previous messages. */
-function resetBotMemory() {
-    lastMessage = '';
-}
-
-/** Generates a picture using DALL·E 2.
- * @param {string} input - The prompt for the picture.
- * @returns {Promise<string>} The URL of the generated image.
- */
-async function generatePicture(input: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-        openai
-            .createImage({
-                prompt: input,
-                response_format: 'url',
-            })
-            .then((data) => {
-                resolve(data.data.data[0].url || '');
-            })
-            .catch((e) => reject(e));
-    });
 }
 
 const token = process.env.TELEGRAM_BOT_API_KEY;
@@ -122,45 +62,9 @@ const openai = new OpenAIApi(
     new Configuration({ apiKey: process.env.OPENAI_API_KEY })
 );
 
-const PARAMETERS = {
-    PROMPT_START: process.env.PROMPT_START || 'Conversation with $personality.',
-    PERSONALITY: process.env.PERSONALITY || 'an AI',
-    BOT_NAME: process.env.BOT_NAME || 'openAI',
-    INPUT_SUFFIX: process.env.INPUT_SUFFIX || '$username',
-    MODEL: process.env.MODEL || 'text-davinci-003',
-    MAX_TOKENS: Number.parseFloat(process.env.MAX_TOKENS || '3000'),
-    TEMPERATURE: Number.parseFloat(process.env.TEMPERATURE || '0.5'),
-    PRESENCE_PENALTY: process.env.PRESENCE_PENALTY
-        ? Number.parseFloat(process.env.PRESENCE_PENALTY)
-        : undefined,
-    FREQUENCY_PENALTY: Number.parseFloat(process.env.FREQUENCY_PENALTY || '1'),
-    CONTINUOUS_CONVERSATION: process.env.CONTINUOUS_CONVERSATION
-        ? (JSON.parse(process.env.CONTINUOUS_CONVERSATION) as boolean)
-        : true,
-    LANGUAGE: process.env.LANGUAGE || 'en',
-};
-
-const MODEL_PRICES: {
-  [
-    key:
-      | 'text-davinci-003'
-      | 'text-curie-001'
-      | 'text-babbage-001'
-      | 'text-ada-001'
-      | 'code-davinci-002'
-      | 'code-cushman-001'
-      | string
-  ]: number;
-} = {
-    'text-davinci-003': 0.00002,
-    'text-curie-001': 0.000002,
-    'text-babbage-001': 0.0000005,
-    'text-ada-001': 0.0000004,
-};
-
 let lastMessage = '';
 
-let userConfig: { chatId: string;  language: string };
+export let userConfig: { chatId: string;  language: string };
 if (fs.existsSync('./user-config.json')) {
     userConfig = JSON.parse(fs.readFileSync('./user-config.json').toString());
 } else {
@@ -170,82 +74,9 @@ if (fs.existsSync('./user-config.json')) {
     };
 }
 
-const TRANSLATIONS: {
-  [key: 'en' | 'de' | string]: {
-    general: {
-      'default-start': string;
-      'default-personality': string;
-      'memory-reset': string;
-      'language-switch': string;
-      'start-message': string;
-      'donate': string;
-    };
-    'command-descriptions': {
-      reset: string;
-      imagine: string;
-      language: string;
-      start: string;
-      donate: string;
-    };
-    errors: {
-      'generic-error': string;
-      'image-safety': string;
-      'no-parameter-command': string;
-      'invalid-language': string;
-    };
-  };
-} = JSON.parse(fs.readFileSync('./translations.json').toString());
-
-bot.setMyCommands([
-    {
-        command: 'start',
-        description:
-      TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
-          'command-descriptions'
-      ].start,
-    },
-    {
-        command: 'imagine',
-        description:
-      TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
-          'command-descriptions'
-      ].imagine,
-    },
-    {
-        command: 'reset',
-        description:
-      TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
-          'command-descriptions'
-      ].reset,
-    },
-    {
-        command: 'language',
-        description:
-      TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
-          'command-descriptions'
-      ].language,
-    },
-    {
-        command: 'donate',
-        description: TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
-            'command-descriptions' 
-        ].donate,
-    },
-]);
-
 // Messages for conversations.
 bot.on('message', async (msg) => {
     for (const command of await bot.getMyCommands()) {
-        if (msg.text === '/donate') {
-            await bot.sendMessage(
-                msg.chat.id,
-                TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general[
-                    'donate'
-                ],
-            );
-            return;
-            
-        } 
         if (msg.text?.startsWith('/' + command.command)) return;
     }
 
@@ -398,6 +229,14 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                 'memory-reset'
             ],
             { reply_to_message_id: msg.message_id }
+        );
+        break;
+    case '/donate':
+        await bot.sendMessage(
+            msg.chat.id,
+            TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general[
+                'donate'
+            ],
         );
         break;
     case '/language':
