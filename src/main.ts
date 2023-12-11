@@ -17,6 +17,7 @@ import { PARAMETERS } from './parameters';
 import { MODEL_PRICES } from './model-price';
 import { TRANSLATIONS } from './translation';
 import axios from 'axios';
+import { setBotCommands } from './setBotCommands';
 
 if (!process.env.TELEGRAM_BOT_API_KEY) {
     console.error('Please provide your bot\'s API key on the .env file.');
@@ -44,6 +45,9 @@ if (fs.existsSync('./user-config.json')) {
         language: '',
     };
 }
+
+setBotCommands(bot);
+
 // Messages for conversations.
 bot.on('message', async (msg) => {
     for (const command of await bot.getMyCommands()) {
@@ -156,7 +160,9 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
         if (!(command.startsWith('/reset') || 
             command.startsWith('/start') || 
             command.startsWith('/donate') ||
-            command.startsWith('/language'))) {
+            command.startsWith('/language') ||
+            command.startsWith('/latestjobs') ||
+            command.startsWith('/checkprice'))) {
             await bot.sendMessage(
                 msg.chat.id,
                 formatVariables(
@@ -211,7 +217,6 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
         );
         break;
     case '/language':
-        // if (msg.chat.id.toString() == userConfig.chatId) {
         if (msg.chat.id) {
             const chatId = msg.chat.id.toString();
             const keyboard = {
@@ -263,6 +268,49 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
             done = true;
         }
         break;
+    case '/latestjobs':
+        if (msg.chat.id) {
+
+            const chatId = msg.chat.id.toString();
+            const keyboard = {
+                reply_markup: {
+                    inline_keyboard: [
+                        [
+                            { text: 'Lates jobs from last week', callback_data: 'last-week' },
+                            { text: 'Query for keywords', callback_data: 'query-keyword' },
+                        // Add more language options as needed
+                        ]
+                    ]
+                }
+            };
+            await bot.sendMessage(chatId,'en', keyboard);
+        }
+        break;
+    case '/checkprice':
+        try {
+            const response = await axios.get('https://api.coindesk.com/v1/bpi/currentprice.json');
+            const price = response.data.bpi.USD.rate_float;
+            const formattedPrice = price.toLocaleString('en-US', 
+                { style: 'currency', 
+                    currency: 'USD', 
+                    minimumFractionDigits: 0, 
+                    maximumFractionDigits: 0 
+                });
+
+            await bot.sendMessage(
+                msg.chat.id,
+                `The current price of Bitcoin is USD ${formattedPrice}`,
+            );
+            break;
+        } catch (e) {
+            console.error(e);
+            await bot.sendMessage(
+                msg.chat.id,
+                'An error occurred. Please try again later.',
+                { reply_to_message_id: msg.message_id }
+            );
+        }
+        break;
     default:
         break;
     }
@@ -272,13 +320,12 @@ bot.on('callback_query', async (callbackQuery) => {
     if (callbackQuery.message) {
         const chatId = callbackQuery.message.chat.id;
         const selectedLanguage = callbackQuery.data as 'en' | 'de' | string;
-        console.log(`User ${chatId} selected language callback ${selectedLanguage}`);
+        console.log(`callback ${callbackQuery.message}`);
         switchLanguage(selectedLanguage);
 
         await bot.sendMessage(
             chatId,
             TRANSLATIONS[selectedLanguage].general['language-switch'],
-            { reply_to_message_id: callbackQuery.message.message_id }
         );
     }
 });
