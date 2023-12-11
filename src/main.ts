@@ -74,7 +74,7 @@ bot.on('message', async (msg) => {
       '###\n' +
       botName +
       ': ###' +
-      'in language ' + language + '###\n';
+      'reply in language ' + language + '###\n';
 
         let response: string;
         try {
@@ -289,4 +289,21 @@ process.on('SIGTERM', () => {
     console.log('\nExiting...');
     bot.stopPolling();
     process.exit(0);
+});
+//on error restart bot
+bot.on('polling_error', (error) => {
+    console.log('BOT: polling_error',error);  // => 'EFATAL'
+    bot.stopPolling();
+    setTimeout(() => {
+        bot.startPolling();
+    }
+    , 5000);
+});
+process.on('uncaughtException', function (err) {
+    console.log('SYSTEM: uncaughtExpection',err);
+    bot.stopPolling();
+    setTimeout(() => {
+        bot.startPolling();
+    }
+    , 5000);
 });
