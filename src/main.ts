@@ -4,11 +4,19 @@ dotenv.config();
 import TelegramBot from 'node-telegram-bot-api';
 import fs from 'fs';
 import { Configuration, OpenAIApi } from 'openai';
+import { createWorker } from 'tesseract.js';
+
+import https from 'https';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+import base64Img from 'base64-img';
+
 import { buildLastMessage, formatVariables, generatePicture, removeCommandNameFromCommand,
     resetBotMemory, sleep, switchLanguage } from './functions';
 import { PARAMETERS } from './parameters';
 import { MODEL_PRICES } from './model-price';
 import { TRANSLATIONS } from './translation';
+import axios from 'axios';
 
 if (!process.env.TELEGRAM_BOT_API_KEY) {
     console.error('Please provide your bot\'s API key on the .env file.');
@@ -274,7 +282,60 @@ bot.on('callback_query', async (callbackQuery) => {
         );
     }
 });
+//lets do it later first upload with url to profile.....
 
+// bot.on('photo', async (msg) => {
+//     const chatId = msg.chat.id.toString();
+//     try {
+//         const photo = msg.photo?.[0];
+//         if (!photo) return;
+//         const file_id = photo.file_id;
+//         const localFilePath = `./images/${file_id}.jpg`;
+//         const fileDetails = await 
+//         axios.get(`https://api.telegram.org/bot${token}/getFile?file_id=${file_id}`);
+//         const filePath = fileDetails.data.result.file_path;
+
+//         const fileUrl = `https://api.telegram.org/file/bot${token}/${filePath}`;
+
+//         // Download the file
+//         const response = await axios({
+//             url: fileUrl,
+//             method: 'GET',
+//             responseType: 'stream',
+//         });
+
+//         // Save the file to local storage
+//         const writer = fs.createWriteStream(localFilePath);
+
+//         response.data.pipe(writer);
+
+//         await new Promise((resolve, reject) => {
+//             writer.on('finish', resolve);
+//             writer.on('error', reject);
+//         });
+
+
+//         // file.on('finish', async () => {
+//         //     file.close();
+
+//         //     const worker = createWorker('eng');
+
+//         //     const { data } = await (await worker).recognize(filePath, {
+//         //         // tessedit_pageseg_mode: 3, // Adjust page segmentation mode
+//         //         // tessedit_oem: 3, // Adjust OCR Engine mode
+//         //     });
+
+//         //     await (await worker).terminate();
+
+//         //     await bot.sendMessage(chatId, `Extracted text: ${data.text}`);
+//         //     console.log(data.text);
+//         // });
+//     } catch (error) {
+//         console.error('Error:', error);
+//         // Handle errors or send an error message to the user
+//         await bot.sendMessage(chatId, 'An error occurred. Please try again later.');
+//     }
+// });
 
 
 console.log('Bot Started!');
@@ -291,14 +352,6 @@ process.on('SIGTERM', () => {
     process.exit(0);
 });
 //on error restart bot
-bot.on('polling_error', (error) => {
-    console.log('BOT: polling_error',error);  // => 'EFATAL'
-    bot.stopPolling();
-    setTimeout(() => {
-        bot.startPolling();
-    }
-    , 5000);
-});
 process.on('uncaughtException', function (err) {
     console.log('SYSTEM: uncaughtExpection',err);
     bot.stopPolling();
