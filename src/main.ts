@@ -225,7 +225,6 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                         [
                             { text: 'English', callback_data: 'en' },
                             { text: 'German', callback_data: 'de' },
-                            // Add more language options as needed
                         ]
                     ]
                 }
@@ -270,7 +269,6 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
         break;
     case '/latestjobs':
         if (msg.chat.id) {
-
             const chatId = msg.chat.id.toString();
             const keyboard = {
                 reply_markup: {
@@ -278,12 +276,13 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                         [
                             { text: 'Lates jobs from last week', callback_data: 'last-week' },
                             { text: 'Query for keywords', callback_data: 'query-keyword' },
-                        // Add more language options as needed
                         ]
                     ]
                 }
             };
-            await bot.sendMessage(chatId,'en', keyboard);
+            await bot.sendMessage(chatId,
+                TRANSLATIONS[userConfig.language || 
+                PARAMETERS.LANGUAGE].general['latest-jobs'], keyboard);
         }
         break;
     case '/checkprice':
@@ -299,7 +298,9 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
 
             await bot.sendMessage(
                 msg.chat.id,
-                `The current price of Bitcoin is USD ${formattedPrice}`,
+                TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general[
+                    'btc-price'
+                ].replace('$price', formattedPrice),
             );
             break;
         } catch (e) {
@@ -317,16 +318,35 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
 });
 
 bot.on('callback_query', async (callbackQuery) => {
-    if (callbackQuery.message) {
-        const chatId = callbackQuery.message.chat.id;
-        const selectedLanguage = callbackQuery.data as 'en' | 'de' | string;
-        console.log(`callback ${callbackQuery.message}`);
+    if (!callbackQuery.message) return;
+    const chatId = callbackQuery.message.chat.id;
+    let messageText = '';
+  
+    switch (callbackQuery.data) {
+  
+    case 'en':
+    case 'de': {
+       
+        const selectedLanguage = callbackQuery.data;
         switchLanguage(selectedLanguage);
+        messageText = TRANSLATIONS[selectedLanguage].general['language-switch'];
+        break;
+    }
+    case 'last-week':
 
-        await bot.sendMessage(
-            chatId,
-            TRANSLATIONS[selectedLanguage].general['language-switch'],
-        );
+        messageText = 'Last week jobs';
+        break;
+    case 'query-keyword':
+        messageText = 'Query for keywords';
+        break;
+
+    default:
+        // Handle other cases or do nothing
+        break;
+    }
+  
+    if (messageText) {
+        await bot.sendMessage(chatId, messageText);
     }
 });
 //lets do it later first upload with url to profile.....

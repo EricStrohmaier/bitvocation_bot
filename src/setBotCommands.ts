@@ -2,11 +2,8 @@ import {  userConfig } from './main';
 import { TRANSLATIONS } from './translation';
 import { PARAMETERS } from './parameters';
 
-// const token = process.env.TELEGRAM_BOT_API_KEY;
-// const bot = new TelegramBot(token!, { polling: true });
-
-export function setBotCommands(bot: 
-    { setMyCommands: (arg0: { command: string; description: string; }[]) => void; }) {
+export function setBotCommands(
+    bot: { setMyCommands: (arg0: { command: string; description: string; }[]) => void; }) {
     bot.setMyCommands([
         {
             command: 'start',
@@ -44,15 +41,16 @@ export function setBotCommands(bot:
         },
         {
             command: 'checkprice',
-            description: 'Get the latest jobs from the job board',
+            description: TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
+                'command-descriptions' 
+            ].checkprice
 
         },
         {
             command: 'latestjobs',
-            description: 'fish',
-        // description: TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
-        //     'command-descriptions' 
-        // ],
+            description: TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
+                'command-descriptions' 
+            ].jobs,
         }
     ]);
 }

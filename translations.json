@@ -7,7 +7,9 @@
             "default-personality": "an AI",
             "memory-reset": "I just forgot everything.",
             "language-switch": "Language is now english.",
-            "donate": "If you like this bot, you can support us here: 'comming soon!!"
+            "donate": "If you like this bot, you can support us here: 'comming soon!!",
+            "btc-price":"The current price of Bitcoin is USD $price",
+            "latest-jobs":"Please choose one of the following options: "
         },
         "command-descriptions": {
             "name": "Sets the AI's name.",
@@ -15,7 +17,9 @@
             "imagine": "Generate a 512x512 image.",
             "language": "Changes the bot's language choose:",
             "start": "Starts the conversation.",
-            "donate": "Support the bot's creator."
+            "donate": "Support the bot's creator.",
+            "checkprice": "Get the current price of Bitcoin.",
+            "jobs": "Get the latest Bitcoin jobs."
         },
         "errors": {
             "generic-error": "An error occured :(",
@@ -32,7 +36,9 @@
             "default-personality": "eine KI",
             "memory-reset": "Ich habe gerade alles vergessen.",
             "language-switch": "Die Sprache ist jetzt Deutsch.",
-            "donate": "Wenn Ihnen dieser Bot gefällt, können Sie uns unterstützen unter: 'comming soon!!"
+            "donate": "Wenn Ihnen dieser Bot gefällt, können Sie uns unterstützen unter: 'comming soon!!",
+            "btc-price":"Der aktuelle Preis von Bitcoin ist USD $price",
+            "latest-jobs":"Bitte wählen Sie eine der folgenden Optionen: "
         },
         "command-descriptions": {
             "name": "Legt den Namen der KI fest.",
@@ -40,7 +46,9 @@
             "imagine": "Generiert ein Bild mit einer Auflösung von 512x512.",
             "language": "Ändere die Sprache des Bots, wählen Sie:",
             "start": "Startet die Unterhaltung.",
-            "donate": "Unterstützt die Ersteller des Bots."
+            "donate": "Unterstützt die Ersteller des Bots.",
+            "checkprice": "Gibt den aktuellen Preis von Bitcoin aus.",
+            "jobs": "Schaue dir die neuesten Bitcoin Jobs an."
         },
         "errors": {
             "generic-error": "Ein Fehler ist aufgetreten :(",

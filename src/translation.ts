@@ -9,6 +9,8 @@ export const TRANSLATIONS: {
         'language-switch': string;
         'start-message': string;
         'donate': string;
+        'btc-price': string;
+        'latest-jobs': string;
       };
       'command-descriptions': {
         reset: string;
@@ -16,6 +18,8 @@ export const TRANSLATIONS: {
         language: string;
         start: string;
         donate: string;
+        checkprice: string;
+        jobs: string;
       };
       errors: {
         'generic-error': string;
