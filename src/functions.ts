@@ -134,3 +134,35 @@ export async function getLatestJobs() {
 
     return Bitcoinerjobs;
 }
+
+export async function getKeyword(keywords: string[]) {
+
+    const { data: Bitcoinerjobs, error } = await supabase
+        .from('Bitcoinerjobs')
+        .select()
+        .order('created_at', { ascending: false });
+
+
+    if (Bitcoinerjobs && Bitcoinerjobs.length > 0) {
+        // filter out the jobs that match the keyword
+        const filteredJobs = Bitcoinerjobs.filter((job) => {
+            let isMatch = false;
+
+            keywords.forEach((keyword) => {
+                if (job.title.toLowerCase().includes(keyword.toLowerCase())) {
+                    isMatch = true;
+                }
+            });
+
+            return isMatch;
+        });
+        return filteredJobs;
+
+    } else {
+        console.log('No result found.');
+        return null;
+    }
+}
+  
+  
+  

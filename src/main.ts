@@ -6,14 +6,14 @@ import fs from 'fs';
 import { Configuration, OpenAIApi } from 'openai';
 
 import { buildLastMessage, formatVariables, 
-    generatePicture, getLatestJobs, removeCommandNameFromCommand,
+    generatePicture, getKeyword, getLatestJobs, removeCommandNameFromCommand,
     resetBotMemory, sleep, switchLanguage } from './functions';
 import { PARAMETERS } from './parameters';
 import { MODEL_PRICES } from './model-price';
 import { TRANSLATIONS } from './translation';
 import axios from 'axios';
 import { setBotCommands } from './setBotCommands';
-import { el } from 'date-fns/locale';
+import { tr } from 'date-fns/locale';
 
 if (!process.env.TELEGRAM_BOT_API_KEY) {
     console.error('Please provide your bot\'s API key on the .env file.');
@@ -43,13 +43,84 @@ if (fs.existsSync('./user-config.json')) {
 }
 
 setBotCommands(bot);
+let waitingForKeywords = false;
 
 // Messages for conversations.
 bot.on('message', async (msg) => {
-    for (const command of await bot.getMyCommands()) {
-        if (msg.text?.startsWith('/' + command.command)) return;
+    if (waitingForKeywords) {
+        const chatId = msg.chat.id.toString();
+        waitingForKeywords = false;
+        const keywords = msg.text?.split(',') || [];
+        const response = await getKeyword(keywords);
+        if (response && response?.length > 0) {
+            response.forEach(async (entry) => {
+                let message = `
+                🟠  <a href="${entry.url}"><b>${entry.title}</b></a>\n`;
+                if (entry.company) {
+                    message += `\nCompany: <b>${entry.company}</b>`;
+                }
+                if (entry.date) {
+                    message += `\nDate of Publishing: <b>${entry.date}</b>`;
+                }
+                if (entry.location !== null && entry.location !== '') {
+                    message += `\nLocation: <b>${entry.location}</b>`;
+                }
+            
+                if (entry.salary !== null && entry.salary !== '') {
+                    message += `\nSalary: <b>${entry.salary}</b>`;
+                }
+            
+                if (entry.category !== null && entry.category !== '') {
+                    message += `\nCategory: <b>${entry.category}</b>`;
+                }
+                if (entry.type !== null && entry.type !== '') {
+                    message += `\nEmployment Type: <b>${entry.type}</b>`;
+                }
+               
+            
+                if (entry.tags?.length > 0) {
+                    // Replace spaces and hyphens with underscores, and make tags lowercase
+                    const tagElement = entry.tags
+                        .map(
+                            (tag: string) => `#${tag
+                                .replace(/\s*\([^)]*\)\s*/g, '')
+                                .trim()
+                                .replace(/[\s-]/g, '_')
+                                .toLowerCase()}`
+                        )
+                        .join(' ');
+            
+                    // Use "Tag" for singular and "Tags" for plural
+                    const tagsLabel = entry.tags.length === 1 ? 'Tag' : 'Tags';
+            
+                    message += `\n\n <b>${tagsLabel}:</b> ${tagElement}`;
+                }
+            
+                const inlineKeyboard = {
+                    inline_keyboard: [[{ text: 'Learn more', url: entry.url }]],
+                };
+            
+                const options: {
+                        parse_mode?: 'Markdown' | 'HTML' | undefined;
+                        reply_markup?: InlineKeyboardMarkup;
+                        disable_web_page_preview?: boolean;
+                    } = {
+                        parse_mode: 'HTML',
+                        reply_markup: inlineKeyboard,
+                        disable_web_page_preview: true,
+                    };
+            
+                await bot.sendMessage(chatId, message, options);
+            });
+            return;
+        } else {
+            await bot.sendMessage(chatId, 'No jobs found for the keywords provided.');
+            return;
+        }
     }
-
+    for (const command of await bot.getMyCommands()) {
+        if (msg.text?.startsWith('/' + command.command) ) return;
+    }
     if (
         msg.text &&
     (msg.chat.type == 'private' || msg.text?.includes(`@${botUsername}`))
@@ -146,12 +217,12 @@ bot.on('message', async (msg) => {
 
 bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
     if (!match) return;
-
     let command: string | undefined;
 
     if (match.input.split(' ').length != 1) {
         command = match.input.split(' ').shift();
     } else {
+        
         command = match.input;
         if (!(command.startsWith('/reset') || 
             command.startsWith('/start') || 
@@ -276,6 +347,8 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                     ]
                 }
             };
+            waitingForKeywords = true;
+
             await bot.sendMessage(chatId,
                 TRANSLATIONS[userConfig.language || 
                 PARAMETERS.LANGUAGE].general['latest-jobs'], keyboard);
@@ -372,7 +445,7 @@ bot.on('callback_query', async (callbackQuery) => {
         )();
         break;
     case 'query-keyword':
-        messageText = 'Please enter keywords, separated by commas';
+        messageText = 'Please enter keywords, separated by commas (,)';
         break;
 
     default:
@@ -383,60 +456,6 @@ bot.on('callback_query', async (callbackQuery) => {
         await bot.sendMessage(chatId, messageText);
     }
 });
-//lets do it later first upload with url to profile.....
-
-// bot.on('photo', async (msg) => {
-//     const chatId = msg.chat.id.toString();
-//     try {
-//         const photo = msg.photo?.[0];
-//         if (!photo) return;
-//         const file_id = photo.file_id;
-//         const localFilePath = `./images/${file_id}.jpg`;
-//         const fileDetails = await 
-//         axios.get(`https://api.telegram.org/bot${token}/getFile?file_id=${file_id}`);
-//         const filePath = fileDetails.data.result.file_path;
-
-//         const fileUrl = `https://api.telegram.org/file/bot${token}/${filePath}`;
-
-//         // Download the file
-//         const response = await axios({
-//             url: fileUrl,
-//             method: 'GET',
-//             responseType: 'stream',
-//         });
-
-//         // Save the file to local storage
-//         const writer = fs.createWriteStream(localFilePath);
-
-//         response.data.pipe(writer);
-
-//         await new Promise((resolve, reject) => {
-//             writer.on('finish', resolve);
-//             writer.on('error', reject);
-//         });
-
-
-//         // file.on('finish', async () => {
-//         //     file.close();
-
-//         //     const worker = createWorker('eng');
-
-//         //     const { data } = await (await worker).recognize(filePath, {
-//         //         // tessedit_pageseg_mode: 3, // Adjust page segmentation mode
-//         //         // tessedit_oem: 3, // Adjust OCR Engine mode
-//         //     });
-
-//         //     await (await worker).terminate();
-
-//         //     await bot.sendMessage(chatId, `Extracted text: ${data.text}`);
-//         //     console.log(data.text);
-//         // });
-//     } catch (error) {
-//         console.error('Error:', error);
-//         // Handle errors or send an error message to the user
-//         await bot.sendMessage(chatId, 'An error occurred. Please try again later.');
-//     }
-// });
 
 
 console.log('Bot Started!');
