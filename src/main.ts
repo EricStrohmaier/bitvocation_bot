@@ -50,6 +50,7 @@ bot.on('message', async (msg) => {
     if (waitingForKeywords) {
         const chatId = msg.chat.id.toString();
         waitingForKeywords = false;
+        
         const keywords = msg.text?.split(',') || [];
         const response = await getKeyword(keywords);
         if (response && response?.length > 0) {
@@ -116,6 +117,7 @@ bot.on('message', async (msg) => {
             await bot.sendMessage(chatId, 'No jobs found for the keywords provided.');
             return;
         }
+        
     }
     for (const command of await bot.getMyCommands()) {
         if (msg.text?.startsWith('/' + command.command) ) return;
