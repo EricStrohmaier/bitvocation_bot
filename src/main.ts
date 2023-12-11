@@ -76,7 +76,6 @@ bot.on('message', async (msg) => {
                 if (entry.type !== null && entry.type !== '') {
                     message += `\nEmployment Type: <b>${entry.type}</b>`;
                 }
-               
             
                 if (entry.tags?.length > 0) {
                     // Replace spaces and hyphens with underscores, and make tags lowercase
