@@ -4,7 +4,7 @@ dotenv.config();
 import TelegramBot from 'node-telegram-bot-api';
 import fs from 'fs';
 import { Configuration, OpenAIApi } from 'openai';
-import { generatePicture, removeCommandNameFromCommand,
+import { buildLastMessage, formatVariables, generatePicture, removeCommandNameFromCommand,
     resetBotMemory, sleep, switchLanguage } from './functions';
 import { PARAMETERS } from './parameters';
 import { MODEL_PRICES } from './model-price';
@@ -17,43 +17,6 @@ if (!process.env.TELEGRAM_BOT_API_KEY) {
     console.error('Please provide your openAI API key on the .env file.');
     process.exit();
 }
-
-/** Formats the data about a message to be used later as a history for the AI in case
- * CONTINUOUS_CONVERSATION is `true`.
- * @param {string} lastUser - The username.
- * @param {string} lastInput - The message.
- * @param {string} lastAnswer - The AI's completion.
- * @returns {string} The formatted message.
- */
-function buildLastMessage(
-    lastUser: string,
-    lastInput: string,
-    lastAnswer: string
-): string {
-    return formatVariables(
-        `${lastUser}: ###${lastInput}###\n$name: ###${lastAnswer}###\n`
-    );
-}
-
-/** Replace `$placeholders` for the actual values of the variables.
- * @example formatVariables("Hello, $username.", { username: "john" }) // "Hello, john."
- * @param {string} input - The unformatted string.
- * @param {{ username?: string, command?: string }} optionalParameters -
- * The `username` or the `command` variables.
- * @returns {string} The formatted string.
- */
-function formatVariables(
-    input: string,
-    optionalParameters?: {
-    username?: string;
-    command?: string;
-  }
-): string {
-    return input
-        .replace('$username', optionalParameters?.username || 'user')
-        .replace('$command', optionalParameters?.command || 'command');
-}
-
 const token = process.env.TELEGRAM_BOT_API_KEY;
 const bot = new TelegramBot(token, { polling: true });
 const botUsername = (await bot.getMe()).username;
@@ -73,7 +36,6 @@ if (fs.existsSync('./user-config.json')) {
         language: '',
     };
 }
-
 // Messages for conversations.
 bot.on('message', async (msg) => {
     for (const command of await bot.getMyCommands()) {
@@ -101,6 +63,7 @@ bot.on('message', async (msg) => {
         const botName = formatVariables(PARAMETERS.BOT_NAME, {
             username,
         });
+        const language = userConfig.language || PARAMETERS.LANGUAGE;
         const prompt =
       promptStart +
       '\n\n' +
@@ -110,7 +73,8 @@ bot.on('message', async (msg) => {
       text +
       '###\n' +
       botName +
-      ': ###';
+      ': ###' +
+      'in language ' + language + '###\n';
 
         let response: string;
         try {
@@ -139,10 +103,8 @@ bot.on('message', async (msg) => {
             response = ai.data.choices[0].text || 'error';
 
             console.log(`\n${suffix}: "${text}"\n${botName}: "${response}"`);
-            console.log(
-                `[usage: ${ai.data.usage?.total_tokens || -1} tokens ` +
-          `($${(ai.data.usage?.total_tokens || 0) * price})]`
-            );
+            console.log(`[usage: ${ai.data.usage?.total_tokens || -1} tokens ` +
+          `($${(ai.data.usage?.total_tokens || 0) * price})]`);
 
             if (PARAMETERS.CONTINUOUS_CONVERSATION) {
                 lastMessage += buildLastMessage(suffix, text, response) + '\n';
@@ -185,7 +147,8 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
         command = match.input;
         if (!(command.startsWith('/reset') || 
             command.startsWith('/start') || 
-            command.startsWith('/donate'))) {
+            command.startsWith('/donate') ||
+            command.startsWith('/language'))) {
             await bot.sendMessage(
                 msg.chat.id,
                 formatVariables(
@@ -240,17 +203,23 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
         );
         break;
     case '/language':
-        if (Object.keys(TRANSLATIONS).includes(input)) {
-        // const chatId = msg.chat.id.toString();
-            const language = input as 'en' | 'de' | string;
-
-            switchLanguage(language);
-
-            await bot.sendMessage(
-                msg.chat.id,
-                TRANSLATIONS[input].general['language-switch'],
-                { reply_to_message_id: msg.message_id }
-            );
+        // if (msg.chat.id.toString() == userConfig.chatId) {
+        if (msg.chat.id) {
+            const chatId = msg.chat.id.toString();
+            const keyboard = {
+                reply_markup: {
+                    inline_keyboard: [
+                        [
+                            { text: 'English', callback_data: 'en' },
+                            { text: 'German', callback_data: 'de' },
+                            // Add more language options as needed
+                        ]
+                    ]
+                }
+            };
+        
+            await bot.sendMessage(chatId, TRANSLATIONS[userConfig.language 
+                || PARAMETERS.LANGUAGE]['command-descriptions'].language, keyboard);
             break;
         }
         await bot.sendMessage(
@@ -260,7 +229,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
             ].replace('$language', input),
             { reply_to_message_id: msg.message_id }
         );
-        break;
+        break;   
     case '/imagine':
         (async () => {
             while (!done) {
@@ -290,6 +259,23 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
         break;
     }
 });
+
+bot.on('callback_query', async (callbackQuery) => {
+    if (callbackQuery.message) {
+        const chatId = callbackQuery.message.chat.id;
+        const selectedLanguage = callbackQuery.data as 'en' | 'de' | string;
+        console.log(`User ${chatId} selected language callback ${selectedLanguage}`);
+        switchLanguage(selectedLanguage);
+
+        await bot.sendMessage(
+            chatId,
+            TRANSLATIONS[selectedLanguage].general['language-switch'],
+            { reply_to_message_id: callbackQuery.message.message_id }
+        );
+    }
+});
+
+
 
 console.log('Bot Started!');
 

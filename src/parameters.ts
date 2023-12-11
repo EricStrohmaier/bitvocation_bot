@@ -1,5 +1,5 @@
 export const PARAMETERS = {
-    PROMPT_START: process.env.PROMPT_START || 'Conversation with $personality.',
+    PROMPT_START: process.env.PROMPT_START || 'Conversation with $username.',
     PERSONALITY: process.env.PERSONALITY || 'an AI',
     BOT_NAME: process.env.BOT_NAME || 'openAI',
     INPUT_SUFFIX: process.env.INPUT_SUFFIX || '$username',

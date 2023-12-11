@@ -66,3 +66,39 @@ export async function generatePicture(input: string): Promise<string> {
             .catch((e) => reject(e));
     });
 }
+
+/** Formats the data about a message to be used later as a history for the AI in case
+ * CONTINUOUS_CONVERSATION is `true`.
+ * @param {string} lastUser - The username.
+ * @param {string} lastInput - The message.
+ * @param {string} lastAnswer - The AI's completion.
+ * @returns {string} The formatted message.
+ */
+export function buildLastMessage(
+    lastUser: string,
+    lastInput: string,
+    lastAnswer: string
+): string {
+    return formatVariables(
+        `${lastUser}: ###${lastInput}###\n$name: ###${lastAnswer}###\n`
+    );
+}
+
+/** Replace `$placeholders` for the actual values of the variables.
+ * @example formatVariables("Hello, $username.", { username: "john" }) // "Hello, john."
+ * @param {string} input - The unformatted string.
+ * @param {{ username?: string, command?: string }} optionalParameters -
+ * The `username` or the `command` variables.
+ * @returns {string} The formatted string.
+ */
+export function formatVariables(
+    input: string,
+    optionalParameters?: {
+    username?: string;
+    command?: string;
+  }
+): string {
+    return input
+        .replace('$username', optionalParameters?.username || 'user')
+        .replace('$command', optionalParameters?.command || 'command');
+}

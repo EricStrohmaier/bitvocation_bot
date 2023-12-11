@@ -13,7 +13,7 @@
             "name": "Sets the AI's name.",
             "reset": "Make the AI forget the past messages.",
             "imagine": "Generate a 512x512 image.",
-            "language": "Changes the bot's language.",
+            "language": "Changes the bot's language choose:",
             "start": "Starts the conversation.",
             "donate": "Support the bot's creator."
         },
@@ -38,7 +38,7 @@
             "name": "Legt den Namen der KI fest.",
             "reset": "Lässt die KI die vergangenen Nachrichten vergessen.",
             "imagine": "Generiert ein Bild mit einer Auflösung von 512x512.",
-            "language": "Ändert die Sprache des Bots.",
+            "language": "Ändere die Sprache des Bots, wählen Sie:",
             "start": "Startet die Unterhaltung.",
             "donate": "Unterstützt die Ersteller des Bots."
         },
@@ -47,6 +47,31 @@
             "image-safety": "Ihr Bild konnte nicht erstellt werden, da es gegen die Sicherheitsbestimmungen verstößt.",
             "no-parameter-command": "Bitte geben Sie einen Parameter für den Befehl $command an.",
             "invalid-language": "\"$language\" ist keine gültige Sprache."
+        }
+    },
+    "fr": {
+        "general": {
+            "start-message": "Salut! Ceci est un message pré-généré.\n\nVos prochains messages (à l'exception des commandes) seront tous répondu par une IA.\n\nSi la variable CONTINUOUS_CONVERSATION est définie sur true, vous voudrez peut-être m'envoyer la commande /reset de temps en temps pour réinitialiser ma mémoire et consommer moins de jetons API.\n\nVous pouvez changer la langue avec la commande /language (actuellement seuls l'anglais [en] et l'allemand [de] sont disponibles). \n\nAmusez-vous bien!",
+            "name-switch": "Maintenant, je m'appelle \"$name\".",
+            "default-start": "Conversation avec $personality.",
+            "default-personality": "une IA",
+            "memory-reset": "Je viens d'oublier tout.",
+            "language-switch": "La langue est maintenant le français.",
+            "donate": "Si vous aimez ce bot, vous pouvez nous soutenir ici: 'comming soon!!"
+        },
+        "command-descriptions": {
+            "name": "Définit le nom de l'IA.",
+            "reset": "Faites oublier à l'IA les messages passés.",
+            "imagine": "Génère une image de 512x512.",
+            "language": "Modifie la langue du bot choisissez:",
+            "start": "Démarre la conversation.",
+            "donate": "Soutenez le créateur du bot."
+        },
+        "errors": {
+            "generic-error": "Une erreur s'est produite :(",
+            "image-safety": "Votre image n'a pas pu être créée car elle viole les règles de sécurité.",
+            "no-parameter-command": "Veuillez fournir un paramètre pour la commande $command.",
+            "invalid-language": "\"$language\" n'est pas une langue valide."
         }
     }
     
