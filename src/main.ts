@@ -1,23 +1,19 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import TelegramBot from 'node-telegram-bot-api';
+import TelegramBot, { InlineKeyboardMarkup } from 'node-telegram-bot-api';
 import fs from 'fs';
 import { Configuration, OpenAIApi } from 'openai';
-import { createWorker } from 'tesseract.js';
 
-import https from 'https';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
-import base64Img from 'base64-img';
-
-import { buildLastMessage, formatVariables, generatePicture, removeCommandNameFromCommand,
+import { buildLastMessage, formatVariables, 
+    generatePicture, getLatestJobs, removeCommandNameFromCommand,
     resetBotMemory, sleep, switchLanguage } from './functions';
 import { PARAMETERS } from './parameters';
 import { MODEL_PRICES } from './model-price';
 import { TRANSLATIONS } from './translation';
 import axios from 'axios';
 import { setBotCommands } from './setBotCommands';
+import { el } from 'date-fns/locale';
 
 if (!process.env.TELEGRAM_BOT_API_KEY) {
     console.error('Please provide your bot\'s API key on the .env file.');
@@ -274,7 +270,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                 reply_markup: {
                     inline_keyboard: [
                         [
-                            { text: 'Lates jobs from last week', callback_data: 'last-week' },
+                            { text: 'Latest jobs', callback_data: 'last-week' },
                             { text: 'Query for keywords', callback_data: 'query-keyword' },
                         ]
                     ]
@@ -333,15 +329,53 @@ bot.on('callback_query', async (callbackQuery) => {
         break;
     }
     case 'last-week':
-
-        messageText = 'Last week jobs';
+        (async () => {
+            const chatId = callbackQuery.message?.chat.id.toString();
+            if (!chatId) return;
+            const jobs = getLatestJobs();
+            if (jobs !== null && jobs !== undefined) {
+                const jobsArray = await jobs;
+                if (jobsArray) {
+                    const jobStrings = jobsArray.map((entry) => {
+                        let jobString = `\n<a href="${entry.url}"><b>${entry.title}</b></a>`;
+              
+                        if (entry.company) {
+                            jobString += `\n  Company: <b>${entry.company}</b>`;
+                        }
+              
+                        if (entry.location !== null && entry.location !== '') {
+                            jobString += `\n  Location: <b>${entry.location}</b>`;
+                        }
+                        jobString += '\n';
+              
+                        return jobString;
+                    });
+              
+                    const message = `Found ${jobStrings.length} jobs for last week :
+                    ${jobStrings.join('')}`;
+              
+                    // Check if there are entries to send
+                    if (message !== 'Latest Jobs:') {
+                        const options: {
+                            parse_mode?: 'Markdown' | 'HTML' | undefined;
+                            disable_web_page_preview?: boolean;
+                          } = {
+                              parse_mode: 'HTML',
+                              disable_web_page_preview: true,
+                          };                          
+              
+                        await bot.sendMessage(chatId, message, options);
+                    }
+                }
+            }
+        }
+        )();
         break;
     case 'query-keyword':
-        messageText = 'Query for keywords';
+        messageText = 'Please enter keywords, separated by commas';
         break;
 
     default:
-        // Handle other cases or do nothing
         break;
     }
   

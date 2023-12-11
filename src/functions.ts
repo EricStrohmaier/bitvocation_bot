@@ -1,6 +1,10 @@
 import { Configuration, OpenAIApi } from 'openai';
 import { userConfig } from './main';
 import fs from 'fs';
+import { createClient } from '@supabase/supabase-js';
+import { format, subWeeks } from 'date-fns';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 const openai = new OpenAIApi(
     new Configuration({ apiKey: process.env.OPENAI_API_KEY })
@@ -101,4 +105,32 @@ export function formatVariables(
     return input
         .replace('$username', optionalParameters?.username || 'user')
         .replace('$command', optionalParameters?.command || 'command');
+}
+
+if (!process.env.SUPABASE_URL && !process.env.SUPABASE_KEY) {
+    throw new Error('No Supabase URL provided.');
+}
+const supabaseUrl = process.env.SUPABASE_URL as string;
+const supabaseServiceKey = process.env.SUPABASE_KEY as string;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+export async function getLatestJobs() {
+    // Calculate the date from one week ago
+    const lastWeekDate = subWeeks(new Date(), 1);
+  
+    const formattedLastWeekDate = format(lastWeekDate, 'yyyy-MM-dd HH:mm:ss.SSSxx');
+
+    const { data: Bitcoinerjobs, error } = await supabase
+        .from('Bitcoinerjobs')
+        .select('*')
+        .gte('created_at', formattedLastWeekDate)
+        .order('created_at', { ascending: false })
+        .limit(10);
+  
+    if (error) {
+        console.error('Error fetching latest jobs:', error.message);
+        return null; // Handle the error accordingly
+    }
+
+    return Bitcoinerjobs;
 }
