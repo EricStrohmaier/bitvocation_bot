@@ -57,6 +57,15 @@ bot.on('message', async (msg) => {
             response.forEach(async (entry) => {
                 let message = `
                 🟠  <a href="${entry.url}"><b>${entry.title}</b></a>\n`;
+                if (entry.created_at !== null && entry.created_at !== '') {
+                    const date = new Date(entry.created_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                    });
+                    message += `\nDate of publish: <b>${date}</b>`;
+                }
+                message += '\n';
                 if (entry.company) {
                     message += `\nCompany: <b>${entry.company}</b>`;
                 }
