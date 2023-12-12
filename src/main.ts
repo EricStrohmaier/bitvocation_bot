@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -286,12 +287,20 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
         );
         break;
     case '/donate':
-        await bot.sendMessage(
-            msg.chat.id,
-            TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general[
-                'donate'
-            ],
-        );
+        (async () => {
+            const keyboard = {
+                reply_markup: {
+                    inline_keyboard: [
+                        [
+                            { text: 'View Link', url: 'https://getalby.com/p/strohstacks' },
+                        ]
+                    ]
+                }
+            };
+            await bot.sendMessage(msg.chat.id, 'Thank you for your support!', keyboard);
+        }
+        )();
+     
         break;
     case '/language':
         if (msg.chat.id) {
