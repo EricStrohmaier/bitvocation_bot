@@ -115,37 +115,36 @@ const supabaseServiceKey = process.env.SUPABASE_KEY as string;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function getLatestJobs() {
-    // Calculate the date from one week ago
-    const lastWeekDate = subWeeks(new Date(), 1);
+ 
   
-    const formattedLastWeekDate = format(lastWeekDate, 'yyyy-MM-dd HH:mm:ss.SSSxx');
+    // use today's date and get latest jobs from that on 
+    const today = new Date();
+    const formattedDate = format(today, 'yyyy-MM-dd');
 
-    const { data: Bitcoinerjobs, error } = await supabase
-        .from('Bitcoinerjobs')
+    const { data: jobs, error } = await supabase
+        .from('job_table')
         .select('*')
-        .gte('created_at', formattedLastWeekDate)
+        .gte('created_at', formattedDate)
         .order('created_at', { ascending: false })
         .limit(10);
   
     if (error) {
         console.error('Error fetching latest jobs:', error.message);
-        return null; // Handle the error accordingly
+        return null;
     }
 
-    return Bitcoinerjobs;
+    return jobs;
 }
 
 export async function getKeyword(keywords: string[]) {
 
-    const { data: Bitcoinerjobs, error } = await supabase
-        .from('Bitcoinerjobs')
+    const { data: jobs } = await supabase
+        .from('job_table')
         .select()
         .order('created_at', { ascending: false });
-
-
-    if (Bitcoinerjobs && Bitcoinerjobs.length > 0) {
+    if (jobs && jobs.length > 0) {
         // filter out the jobs that match the keyword
-        const filteredJobs = Bitcoinerjobs.filter((job) => {
+        const filteredJobs = jobs.filter((job) => {
             let isMatch = false;
 
             keywords.forEach((keyword) => {
@@ -162,6 +161,7 @@ export async function getKeyword(keywords: string[]) {
         console.log('No result found.');
         return null;
     }
+
 }
   
   
