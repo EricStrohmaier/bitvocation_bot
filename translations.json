@@ -2,19 +2,14 @@
     "en": {
         "general": {
             "start-message": "Hi! This is a pre-generated message.\n\nYour next messages (besides commands) will be all responded by an AI.\n\nIf the CONTINUOUS_CONVERSATION variable is set to true, you might want to send me the /reset command once in a while to reset my memory and consume less API tokens.\n\nYou might change the language with the /language command (currently only english [en] and german [de] are available). \n\nHave fun!",
-            "name-switch": "Now I'm called \"$name\".",
-            "default-start": "Conversation with $personality.",
-            "default-personality": "an AI",
-            "memory-reset": "I just forgot everything.",
+            "help": "Here are the commands you can use: \n\n",
             "language-switch": "Language is now english.",
             "donate": "If you like this bot, you can support us here: 'comming soon!!",
             "btc-price":"The current price of Bitcoin is USD $price",
             "latest-jobs":"In order to see the latest Bitcoin jobs, please choose one of the following options: "
         },
         "command-descriptions": {
-            "name": "Sets the AI's name.",
-            "reset": "Make the AI forget the past messages.",
-            "imagine": "Generate a 512x512 image.",
+            "help": "Show help message.",
             "language": "Changes the bot's language choose:",
             "start": "Starts the conversation.",
             "donate": "Support the bot's creator.",
@@ -22,7 +17,7 @@
             "jobs": "Explore the latest Bitcoin jobs."
         },
         "errors": {
-            "generic-error": "An error occured :(",
+            "generic-error": "An error occured :(\n\nPlease see our help message with /help.",
             "image-safety": "Your image could not be made because it violates the safety regulations.",
             "no-parameter-command": "Please provide a parameter for the $command command.",
             "invalid-language": "\"$language\" is not a valid language."
@@ -31,9 +26,7 @@
     "de": {
         "general": {
             "start-message": "Hallo! Dies ist eine vorab generierte Nachricht.\n\nIhre nächsten Nachrichten (außer Befehlen) werden alle von einer KI beantwortet.\n\nWenn die Variable CONTINUOUS_CONVERSATION auf true gesetzt ist, möchten Sie mir vielleicht gelegentlich den Befehl /reset senden, um mein Gedächtnis zurückzusetzen und weniger API-Token zu verbrauchen.\n\nSie können die Sprache mit dem Befehl /language ändern (derzeit sind nur Englisch [en] und Deutsch [de] verfügbar).\n\nViel Spaß!",
-            "name-switch": "Jetzt werde ich \"$name\" genannt.",
-            "default-start": "Unterhaltung mit $personality.",
-            "default-personality": "eine KI",
+            "help": "Hier sind die Befehle, die Sie verwenden können: \n\n",
             "memory-reset": "Ich habe gerade alles vergessen.",
             "language-switch": "Die Sprache ist jetzt Deutsch.",
             "donate": "Wenn Ihnen dieser Bot gefällt, können Sie uns unterstützen unter: 'comming soon!!",
@@ -41,9 +34,7 @@
             "latest-jobs":"Um die neuesten Bitcoin-Jobs zu sehen, wählen Sie bitte eine der folgenden Optionen: "
         },
         "command-descriptions": {
-            "name": "Legt den Namen der KI fest.",
-            "reset": "Lässt die KI die vergangenen Nachrichten vergessen.",
-            "imagine": "Generiert ein Bild mit einer Auflösung von 512x512.",
+            "help": "Zeigt die Hilfemeldung an.",
             "language": "Ändere die Sprache des Bots, wählen Sie:",
             "start": "Startet die Unterhaltung.",
             "donate": "Unterstützt die Ersteller des Bots.",
@@ -51,7 +42,7 @@
             "jobs": "Erkunden Sie die neuesten Bitcoin-Jobs."
         },
         "errors": {
-            "generic-error": "Ein Fehler ist aufgetreten :(",
+            "generic-error": "Ein Fehler ist aufgetreten :(\n\nBitte sehen Sie unsere Hilfemeldung mit /help.",
             "image-safety": "Ihr Bild konnte nicht erstellt werden, da es gegen die Sicherheitsbestimmungen verstößt.",
             "no-parameter-command": "Bitte geben Sie einen Parameter für den Befehl $command an.",
             "invalid-language": "\"$language\" ist keine gültige Sprache."

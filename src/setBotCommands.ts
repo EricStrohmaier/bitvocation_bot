@@ -12,19 +12,10 @@ export function setBotCommands(
           'command-descriptions'
       ].start,
         },
-        {
-            command: 'imagine',
-            description:
-      TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
-          'command-descriptions'
-      ].imagine,
-        },
-        {
-            command: 'reset',
-            description:
-      TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
-          'command-descriptions'
-      ].reset,
+        {   command: 'help',
+            description: TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
+                'command-descriptions' 
+            ].help,
         },
         {
             command: 'language',

@@ -3,23 +3,20 @@ import fs from 'fs';
 export const TRANSLATIONS: {
     [key: 'en' | 'de' | string]: {
       general: {
-        'default-start': string;
-        'default-personality': string;
-        'memory-reset': string;
         'language-switch': string;
         'start-message': string;
         'donate': string;
         'btc-price': string;
         'latest-jobs': string;
+        'help': string;
       };
       'command-descriptions': {
-        reset: string;
-        imagine: string;
         language: string;
         start: string;
         donate: string;
         checkprice: string;
         jobs: string;
+        help: string;
       };
       errors: {
         'generic-error': string;
