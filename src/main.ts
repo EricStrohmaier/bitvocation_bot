@@ -267,7 +267,6 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                 await sleep(3000);
             }
         })();
-
         try {
             const imageUrl = await generatePicture(input);
             await bot.sendPhoto(msg.chat.id, imageUrl, {
@@ -340,9 +339,7 @@ bot.on('callback_query', async (callbackQuery) => {
     if (!callbackQuery.message) return;
     const chatId = callbackQuery.message.chat.id;
     let messageText = '';
-  
     switch (callbackQuery.data) {
-  
     case 'en':
     case 'de': {
         const selectedLanguage = callbackQuery.data;
