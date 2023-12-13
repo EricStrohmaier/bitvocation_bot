@@ -356,21 +356,39 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
     case '/latestjobs':
         if (msg.chat.id) {
             const chatId = msg.chat.id.toString();
+            //check how it where it presses explore categories
             const keyboard = {
                 reply_markup: {
                     inline_keyboard: [
                         [
                             { text: 'Last Week', callback_data: 'last-week' },
                             { text: 'Query by Keyword', callback_data: 'query-keyword' },
+                        ],[
+                            { text: 'Explore Categories', callback_data: 'explore-categories' }
                         ]
                     ]
                 }
-            };
-            waitingForKeywords = true;
+            }; 
+           
+            const keyboard2 = {
+                reply_markup: {
+                    inline_keyboard: [
+                        [
+                            { text: 'Design', callback_data: 'design' },
+                            { text: 'Development', callback_data: 'development' },
+                            { text: 'Marketing', callback_data: 'marketing' }
+                        ],
+                        [
+                            { text: 'Sales', callback_data: 'sales' },
+                            { text: 'Support', callback_data: 'support' },
+                            { text: 'Other', callback_data: 'other' }
+                        ]
+                    ]
+                }
+            }; 
+                     
 
-            await bot.sendMessage(chatId,
-                TRANSLATIONS[userConfig.language || 
-                PARAMETERS.LANGUAGE].general['latest-jobs'], keyboard);
+            await bot.sendMessage(chatId, TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general['latest-jobs'], keyboard);
         }
         break;
     case '/checkprice':
@@ -414,7 +432,6 @@ bot.on('callback_query', async (callbackQuery) => {
   
     case 'en':
     case 'de': {
-       
         const selectedLanguage = callbackQuery.data;
         switchLanguage(selectedLanguage);
         messageText = TRANSLATIONS[selectedLanguage].general['language-switch'];
@@ -463,9 +480,37 @@ bot.on('callback_query', async (callbackQuery) => {
         )();
         break;
     case 'query-keyword':
-        messageText = 'Please enter keywords, separated by commas (,)\nExample: project manager, ui/ux, fullstack';
+        waitingForKeywords = true;
+        messageText = 'Please enter keywords, separated by commas \n\nExample: project manager, ui/ux, fullstack';
         break;
-
+    case 'explore-categories':
+        (async () => {
+            const chatId = callbackQuery.message?.chat.id.toString();         
+            if (!chatId) return;
+            const keyboard = {
+                reply_markup: {
+                    inline_keyboard: [
+                        [
+                            { text: 'UI/UX Design', callback_data: 'design' },
+                            { text: 'Sales', callback_data: 'sales' },
+                            { text: 'Marketing', callback_data: 'marketing' }
+                        ],
+                        [
+                            { text: 'Engineering', callback_data: 'engineering' },
+                            { text: 'Customer Operations', callback_data: 'customer-op' },
+                        ]
+                    ]
+                }
+            };
+            await bot.sendMessage(chatId, 'Explore Categories', keyboard);
+            
+            const message_id = callbackQuery.message?.message_id.toString();
+            if (message_id) {
+                await bot.deleteMessage(chatId, message_id);
+            }
+        }
+        )();
+        break;
     default:
         break;
     }

@@ -9,7 +9,7 @@
             "language-switch": "Language is now english.",
             "donate": "If you like this bot, you can support us here: 'comming soon!!",
             "btc-price":"The current price of Bitcoin is USD $price",
-            "latest-jobs":"Please choose one of the following options: "
+            "latest-jobs":"In order to see the latest Bitcoin jobs, please choose one of the following options: "
         },
         "command-descriptions": {
             "name": "Sets the AI's name.",
@@ -19,7 +19,7 @@
             "start": "Starts the conversation.",
             "donate": "Support the bot's creator.",
             "checkprice": "Get the current price of Bitcoin.",
-            "jobs": "Get the latest Bitcoin jobs."
+            "jobs": "Explore the latest Bitcoin jobs."
         },
         "errors": {
             "generic-error": "An error occured :(",
@@ -38,7 +38,7 @@
             "language-switch": "Die Sprache ist jetzt Deutsch.",
             "donate": "Wenn Ihnen dieser Bot gefällt, können Sie uns unterstützen unter: 'comming soon!!",
             "btc-price":"Der aktuelle Preis von Bitcoin ist USD $price",
-            "latest-jobs":"Bitte wählen Sie eine der folgenden Optionen: "
+            "latest-jobs":"Um die neuesten Bitcoin-Jobs zu sehen, wählen Sie bitte eine der folgenden Optionen: "
         },
         "command-descriptions": {
             "name": "Legt den Namen der KI fest.",
@@ -48,7 +48,7 @@
             "start": "Startet die Unterhaltung.",
             "donate": "Unterstützt die Ersteller des Bots.",
             "checkprice": "Gibt den aktuellen Preis von Bitcoin aus.",
-            "jobs": "Schaue dir die neuesten Bitcoin Jobs an."
+            "jobs": "Erkunden Sie die neuesten Bitcoin-Jobs."
         },
         "errors": {
             "generic-error": "Ein Fehler ist aufgetreten :(",
