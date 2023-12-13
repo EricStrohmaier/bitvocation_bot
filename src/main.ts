@@ -292,7 +292,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                 reply_markup: {
                     inline_keyboard: [
                         [
-                            { text: 'View Link', url: 'https://getalby.com/p/strohstacks' },
+                            { text: 'Look here!', url: 'https://getalby.com/p/strohstacks' },
                         ]
                     ]
                 }
@@ -360,8 +360,8 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                 reply_markup: {
                     inline_keyboard: [
                         [
-                            { text: 'Latest jobs', callback_data: 'last-week' },
-                            { text: 'Query for keywords', callback_data: 'query-keyword' },
+                            { text: 'Last Week', callback_data: 'last-week' },
+                            { text: 'Query by Keyword', callback_data: 'query-keyword' },
                         ]
                     ]
                 }
@@ -442,12 +442,11 @@ bot.on('callback_query', async (callbackQuery) => {
               
                         return jobString;
                     });
-              
-                    const message = `Found ${jobStrings.length} jobs for last week :
+                    //nice message
+                    const message = `${jobsArray.length} Jobs from last week:
                     ${jobStrings.join('')}`;
               
-                    // Check if there are entries to send
-                    if (message !== 'Latest Jobs:') {
+                    if (message) {
                         const options: {
                             parse_mode?: 'Markdown' | 'HTML' | undefined;
                             disable_web_page_preview?: boolean;
@@ -464,7 +463,7 @@ bot.on('callback_query', async (callbackQuery) => {
         )();
         break;
     case 'query-keyword':
-        messageText = 'Please enter keywords, separated by commas (,)';
+        messageText = 'Please enter keywords, separated by commas (,)\nExample: project manager, ui/ux, fullstack';
         break;
 
     default:
