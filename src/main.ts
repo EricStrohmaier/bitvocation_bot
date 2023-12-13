@@ -48,85 +48,18 @@ let waitingForKeywords = false;
 // Messages for conversations.
 bot.on('message', async (msg) => {
     if (waitingForKeywords) {
-        const chatId = msg.chat.id.toString();
+        const chatId = msg.chat.id;
         waitingForKeywords = false;
         
         const keywords = msg.text?.split(',') || [];
         const response = await getKeyword(keywords);
-        if (response && response?.length > 0) {
-            response.forEach(async (entry) => {
-                let message = `
-                🟠  <a href="${entry.url}"><b>${entry.title}</b></a>\n`;
-                if (entry.created_at !== null && entry.created_at !== '') {
-                    const date = new Date(entry.created_at).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                    });
-                    message += `\nDate of publish: <b>${date}</b>`;
-                }
-                message += '\n';
-                if (entry.company) {
-                    message += `\nCompany: <b>${entry.company}</b>`;
-                }
-                if (entry.date) {
-                    message += `\nDate of Publishing: <b>${entry.date}</b>`;
-                }
-                if (entry.location !== null && entry.location !== '') {
-                    message += `\nLocation: <b>${entry.location}</b>`;
-                }
-            
-                if (entry.salary !== null && entry.salary !== '') {
-                    message += `\nSalary: <b>${entry.salary}</b>`;
-                }
-            
-                if (entry.category !== null && entry.category !== '') {
-                    message += `\nCategory: <b>${entry.category}</b>`;
-                }
-                if (entry.type !== null && entry.type !== '') {
-                    message += `\nEmployment Type: <b>${entry.type}</b>`;
-                }
-            
-                if (entry.tags?.length > 0) {
-                    // Replace spaces and hyphens with underscores, and make tags lowercase
-                    const tagElement = entry.tags
-                        .map(
-                            (tag: string) => `#${tag
-                                .replace(/\s*\([^)]*\)\s*/g, '')
-                                .trim()
-                                .replace(/[\s-]/g, '_')
-                                .toLowerCase()}`
-                        )
-                        .join(' ');
-            
-                    // Use "Tag" for singular and "Tags" for plural
-                    const tagsLabel = entry.tags.length === 1 ? 'Tag' : 'Tags';
-            
-                    message += `\n\n <b>${tagsLabel}:</b> ${tagElement}`;
-                }
-            
-                const inlineKeyboard = {
-                    inline_keyboard: [[{ text: 'Learn more', url: entry.url }]],
-                };
-            
-                const options: {
-                        parse_mode?: 'Markdown' | 'HTML' | undefined;
-                        reply_markup?: InlineKeyboardMarkup;
-                        disable_web_page_preview?: boolean;
-                    } = {
-                        parse_mode: 'HTML',
-                        reply_markup: inlineKeyboard,
-                        disable_web_page_preview: true,
-                    };
-            
-                await bot.sendMessage(chatId, message, options);
-            });
+        if (response) {
+            await sendParseMessage(chatId, response, bot, ['with ' + keywords.join(', ')]);
             return;
         } else {
             await bot.sendMessage(chatId, 'No jobs found for the keywords provided.');
             return;
         }
-        
     }
     for (const command of await bot.getMyCommands()) {
         if (msg.text?.startsWith('/' + command.command) ) return;
@@ -275,16 +208,16 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
             { reply_to_message_id: msg.message_id }
         );
         break;
-    case '/reset':
-        resetBotMemory();
-        await bot.sendMessage(
-            msg.chat.id,
-            TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general[
-                'memory-reset'
-            ],
-            { reply_to_message_id: msg.message_id }
-        );
-        break;
+    // case '/reset':
+    //     resetBotMemory();
+    //     await bot.sendMessage(
+    //         msg.chat.id,
+    //         TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general[
+    //             'memory-reset'
+    //         ],
+    //         { reply_to_message_id: msg.message_id }
+    //     );
+    //     break;
     case '/donate':
         (async () => {
             const keyboard = {
@@ -494,7 +427,6 @@ bot.on('callback_query', async (callbackQuery) => {
         await bot.sendMessage(chatId, messageText);
     }
 });
-
 
 console.log('Bot Started!');
 
