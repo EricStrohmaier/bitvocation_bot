@@ -137,7 +137,6 @@ export async function getLatestJobs() {
 }
 
 export async function getKeyword(keywords: string[]) {
-
     const { data: jobs } = await supabase
         .from('job_table')
         .select()
@@ -152,17 +151,54 @@ export async function getKeyword(keywords: string[]) {
                     isMatch = true;
                 }
             });
-
             return isMatch;
         });
         return filteredJobs;
-
     } else {
         console.log('No result found.');
         return null;
     }
-
 }
-  
+
+
+export async function sendParseMessage( 
+    chatId: number, response: any, bot: any, keywords: string[]
+){
+    if (response !== null && response !== undefined) {
+        if (response.length > 10) {
+            response = response.slice(0, 10);
+        }
+        const catStrings = response.map((entry: any) => {
+            let catString = `\n <a href="${entry.url}"><b>${entry.title}</b></a>`;
+      
+            if (entry.company) {
+                catString += `\n 🏢 Company: <b>${entry.company}</b>`;
+            }
+      
+            if (entry.location !== null && entry.location !== '') {
+                catString += `\n 📍 Location: <b>${entry.location}</b>`;
+            }
+            catString += '\n';
+      
+            return catString;
+        });
+            //nice message
+        const message = `${response.length} Jobs ${keywords}:
+            ${catStrings.join('')}`;
+      
+        if (message) {
+            const options: {
+                    parse_mode?: 'Markdown' | 'HTML' | undefined;
+                    disable_web_page_preview?: boolean;
+                  } = {
+                      parse_mode: 'HTML',
+                      disable_web_page_preview: true,
+                  };                          
+      
+            await bot.sendMessage(chatId, message, options);
+        }
+    }
+}
+
   
   

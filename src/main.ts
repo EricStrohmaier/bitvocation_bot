@@ -8,13 +8,12 @@ import { Configuration, OpenAIApi } from 'openai';
 
 import { buildLastMessage, formatVariables, 
     generatePicture, getKeyword, getLatestJobs, removeCommandNameFromCommand,
-    resetBotMemory, sleep, switchLanguage } from './functions';
+    resetBotMemory, sendParseMessage, sleep, switchLanguage } from './functions';
 import { PARAMETERS } from './parameters';
 import { MODEL_PRICES } from './model-price';
 import { TRANSLATIONS } from './translation';
 import axios from 'axios';
 import { setBotCommands } from './setBotCommands';
-import { tr } from 'date-fns/locale';
 
 if (!process.env.TELEGRAM_BOT_API_KEY) {
     console.error('Please provide your bot\'s API key on the .env file.');
@@ -368,26 +367,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                         ]
                     ]
                 }
-            }; 
-           
-            const keyboard2 = {
-                reply_markup: {
-                    inline_keyboard: [
-                        [
-                            { text: 'Design', callback_data: 'design' },
-                            { text: 'Development', callback_data: 'development' },
-                            { text: 'Marketing', callback_data: 'marketing' }
-                        ],
-                        [
-                            { text: 'Sales', callback_data: 'sales' },
-                            { text: 'Support', callback_data: 'support' },
-                            { text: 'Other', callback_data: 'other' }
-                        ]
-                    ]
-                }
-            }; 
-                     
-
+            };  
             await bot.sendMessage(chatId, TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general['latest-jobs'], keyboard);
         }
         break;
@@ -439,43 +419,10 @@ bot.on('callback_query', async (callbackQuery) => {
     }
     case 'last-week':
         (async () => {
-            const chatId = callbackQuery.message?.chat.id.toString();
+            const chatId = callbackQuery.message?.chat.id;
             if (!chatId) return;
             const jobs = getLatestJobs();
-            if (jobs !== null && jobs !== undefined) {
-                const jobsArray = await jobs;
-                if (jobsArray) {
-                    const jobStrings = jobsArray.map((entry) => {
-                        let jobString = `\n<a href="${entry.url}"><b>${entry.title}</b></a>`;
-              
-                        if (entry.company) {
-                            jobString += `\n  Company: <b>${entry.company}</b>`;
-                        }
-              
-                        if (entry.location !== null && entry.location !== '') {
-                            jobString += `\n  Location: <b>${entry.location}</b>`;
-                        }
-                        jobString += '\n';
-              
-                        return jobString;
-                    });
-                    //nice message
-                    const message = `${jobsArray.length} Jobs from last week:
-                    ${jobStrings.join('')}`;
-              
-                    if (message) {
-                        const options: {
-                            parse_mode?: 'Markdown' | 'HTML' | undefined;
-                            disable_web_page_preview?: boolean;
-                          } = {
-                              parse_mode: 'HTML',
-                              disable_web_page_preview: true,
-                          };                          
-              
-                        await bot.sendMessage(chatId, message, options);
-                    }
-                }
-            }
+            await sendParseMessage(chatId, jobs, bot, ['from Last Week']);
         }
         )();
         break;
@@ -487,6 +434,10 @@ bot.on('callback_query', async (callbackQuery) => {
         (async () => {
             const chatId = callbackQuery.message?.chat.id.toString();         
             if (!chatId) return;
+            const message_id = callbackQuery.message?.message_id.toString();
+            if (message_id) {
+                await bot.deleteMessage(chatId, message_id);
+            }
             const keyboard = {
                 reply_markup: {
                     inline_keyboard: [
@@ -502,19 +453,43 @@ bot.on('callback_query', async (callbackQuery) => {
                     ]
                 }
             };
-            await bot.sendMessage(chatId, 'Explore Categories', keyboard);
-            
-            const message_id = callbackQuery.message?.message_id.toString();
-            if (message_id) {
-                await bot.deleteMessage(chatId, message_id);
-            }
+            await bot.sendMessage(chatId, 'Explore Categories', keyboard);   
         }
         )();
+        break;
+    case 'design':
+        (async () => {
+            const catArray = await getKeyword(['design', 'ui', 'ux', 'graphic', 'product']);
+            await sendParseMessage(chatId, catArray, bot, ['in UI/UX Design']);
+        })();
+        break;
+    case 'sales':
+        (async () => {
+            const catArray = await getKeyword(['sales', 'business', 'account', 'account executive', 'account manager']);
+            await sendParseMessage(chatId, catArray, bot, ['in Sales']);
+        })();
+        break;
+    case 'marketing':
+        (async () => {
+            const catArray = await getKeyword(['marketing', 'growth', 'seo', 'social', 'media']);
+            await sendParseMessage(chatId, catArray, bot, ['in Marketing']);
+        })();
+        break;
+    case 'engineering':
+        (async () => {
+            const catArray = await getKeyword(['engineering', 'software', 'developer', 'devops', 'backend', 'frontend']);
+            await sendParseMessage(chatId, catArray, bot, ['in Engineering']);
+        })();
+        break;
+    case 'customer-op':
+        (async () => {
+            const catArray = await getKeyword(['customer', 'support', 'success', 'operations']);
+            await sendParseMessage(chatId, catArray, bot, ['in Customer Operations']);
+        })();
         break;
     default:
         break;
     }
-  
     if (messageText) {
         await bot.sendMessage(chatId, messageText);
     }
