@@ -1,7 +1,7 @@
 {
     "en": {
         "general": {
-            "start-message": "Hi! This is a pre-generated message.\n\nYour next messages (besides commands) will be all responded by an AI.\n\nIf the CONTINUOUS_CONVERSATION variable is set to true, you might want to send me the /reset command once in a while to reset my memory and consume less API tokens.\n\nYou might change the language with the /language command (currently only english [en] and german [de] are available). \n\nHave fun!",
+            "start-message": "Hey there, this is the default start message.\n\n Check out the /help command to see what I can do.\n\nHave fun!",
             "help": "Here are the commands you can use: \n\n",
             "language-switch": "Language is now english.",
             "donate": "If you like this bot, you can support us here: 'comming soon!!",
@@ -26,7 +26,7 @@
     },
     "de": {
         "general": {
-            "start-message": "Hallo! Dies ist eine vorab generierte Nachricht.\n\nIhre nächsten Nachrichten (außer Befehlen) werden alle von einer KI beantwortet.\n\nWenn die Variable CONTINUOUS_CONVERSATION auf true gesetzt ist, möchten Sie mir vielleicht gelegentlich den Befehl /reset senden, um mein Gedächtnis zurückzusetzen und weniger API-Token zu verbrauchen.\n\nSie können die Sprache mit dem Befehl /language ändern (derzeit sind nur Englisch [en] und Deutsch [de] verfügbar).\n\nViel Spaß!",
+            "start-message": "Hallo, dies ist die Standard-Startnachricht.\n\nSchauen Sie sich den Befehl /help an, um zu sehen, was ich tun kann.\n\nViel Spaß!",
             "help": "Hier sind die Befehle, die Sie verwenden können: \n\n",
             "memory-reset": "Ich habe gerade alles vergessen.",
             "language-switch": "Die Sprache ist jetzt Deutsch.",

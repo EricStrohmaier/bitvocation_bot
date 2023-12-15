@@ -18,17 +18,17 @@ export function setBotCommands(
             ].help,
         },
         {
+            command: 'latestjobs',
+            description: TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
+                'command-descriptions' 
+            ].jobs,
+        },
+        {
             command: 'language',
             description:
       TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
           'command-descriptions'
       ].language,
-        },
-        {
-            command: 'donate',
-            description: TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
-                'command-descriptions' 
-            ].donate,
         },
         {
             command: 'checkprice',
@@ -38,10 +38,10 @@ export function setBotCommands(
 
         },
         {
-            command: 'latestjobs',
+            command: 'donate',
             description: TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE][
                 'command-descriptions' 
-            ].jobs,
-        }
+            ].donate,
+        },
     ]);
 }
