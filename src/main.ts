@@ -20,7 +20,7 @@ if (!process.env.TELEGRAM_BOT_API_KEY) {
 }
 const token = process.env.TELEGRAM_BOT_API_KEY;
 const bot = new TelegramBot(token, { polling: true });
-// const botUsername = (await bot.getMe()).username;
+const botUsername = (await bot.getMe()).username;
 
 export let userConfig: { chatId: string;  language: string };
 if (fs.existsSync('./user-config.json')) {
@@ -55,18 +55,6 @@ bot.on('message', async (msg) => {
         if (msg.text?.startsWith('/' + command.command) ) {
             return;
         }
-        if (!msg.text?.startsWith('/')){
-            await bot.sendMessage(
-                msg.chat.id,
-                formatVariables(
-                    TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].errors[
-                        'generic-error'
-                    ],
-                ),
-                { reply_to_message_id: msg.message_id }
-            );
-            return;
-        }
     }
 });
 
@@ -98,6 +86,12 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
             );
             return;
         } 
+    }
+
+    if (command?.endsWith('@' + botUsername)) {
+        command = command.replace('@' + botUsername, '');
+    } else if (msg.chat.type != 'private') {
+        return;
     }
     const input = removeCommandNameFromCommand(match.input);
 
@@ -172,10 +166,10 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                 reply_markup: {
                     inline_keyboard: [
                         [
-                            { text: 'Last Week', callback_data: 'last-week' },
-                            { text: 'Query by Keyword', callback_data: 'query-keyword' },
+                            { text: 'Last Weeks Jobs', callback_data: 'last-week' },
+                            { text: 'Query with Keywords', callback_data: 'query-keyword' },
                         ],[
-                            { text: 'Explore Categories', callback_data: 'explore-categories' }
+                            { text: 'Explore some Categories', callback_data: 'explore-categories' }
                         ]
                     ]
                 }
@@ -234,13 +228,14 @@ bot.on('callback_query', async (callbackQuery) => {
             const chatId = callbackQuery.message?.chat.id;
             if (!chatId) return;
             const jobs = getLatestJobs();
-            await sendParseMessage(chatId, jobs, bot, ['from Last Week']);
+            const jobArray = await jobs;
+            await sendParseMessage(chatId, jobArray, bot, ['from Last Week']);
         }
         )();
         break;
     case 'query-keyword':
         waitingForKeywords = true;
-        messageText = 'Please enter keywords, separated by commas \n\nExample: project manager, ui/ux, fullstack';
+        messageText = TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general['query-keywords'];
         break;
     case 'explore-categories':
         (async () => {

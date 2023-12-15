@@ -6,7 +6,8 @@
             "language-switch": "Language is now english.",
             "donate": "If you like this bot, you can support us here: 'comming soon!!",
             "btc-price":"The current price of Bitcoin is USD $price",
-            "latest-jobs":"In order to see the latest Bitcoin jobs, please choose one of the following options: "
+            "latest-jobs":"In order to see the latest Bitcoin jobs, please choose one of the following options: ",
+            "query-keywords": "Please enter what you are looking for, separated by commas \n\nFor example: Project Manager, UI/UX, Customer Support"
         },
         "command-descriptions": {
             "help": "Show help message.",
@@ -31,7 +32,8 @@
             "language-switch": "Die Sprache ist jetzt Deutsch.",
             "donate": "Wenn Ihnen dieser Bot gefällt, können Sie uns unterstützen unter: 'comming soon!!",
             "btc-price":"Der aktuelle Preis von Bitcoin ist USD $price",
-            "latest-jobs":"Um die neuesten Bitcoin-Jobs zu sehen, wählen Sie bitte eine der folgenden Optionen: "
+            "latest-jobs":"Um die neuesten Bitcoin-Jobs zu sehen, wählen Sie bitte eine der folgenden Optionen: ",
+            "query-keywords": "Bitte geben Sie ein, wonach Sie suchen, getrennt durch Kommas \n\nZum Beispiel: Projektmanager, UI/UX, Kundensupport"
         },
         "command-descriptions": {
             "help": "Zeigt die Hilfemeldung an.",

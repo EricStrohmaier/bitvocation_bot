@@ -9,6 +9,7 @@ export const TRANSLATIONS: {
         'btc-price': string;
         'latest-jobs': string;
         'help': string;
+        'query-keywords': string;
       };
       'command-descriptions': {
         language: string;

@@ -115,8 +115,6 @@ const supabaseServiceKey = process.env.SUPABASE_KEY as string;
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function getLatestJobs() {
- 
-  
     // use today's date and get latest jobs from that on 
     const today = new Date();
     const formattedDate = format(today, 'yyyy-MM-dd');
@@ -170,6 +168,11 @@ export async function sendParseMessage(
         }
         const catStrings = response.map((entry: any) => {
             let catString = `\n <a href="${entry.url}"><b>${entry.title}</b></a>`;
+
+            catString += `\n 📅 From the: <b>${format(
+                new Date(entry.created_at),
+                'dd.MM.yyyy'
+            )}</b>`;
       
             if (entry.company) {
                 catString += `\n 🏢 Company: <b>${entry.company}</b>`;
