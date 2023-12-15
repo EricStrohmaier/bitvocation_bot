@@ -4,6 +4,7 @@ import fs from 'fs';
 import { createClient } from '@supabase/supabase-js';
 import { format, subWeeks } from 'date-fns';
 import * as dotenv from 'dotenv';
+import { da } from 'date-fns/locale';
 dotenv.config();
 
 const openai = new OpenAIApi(
@@ -112,7 +113,7 @@ if (!process.env.SUPABASE_URL && !process.env.SUPABASE_KEY) {
 }
 const supabaseUrl = process.env.SUPABASE_URL as string;
 const supabaseServiceKey = process.env.SUPABASE_KEY as string;
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+export const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function getLatestJobs() {
     // use today's date and get latest jobs from that on 
@@ -203,5 +204,132 @@ export async function sendParseMessage(
     }
 }
 
+export function calculateTimeRange() {
+    const now = new Date();
+    const pastDayStart = new Date(now);
+    pastDayStart.setHours(0, 0, 0, 0); // Set to the beginning of the day
+    const pastDayEnd = new Date(now);
+    pastDayEnd.setHours(23, 59, 59, 999); // Set to the end of the day
   
+    return {
+        pastDayStart,
+        pastDayEnd,
+    };
+}
+const fetchInterval = 3 * 60 * 60 * 1000;
+setInterval(fetchAndPostLatestEntries, fetchInterval);
+
+
+export async function fetchAndPostLatestEntries( bot: any) {
+    const channelID = '-1001969684625';
+
+    console.log('--------------------New Fetch started--------------------');
+    try {
+        const { pastDayStart, pastDayEnd } = calculateTimeRange();
   
+        const { data, error } = await supabase
+            .from('job_table')
+            .select('*')
+            .gt('created_at', pastDayStart.toISOString())
+            .lt('created_at', pastDayEnd.toISOString())
+            .order('created_at', { ascending: false });
+  
+        if (error) {
+            console.error(
+                'Error fetching data from Supabase',
+                error.message
+            );
+        }
+        if (!data || data.length === 0) {
+            console.log('No data found');
+            return;
+        }
+        console.log(
+            `Fetched ${JSON.stringify(data)} entries from Supabase.`
+        );
+        for (const [index, entry] of data.entries()) {
+            if (entry.fetched === true) {
+                console.log(`Entry ${entry.id} already fetched, skipping...`);
+            } else {
+                try {
+                    const delay = index * 50000;
+                    await new Promise((resolve) => setTimeout(resolve, delay));
+  
+                    let message = `
+              🟠  <a href="${entry.url}"><b>${entry.title}</b></a>\n`;
+                    if (entry.company) {
+                        message += `\nCompany: <b>${entry.company}</b>`;
+                    }
+                    // if (entry.date) {
+                    //   message += `\nDate of Publishing: <b>${entry.date}</b>`;
+                    // }
+                    if (entry.location !== null && entry.location !== '') {
+                        const input = entry.location;
+                        const location = input.replace(/[[\]"]+/g, '');
+                        message += `\nLocation: <b>${location}</b>`;
+                    }
+  
+                    if (entry.salary !== null && entry.salary !== '') {
+                        message += `\nSalary: <b>${entry.salary}</b>`;
+                    }
+  
+                    if (entry.category !== null && entry.category !== '') {
+                        message += `\nCategory: <b>${entry.category}</b>`;
+                    }
+                    if (entry.type !== null && entry.type !== '') {
+                        message += `\nEmployment Type: <b>${entry.type}</b>`;
+                    }
+  
+                    if (entry.tags.length > 0) {
+                        // Replace spaces and hyphens with underscores, and make tags lowercase
+                        const tagElement = entry.tags
+                            .map(
+                                (tag: string) =>
+                                    `#${tag
+                                        .replace(/\s*\([^)]*\)\s*/g, '')
+                                        .trim()
+                                        .replace(/[\s-]/g, '_')
+                                        .toLowerCase()}`
+                            )
+                            .join(' ');
+  
+                        // Use "Tag" for singular and "Tags" for plural
+                        const tagsLabel = entry.tags.length === 1 ? 'Tag' : 'Tags';
+  
+                        message += `\n\n <b>${tagsLabel}:</b> ${tagElement}`;
+                    }
+  
+                    // const urlToUse =
+                    //   entry.applyURL && entry.applyURL !== ""
+                    //     ? entry.applyURL
+                    //     : entry.url;
+  
+                    const inlineKeyboard = {
+                        inline_keyboard: [[{ text: 'Learn more', url: entry.url }]],
+                    };
+  
+                    const options = {
+                        parse_mode: 'HTML',
+                        reply_markup: JSON.stringify(inlineKeyboard),
+                    };
+                        // Send the message to the first channel (channelID)
+                    await bot.sendMessage(channelID, message, options);
+                    console.log(`Message sent to ${channelID}: ${message}`);
+  
+                    // Send the message to the second channel (channelUsername)
+                    // await bot.sendMessage(channelUsername, message, options);
+                    // console.log(`Message sent to ${channelUsername}: ${message}`);
+  
+                    const { data: data } = await supabase
+                        .from('job_table')
+                        .update({ fetched: true })
+                        .eq('id', entry.id);
+                } catch (messageError) {
+                    console.error('Error sending message:', messageError);
+                }
+            }
+        }
+    } catch (fetchError) {
+        console.error('Error fetching data:', fetchError);
+    }
+}

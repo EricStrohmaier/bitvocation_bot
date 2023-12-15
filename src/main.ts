@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 import TelegramBot from 'node-telegram-bot-api';
 import fs from 'fs';
-import { formatVariables, 
+import { fetchAndPostLatestEntries, formatVariables, 
     getKeyword, getLatestJobs, removeCommandNameFromCommand,
     sendParseMessage, switchLanguage } from './functions';
 import { PARAMETERS } from './parameters';
@@ -22,6 +22,8 @@ const token = process.env.TELEGRAM_BOT_API_KEY;
 const bot = new TelegramBot(token, { polling: true });
 const botUsername = (await bot.getMe()).username;
 
+fetchAndPostLatestEntries(bot);
+
 export let userConfig: { chatId: string;  language: string };
 if (fs.existsSync('./user-config.json')) {
     userConfig = JSON.parse(fs.readFileSync('./user-config.json').toString());
@@ -31,9 +33,9 @@ if (fs.existsSync('./user-config.json')) {
         language: '',
     };
 }
-
 setBotCommands(bot);
 let waitingForKeywords = false;
+
 
 // Messages for conversations.
 bot.on('message', async (msg) => {
