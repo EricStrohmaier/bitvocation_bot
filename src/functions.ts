@@ -5,6 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import { format, subWeeks } from 'date-fns';
 import * as dotenv from 'dotenv';
 import { da } from 'date-fns/locale';
+import TelegramBot, { SendMessageOptions } from 'node-telegram-bot-api';
 dotenv.config();
 
 const openai = new OpenAIApi(
@@ -216,11 +217,14 @@ export function calculateTimeRange() {
         pastDayEnd,
     };
 }
+const token = process.env.BITVOCATION_BOT_TOKEN!;
+const bitcovationBot = new TelegramBot(token, { polling: true });
+
 const fetchInterval = 3 * 60 * 60 * 1000;
 setInterval(fetchAndPostLatestEntries, fetchInterval);
+fetchAndPostLatestEntries();
+export async function fetchAndPostLatestEntries() {
 
-
-export async function fetchAndPostLatestEntries( bot: any) {
     const channelID = '-1001969684625';
 
     console.log('--------------------New Fetch started--------------------');
@@ -308,12 +312,12 @@ export async function fetchAndPostLatestEntries( bot: any) {
                         inline_keyboard: [[{ text: 'Learn more', url: entry.url }]],
                     };
   
-                    const options = {
+                    const options: SendMessageOptions = {
                         parse_mode: 'HTML',
-                        reply_markup: JSON.stringify(inlineKeyboard),
+                        reply_markup: inlineKeyboard,
                     };
                         // Send the message to the first channel (channelID)
-                    await bot.sendMessage(channelID, message, options);
+                    await bitcovationBot.sendMessage(channelID, message, options);
                     console.log(`Message sent to ${channelID}: ${message}`);
   
                     // Send the message to the second channel (channelUsername)

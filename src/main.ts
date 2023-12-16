@@ -22,7 +22,7 @@ const token = process.env.TELEGRAM_BOT_API_KEY;
 const bot = new TelegramBot(token, { polling: true });
 const botUsername = (await bot.getMe()).username;
 
-fetchAndPostLatestEntries(bot);
+
 
 export let userConfig: { chatId: string;  language: string };
 if (fs.existsSync('./user-config.json')) {
