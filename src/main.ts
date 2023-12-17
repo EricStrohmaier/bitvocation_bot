@@ -125,12 +125,12 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                 reply_markup: {
                     inline_keyboard: [
                         [
-                            { text: 'Look here!', url: 'https://getalby.com/p/strohstacks' },
+                            { text: 'Take a look here!', url: 'https://getalby.com/p/strohstacks' },
                         ]
                     ]
                 }
             };
-            await bot.sendMessage(msg.chat.id, 'Thank you for your support!', keyboard);
+            await bot.sendMessage(msg.chat.id, TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general.donate, keyboard);
         }
         )();
      
