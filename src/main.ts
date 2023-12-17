@@ -168,7 +168,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                 reply_markup: {
                     inline_keyboard: [
                         [
-                            { text: 'Last Weeks Jobs', callback_data: 'last-week' },
+                            { text: 'See latest Jobs', callback_data: 'last-week' },
                             { text: 'Query with Keywords', callback_data: 'query-keyword' },
                         ],[
                             { text: 'Explore some Categories', callback_data: 'explore-categories' }
@@ -231,7 +231,7 @@ bot.on('callback_query', async (callbackQuery) => {
             if (!chatId) return;
             const jobs = getLatestJobs();
             const jobArray = await jobs;
-            await sendParseMessage(chatId, jobArray, bot, ['from Last Week']);
+            await sendParseMessage(chatId, jobArray, bot, ['']);
         }
         )();
         break;

@@ -117,14 +117,13 @@ const supabaseServiceKey = process.env.SUPABASE_KEY as string;
 export const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function getLatestJobs() {
-    // use today's date and get latest jobs from that on 
-    const today = new Date();
-    const formattedDate = format(today, 'yyyy-MM-dd');
+    const now = new Date();
+    const formattedDate = now.toISOString(); 
 
     const { data: jobs, error } = await supabase
         .from('job_table')
         .select('*')
-        .gte('created_at', formattedDate)
+        .lte('created_at', formattedDate)
         .order('created_at', { ascending: false })
         .limit(10);
   
