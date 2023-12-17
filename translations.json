@@ -10,7 +10,7 @@
             "query-keywords": "Please enter what you are looking for, separated by commas \n\nFor example: Project Manager, UI/UX, Customer Support"
         },
         "command-descriptions": {
-            "help": "Show help message.",
+            "help": "Show this help message.",
             "language": "Changes the bot's language choose:",
             "start": "Starts the conversation.",
             "donate": "Support the bot's creator.",
