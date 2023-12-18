@@ -38,9 +38,6 @@ let waitingForKeywords = false;
 
 // Messages for conversations.
 bot.on('message', async (msg) => {
-    const chatId = msg.chat.id.toString();
-    setBotCommands(bot, chatId);
-
     if (waitingForKeywords) {
         const chatId = msg.chat.id;
         waitingForKeywords = false;
@@ -76,10 +73,8 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
         command = match.input;
         if (!( 
             command.startsWith('/start') || 
-            command.startsWith('/donate') ||
-            command.startsWith('/language') ||
+            command.startsWith('/value4value') ||
             command.startsWith('/latestjobs') ||
-            command.startsWith('/checkprice') ||
             command.startsWith('/help'))) {
             await bot.sendMessage(
                 msg.chat.id,
@@ -128,7 +123,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
             await bot.sendMessage(msg.chat.id, message);
         })();
         break;
-    case '/donate':
+    case '/value4value':
         (async () => {
             const keyboard = {
                 reply_markup: {
@@ -143,31 +138,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
         }
         )();
      
-        break;
-    case '/language':
-        if (msg.chat.id) {
-            const chatId = msg.chat.id.toString();
-            const keyboard = {
-                reply_markup: {
-                    inline_keyboard: [
-                        [
-                            { text: 'English', callback_data: 'en' },
-                            { text: 'German', callback_data: 'de' },
-                        ]
-                    ]
-                }
-            };
-        
-            await bot.sendMessage(chatId, TRANSLATIONS[userLanguage]['command-descriptions'].language, keyboard);
-            break;
-        }
-        await bot.sendMessage(
-            msg.chat.id,
-            TRANSLATIONS[userLanguage].errors[
-                'invalid-language'
-            ].replace('$language', input),
-        );
-        break;   
+        break;  
     case '/latestjobs':
         if (msg.chat.id) {
             const chatId = msg.chat.id.toString();
@@ -187,33 +158,6 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
             await bot.sendMessage(chatId, TRANSLATIONS[userLanguage].general['latest-jobs'], keyboard);
         }
         break;
-    case '/checkprice':
-        try {
-            const response = await axios.get('https://api.coindesk.com/v1/bpi/currentprice.json');
-            const price = response.data.bpi.USD.rate_float;
-            const formattedPrice = price.toLocaleString('en-US', 
-                { style: 'currency', 
-                    currency: 'USD', 
-                    minimumFractionDigits: 0, 
-                    maximumFractionDigits: 0 
-                });
-
-            await bot.sendMessage(
-                msg.chat.id,
-                TRANSLATIONS[userLanguage].general[
-                    'btc-price'
-                ].replace('$price', formattedPrice),
-            );
-            break;
-        } catch (e) {
-            console.error(e);
-            await bot.sendMessage(
-                msg.chat.id,
-                'An error occurred. Please try again later.',
-                { reply_to_message_id: msg.message_id }
-            );
-        }
-        break;
     default:
         break;
     }
@@ -228,14 +172,6 @@ bot.on('callback_query', async (callbackQuery) => {
     let messageText = '';
   
     switch (callbackQuery.data) {
-  
-    case 'en':
-    case 'de': {
-        const selectedLanguage = callbackQuery.data;
-        switchLanguage(chatId.toString() ,selectedLanguage);
-        messageText = TRANSLATIONS[selectedLanguage].general['language-switch'];
-        break;
-    }
     case 'last-week':
         (async () => {
             const chatId = callbackQuery.message?.chat.id;
@@ -307,6 +243,11 @@ bot.on('callback_query', async (callbackQuery) => {
             await sendParseMessage(chatId, catArray, bot, ['in Customer Operations']);
         })();
         break;
+    case 'jobalert'
+        :
+        messageText = 'Job Alert';
+        break;
+
     default:
         break;
     }

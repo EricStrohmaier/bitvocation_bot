@@ -1,13 +1,14 @@
 {
     "en": {
         "general": {
-            "start-message": "Hey there, this is the default start message.\n\n Check out the /help command to see what I can do.\n\nHave fun!",
+            "start-message": "Hey there, I’m your friendly Bitvocation bot!\nI scrape the internet for all the latest job openings in Bitcoin and post them in the @bitvocationfeed. Click on /help to see what else I can do for you!\n\nPS - Did you get your Free Guide “How to find your first job in Bitcoin” yet? Go to bitvocation.com and download it now!",
             "help": "Here are the commands you can use: \n\n",
             "language-switch": "Language is now english.",
-            "donate": "If you like this project, you can support us here\n\nThank you for your support!",
+            "donate": "Does my work make your life easier?\n\nSend some sats to my creators if you’d like to reward them in a value-for-value manner! They'll appreciate it and be able to provide me with more and more valuable features.",
             "btc-price":"The current price of Bitcoin is $price",
             "latest-jobs":"In order to see the latest Bitcoin jobs, please choose one of the following options: ",
-            "query-keywords": "Please enter what you are looking for, separated by commas \n\nFor example: Project Manager, UI/UX, Customer Support"
+            "query-keywords": "Please enter what you are looking for, separated by commas \n\nFor example: Project Manager, UI/UX, Customer Support",
+            "set-job-alert": "Please enter your keywords, separated by commas in order to get job alerts about these topics \n\nFor example: Remote, Frontend, Operations"
         },
         "command-descriptions": {
             "help": "Show this help message.",
@@ -15,7 +16,8 @@
             "start": "Starts the conversation.",
             "donate": "Support the bot's creator.",
             "checkprice": "Get the current price of Bitcoin.",
-            "jobs": "Explore the latest Bitcoin jobs."
+            "jobs": "Explore the latest Bitcoin jobs.",
+            "jobalert": "Set up a job alert."
         },
         "errors": {
             "generic-error": "An error occured :(\n\nPlease see our help message with /help.",
@@ -33,7 +35,8 @@
             "donate": "Wenn Ihnen dieses Projekt gefällt, können Sie uns hier unterstützen\n\nVielen Dank für Ihre Unterstützung!",
             "btc-price":"Der aktuelle Preis von Bitcoin ist $price",
             "latest-jobs":"Um die neuesten Bitcoin-Jobs zu sehen, wählen Sie bitte eine der folgenden Optionen: ",
-            "query-keywords": "Bitte geben Sie ein, wonach Sie suchen, getrennt durch Kommas \n\nZum Beispiel: Projektmanager, UI/UX, Kundensupport"
+            "query-keywords": "Bitte geben Sie ein, wonach Sie suchen, getrennt durch Kommas \n\nZum Beispiel: Projektmanager, UI/UX, Kundensupport",
+            "set-job-alert": "Bitte geben Sie Schlüsselwörter, durch Kommas getrennt ein, um Jobbenachrichtigungen zu diesen Themen zu erhalten \n\nZum Beispiel: Remote, Frontend, Full-time"
         },
         "command-descriptions": {
             "help": "Zeigt diese Hilfemeldung an.",
@@ -41,7 +44,8 @@
             "start": "Startet die Unterhaltung.",
             "donate": "Unterstützt die Ersteller des Bots.",
             "checkprice": "Gibt den aktuellen Preis von Bitcoin aus.",
-            "jobs": "Erkunden Sie die neuesten Bitcoin-Jobs."
+            "jobs": "Erkunden Sie die neuesten Bitcoin-Jobs.",
+            "jobalert": "Richten Sie eine Jobbenachrichtigung ein."
         },
         "errors": {
             "generic-error": "Ein Fehler ist aufgetreten :(\n\nBitte sehen Sie unsere Hilfemeldung mit /help.",

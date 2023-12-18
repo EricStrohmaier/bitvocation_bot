@@ -18,6 +18,7 @@ export const TRANSLATIONS: {
         checkprice: string;
         jobs: string;
         help: string;
+        jobalert: string
       };
       errors: {
         'generic-error': string;

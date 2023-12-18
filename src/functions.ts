@@ -75,8 +75,6 @@ export function switchLanguage(chatId: string, language: 'en' | 'de' | string) {
     userConfigs[chatId] = userConfig;
     fs.writeFileSync('./user-config.json', JSON.stringify(userConfigs, null, 2), 'utf8');
 }
-// export { userConfigs };
-
 
 /** Resets the bot's memory about previous messages. */
 export function resetBotMemory() {
@@ -362,4 +360,8 @@ export async function fetchAndPostLatestEntries() {
     } catch (fetchError) {
         console.error('Error fetching data:', fetchError);
     }
+}
+
+export async function setJobAlert(){
+    return;
 }
