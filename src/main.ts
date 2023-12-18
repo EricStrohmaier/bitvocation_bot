@@ -2,9 +2,8 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import TelegramBot from 'node-telegram-bot-api';
-import fs from 'fs';
-import { fetchAndPostLatestEntries, formatVariables, 
-    getKeyword, getLatestJobs, removeCommandNameFromCommand,
+import { formatVariables, 
+    getKeyword, getLatestJobs, getUserConfigs, removeCommandNameFromCommand,
     sendParseMessage, switchLanguage } from './functions';
 import { PARAMETERS } from './parameters';
 import { TRANSLATIONS } from './translation';
@@ -24,21 +23,24 @@ const botUsername = (await bot.getMe()).username;
 
 
 
-export let userConfig: { chatId: string;  language: string };
-if (fs.existsSync('./user-config.json')) {
-    userConfig = JSON.parse(fs.readFileSync('./user-config.json').toString());
-} else {
-    userConfig = {
-        chatId: '',
-        language: '',
-    };
-}
+// export let userConfig: { chatId: string;  language: string };
+// if (fs.existsSync('./user-config.json')) {
+//     userConfig = JSON.parse(fs.readFileSync('./user-config.json').toString());
+// } else {
+//     userConfig = {
+//         chatId: '',
+//         language: '',
+//     };
+// }
+
 setBotCommands(bot);
 let waitingForKeywords = false;
 
-
 // Messages for conversations.
 bot.on('message', async (msg) => {
+    const chatId = msg.chat.id.toString();
+    setBotCommands(bot, chatId);
+
     if (waitingForKeywords) {
         const chatId = msg.chat.id;
         waitingForKeywords = false;
@@ -67,7 +69,10 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
     if (match.input.split(' ').length != 1) {
         command = match.input.split(' ').shift();
     } else {
-        
+        const chatId = msg.chat.id.toString();
+        const userConfigs = getUserConfigs();
+        const userLanguage = userConfigs[chatId]?.language || PARAMETERS.LANGUAGE;
+    
         command = match.input;
         if (!( 
             command.startsWith('/start') || 
@@ -79,7 +84,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
             await bot.sendMessage(
                 msg.chat.id,
                 formatVariables(
-                    TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].errors[
+                    TRANSLATIONS[userLanguage].errors[
                         'generic-error'
                     ],
                     { command }
@@ -96,13 +101,17 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
         return;
     }
     const input = removeCommandNameFromCommand(match.input);
+    const chatId = msg.chat.id.toString();
+    const userConfigs = getUserConfigs();
+    const userLanguage = userConfigs[chatId]?.language || PARAMETERS.LANGUAGE;
+
 
     switch (command) {
     case '/start':
         await bot.sendMessage(
             msg.chat.id,
             formatVariables(
-                TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general[
+                TRANSLATIONS[userLanguage].general[
                     'start-message'
                 ]
             ),
@@ -114,7 +123,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
             const commands = getCommands.map((command) => {
                 return `/${command.command} - ${command.description}`;
             });
-            const header = TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general['help'];
+            const header = TRANSLATIONS[userLanguage].general['help'];
             const message = header + commands.join('\n');
             await bot.sendMessage(msg.chat.id, message);
         })();
@@ -130,7 +139,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                     ]
                 }
             };
-            await bot.sendMessage(msg.chat.id, TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general.donate, keyboard);
+            await bot.sendMessage(msg.chat.id, TRANSLATIONS[userLanguage].general.donate, keyboard);
         }
         )();
      
@@ -149,13 +158,12 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                 }
             };
         
-            await bot.sendMessage(chatId, TRANSLATIONS[userConfig.language 
-                || PARAMETERS.LANGUAGE]['command-descriptions'].language, keyboard);
+            await bot.sendMessage(chatId, TRANSLATIONS[userLanguage]['command-descriptions'].language, keyboard);
             break;
         }
         await bot.sendMessage(
             msg.chat.id,
-            TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].errors[
+            TRANSLATIONS[userLanguage].errors[
                 'invalid-language'
             ].replace('$language', input),
         );
@@ -176,7 +184,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                     ]
                 }
             };  
-            await bot.sendMessage(chatId, TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general['latest-jobs'], keyboard);
+            await bot.sendMessage(chatId, TRANSLATIONS[userLanguage].general['latest-jobs'], keyboard);
         }
         break;
     case '/checkprice':
@@ -192,7 +200,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
 
             await bot.sendMessage(
                 msg.chat.id,
-                TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general[
+                TRANSLATIONS[userLanguage].general[
                     'btc-price'
                 ].replace('$price', formattedPrice),
             );
@@ -214,6 +222,9 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
 bot.on('callback_query', async (callbackQuery) => {
     if (!callbackQuery.message) return;
     const chatId = callbackQuery.message.chat.id;
+    const userConfigs = getUserConfigs();
+    const userLanguage = userConfigs[chatId]?.language || PARAMETERS.LANGUAGE;
+
     let messageText = '';
   
     switch (callbackQuery.data) {
@@ -221,7 +232,7 @@ bot.on('callback_query', async (callbackQuery) => {
     case 'en':
     case 'de': {
         const selectedLanguage = callbackQuery.data;
-        switchLanguage(selectedLanguage);
+        switchLanguage(chatId.toString() ,selectedLanguage);
         messageText = TRANSLATIONS[selectedLanguage].general['language-switch'];
         break;
     }
@@ -237,7 +248,7 @@ bot.on('callback_query', async (callbackQuery) => {
         break;
     case 'query-keyword':
         waitingForKeywords = true;
-        messageText = TRANSLATIONS[userConfig.language || PARAMETERS.LANGUAGE].general['query-keywords'];
+        messageText = TRANSLATIONS[userLanguage].general['query-keywords'];
         break;
     case 'explore-categories':
         (async () => {

@@ -1,10 +1,9 @@
 import { Configuration, OpenAIApi } from 'openai';
-import { userConfig } from './main';
+// import { userConfig } from './main';
 import fs from 'fs';
 import { createClient } from '@supabase/supabase-js';
-import { format, subWeeks } from 'date-fns';
+import { format } from 'date-fns';
 import * as dotenv from 'dotenv';
-import { da } from 'date-fns/locale';
 import TelegramBot, { SendMessageOptions } from 'node-telegram-bot-api';
 dotenv.config();
 
@@ -42,14 +41,42 @@ export function removeCommandNameFromCommand(input: string): string {
 }
 let lastMessage = '';
 
+interface UserConfig {
+    chatId: string;
+    language: string;
+}
+/**
+ * Retrieves the current user configurations from the file.
+ * @returns {Record<string, UserConfig>} - The user configurations.
+ */
+export function getUserConfigs(): Record<string, UserConfig> {
+    return fs.existsSync('./user-config.json')
+        ? JSON.parse(fs.readFileSync('./user-config.json').toString())
+        : {};
+}
 /**
  * Switches bot's language for a specific user.
+ * @param {string} chatId - The unique identifier for the user.
  * @param {'en' | 'de' | string} language - The language the bot will now speak.
  */
-export function switchLanguage(language: 'en' | 'de' | string) {
+export function switchLanguage(chatId: string, language: 'en' | 'de' | string) {
+    // Retrieve the current user configuration
+    let userConfigs: Record<string, UserConfig> = {};
+    if (fs.existsSync('./user-config.json')) {
+        userConfigs = JSON.parse(fs.readFileSync('./user-config.json').toString());
+    }
+
+    const userConfig = userConfigs[chatId] || { chatId, language: '' };
+
+    // Update the language for the specific user
     userConfig.language = language;
-    fs.writeFileSync('user-config.json', JSON.stringify(userConfig), 'utf8');
+
+    // Save the updated user configuration
+    userConfigs[chatId] = userConfig;
+    fs.writeFileSync('./user-config.json', JSON.stringify(userConfigs, null, 2), 'utf8');
 }
+// export { userConfigs };
+
 
 /** Resets the bot's memory about previous messages. */
 export function resetBotMemory() {
