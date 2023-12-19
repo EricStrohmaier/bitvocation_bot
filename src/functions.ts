@@ -162,9 +162,15 @@ export async function getLatestJobs() {
 }
 
 export async function getKeyword(keywords: string[]) {
+    const now = new Date();
+    const sevenDaysAgo = new Date(now);
+    sevenDaysAgo.setDate(now.getDate() - 7);
+
     const { data: jobs } = await supabase
         .from('job_table')
         .select()
+        .gte('created_at', sevenDaysAgo.toISOString())
+        .lte('created_at', now.toISOString())
         .order('created_at', { ascending: false });
     if (jobs && jobs.length > 0) {
         // filter out the jobs that match the keyword
@@ -251,6 +257,7 @@ export function calculateTimeRange() {
         pastDayEnd,
     };
 }
+
 const token = process.env.BITVOCATION_BOT_TOKEN!;
 const bitcovationBot = new TelegramBot(token, { polling: true });
 
