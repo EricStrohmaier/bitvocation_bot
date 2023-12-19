@@ -74,7 +74,8 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
         if (!( 
             command.startsWith('/start') || 
             command.startsWith('/value4value') ||
-            command.startsWith('/latestjobs') ||
+            command.startsWith('/jobs') ||
+            command.startsWith('/categories') ||
             command.startsWith('/help'))) {
             await bot.sendMessage(
                 msg.chat.id,
@@ -138,8 +139,29 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
         }
         )();
      
-        break;  
-    case '/latestjobs':
+        break; 
+    case '/categories':
+        (async () => {
+            const keyboard = {
+                reply_markup: {
+                    inline_keyboard: [
+                        [
+                            { text: 'UI/UX Design', callback_data: 'design' },
+                            { text: 'Sales', callback_data: 'sales' },
+                            { text: 'Marketing', callback_data: 'marketing' }
+                        ],
+                        [
+                            { text: 'Engineering', callback_data: 'engineering' },
+                            { text: 'Customer Operations', callback_data: 'customer-op' },
+                        ]
+                    ]
+                }
+            };
+            await bot.sendMessage(chatId, TRANSLATIONS[userLanguage].general.categories, keyboard);   
+        
+        })();
+        break; 
+    case '/jobs':
         if (msg.chat.id) {
             const chatId = msg.chat.id.toString();
             //check how it where it presses explore categories
@@ -147,7 +169,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                 reply_markup: {
                     inline_keyboard: [
                         [
-                            { text: 'All the listings of the last 7 days', callback_data: 'last-week' },
+                            { text: 'All of the last 7 days', callback_data: 'last-week' },
                             { text: 'Search by keyword', callback_data: 'query-keyword' },
                         ],
                         [
@@ -210,7 +232,7 @@ bot.on('callback_query', async (callbackQuery) => {
                     ]
                 }
             };
-            await bot.sendMessage(chatId, 'Explore Categories', keyboard);   
+            await bot.sendMessage(chatId, TRANSLATIONS[userLanguage].general.categories, keyboard);   
         }
         )();
         break;

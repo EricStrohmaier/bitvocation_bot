@@ -10,6 +10,7 @@ export const TRANSLATIONS: {
         'latest-jobs': string;
         'help': string;
         'query-keywords': string;
+        'categories': string;
       };
       'command-descriptions': {
         language: string;
@@ -19,6 +20,7 @@ export const TRANSLATIONS: {
         jobs: string;
         help: string;
         jobalert: string
+        categories: string;
       };
       errors: {
         'generic-error': string;

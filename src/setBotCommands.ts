@@ -23,7 +23,13 @@ export function setBotCommands(
             ].help,
         },
         {
-            command: 'latestjobs',
+            command: 'categories',
+            description: TRANSLATIONS[language][
+                'command-descriptions' 
+            ].categories,
+        },
+        {
+            command: 'jobs',
             description: TRANSLATIONS[language][
                 'command-descriptions' 
             ].jobs,
