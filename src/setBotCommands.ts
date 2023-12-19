@@ -28,12 +28,12 @@ export function setBotCommands(
                 'command-descriptions' 
             ].jobs,
         },
-        {
-            command: 'setjobalert',
-            description: TRANSLATIONS[language][
-                'command-descriptions' 
-            ].jobalert,
-        },
+        // {
+        //     command: 'setjobalert',
+        //     description: TRANSLATIONS[language][
+        //         'command-descriptions' 
+        //     ].jobalert,
+        // },
         //     {
         //         command: 'language',
         //         description:

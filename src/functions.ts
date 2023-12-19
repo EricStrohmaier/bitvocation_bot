@@ -143,14 +143,15 @@ export const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export async function getLatestJobs() {
     const now = new Date();
-    const formattedDate = now.toISOString(); 
+    const sevenDaysAgo = new Date(now);
+    sevenDaysAgo.setDate(now.getDate() - 7);
 
     const { data: jobs, error } = await supabase
         .from('job_table')
         .select('*')
-        .lte('created_at', formattedDate)
-        .order('created_at', { ascending: false })
-        .limit(10);
+        .gte('created_at', sevenDaysAgo.toISOString())
+        .lte('created_at', now.toISOString())
+        .order('created_at', { ascending: false });
   
     if (error) {
         console.error('Error fetching latest jobs:', error.message);
@@ -184,50 +185,59 @@ export async function getKeyword(keywords: string[]) {
     }
 }
 
-
-export async function sendParseMessage( 
+export async function sendParseMessage(
     chatId: number, response: any, bot: any, keywords: string[]
-){
+) {
     if (response !== null && response !== undefined) {
-        if (response.length > 10) {
-            response = response.slice(0, 10);
-        }
-        const catStrings = response.map((entry: any) => {
-            let catString = `\n <a href="${entry.url}"><b>${entry.title}</b></a>`;
-
-            catString += `\n 📅 From the: <b>${format(
-                new Date(entry.created_at),
-                'dd.MM.yyyy'
-            )}</b>`;
-      
-            if (entry.company) {
-                catString += `\n 🏢 Company: <b>${entry.company}</b>`;
-            }
-      
-            if (entry.location !== null && entry.location !== '') {
-                catString += `\n 📍 Location: <b>${entry.location}</b>`;
-            }
-            catString += '\n';
-      
-            return catString;
-        });
-            //nice message
-        const message = `${response.length} Jobs ${keywords}:
-            ${catStrings.join('')}`;
-      
-        if (message) {
-            const options: {
-                    parse_mode?: 'Markdown' | 'HTML' | undefined;
-                    disable_web_page_preview?: boolean;
-                  } = {
-                      parse_mode: 'HTML',
-                      disable_web_page_preview: true,
-                  };                          
-      
-            await bot.sendMessage(chatId, message, options);
+        let index = 0;
+        const chunkSize = 35;
+  
+        while (index < response.length) {
+            const chunk = response.slice(index, index + chunkSize);
+            await sendMessagePart(chatId, chunk, bot, keywords);
+            index += chunkSize;
         }
     }
 }
+  
+
+async function sendMessagePart(chatId: number, responsePart: any, bot: any, keywords: string[]) {
+    const catStrings = responsePart.map((entry: any) => {
+        let catString = `\n <a href="${entry.url}"><b>${entry.title}</b></a>`;
+
+        catString += `\n 📅 From the: <b>${format(
+            new Date(entry.created_at),
+            'dd.MM.yyyy'
+        )}</b>`;
+
+        if (entry.company) {
+            catString += `\n 🏢 Company: <b>${entry.company}</b>`;
+        }
+
+        if (entry.location !== null && entry.location !== '') {
+            catString += `\n 📍 Location: <b>${entry.location}</b>`;
+        }
+        catString += '\n';
+
+        return catString;
+    });
+
+    const message = `${responsePart.length} Jobs ${keywords}:
+        ${catStrings.join('')}`;
+
+    if (message) {
+        const options: {
+            parse_mode?: 'Markdown' | 'HTML' | undefined;
+            disable_web_page_preview?: boolean;
+        } = {
+            parse_mode: 'HTML',
+            disable_web_page_preview: true,
+        };                          
+
+        await bot.sendMessage(chatId, message, options);
+    }
+}
+
 
 export function calculateTimeRange() {
     const now = new Date();

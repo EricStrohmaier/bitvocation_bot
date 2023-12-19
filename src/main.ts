@@ -147,10 +147,11 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                 reply_markup: {
                     inline_keyboard: [
                         [
-                            { text: 'See latest Jobs', callback_data: 'last-week' },
-                            { text: 'Query with Keywords', callback_data: 'query-keyword' },
-                        ],[
-                            { text: 'Explore some Categories', callback_data: 'explore-categories' }
+                            { text: 'All the listings of the last 7 days', callback_data: 'last-week' },
+                            { text: 'Search by keyword', callback_data: 'query-keyword' },
+                        ],
+                        [
+                            { text: 'Explore Categories', callback_data: 'explore-categories' }
                         ]
                     ]
                 }
