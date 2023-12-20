@@ -208,8 +208,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
     case '/jobalert':
         (async () => {
             const chatId = msg.chat.id.toString();
-            const response = await hasJobAlert(chatId);
-            
+            const response = await hasJobAlert(chatId);            
             const keyboard = {
                 reply_markup: {
                     inline_keyboard: [
@@ -221,9 +220,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                 }
             };    
             const message =  TRANSLATIONS[userLanguage].general['job-alert'];
-            const hasData = response && Array.isArray(response) && response.length > 0;
-            // Check if data is present before sending the keyboard
-            const sendKeyboard = hasData && response[0]?.job_alerts && response[0].job_alerts.length > 0 ? keyboard : undefined;
+            const sendKeyboard =  response && response.length > 0 ? keyboard : undefined;
             await bot.sendMessage(chatId, message, sendKeyboard);
             setJobAlert = true; 
         })();
@@ -257,10 +254,10 @@ bot.on('callback_query', async (callbackQuery) => {
             const chatId = callbackQuery.message?.chat.id;
             if (!chatId) return;
             const jobAlertsData = await hasJobAlert(chatId.toString());
+            console.log(jobAlertsData);
                     
             if (jobAlertsData && jobAlertsData.length > 0) {
-                const jobAlerts = jobAlertsData[0].job_alerts || [];
-                const formattedJobAlerts = jobAlerts.join(', '); // Join the keywords with commas
+                const formattedJobAlerts = jobAlertsData.join(', '); // Join the keywords with commas
                         
                 bot.sendMessage(chatId, `Your current job alerts are:\n\n ${formattedJobAlerts}`);
             } else {

@@ -276,7 +276,6 @@ setInterval(fetchAndPostLatestEntries, fetchInterval);
 fetchAndPostLatestEntries();
 export async function fetchAndPostLatestEntries() {
     const channelID = '-1001969684625';
-
     console.log('--------------------New Fetch started--------------------');
     try {
         const { pastDayStart, pastDayEnd } = calculateTimeRange();
@@ -410,8 +409,8 @@ export async function readUserEntry(chatId: string) {
     }
     return false;
 }
-export async function hasJobAlert(chatId:string){
-    const { data, error } = await supabase
+export async function hasJobAlert(chatId: string) {
+    const { data: data, error } = await supabase
         .from('user_config')
         .select('job_alerts')
         .eq('user_id', chatId);
@@ -420,13 +419,12 @@ export async function hasJobAlert(chatId:string){
         console.error('Error fetching user data:', error.message);
         return false; // Handle the error as needed
     }
-    console.log('data', data);
-    
+    // console.log('data', data);
+
     if (data && data.length > 0) {
-        return data; // User with the provided chatId exists
+        return data[0].job_alerts; // User with the provided chatId exists
     }
     return false;
-
 }
 export async function updateJobAlerts(chatId: string, newKeywords: string[]) {
     if (!newKeywords || newKeywords.length === 0) {
@@ -444,16 +442,16 @@ export async function updateJobAlerts(chatId: string, newKeywords: string[]) {
             const currentKeywords = existingUserData.data[0].job_alerts || [];
 
             // Combine existing and new keywords, removing duplicates
-            const combinedKeywords = [...new Set([...currentKeywords, ...newKeywords])];
+            const combinedKeywords = [
+                ...new Set([...currentKeywords, ...newKeywords]),
+            ];
 
             const updatedUserData = await supabase
                 .from('user_config')
                 .update({ job_alerts: combinedKeywords })
                 .eq('user_id', chatId);
 
-        
             return updatedUserData;
-
         } else {
             console.error('No user data found for the specified user ID:', chatId);
             return false;
