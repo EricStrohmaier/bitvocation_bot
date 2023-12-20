@@ -83,6 +83,7 @@ bot.on('message', async (msg) => {
 });
 
 bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
+    
     if (!match) return;
     let command: string | undefined;
 
@@ -92,7 +93,10 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
         const chatId = msg.chat.id.toString();
         const userConfigs = getUserConfigs();
         const userLanguage = userConfigs[chatId]?.language || PARAMETERS.LANGUAGE;
-    
+        const newChat = await readUserEntry(chatId);
+        if (!newChat){
+            createUserEntry(chatId);
+        }
         command = match.input;
         if (!( 
             command.startsWith('/start') || 
@@ -253,12 +257,9 @@ bot.on('callback_query', async (callbackQuery) => {
         (async () => {
             const chatId = callbackQuery.message?.chat.id;
             if (!chatId) return;
-            const jobAlertsData = await hasJobAlert(chatId.toString());
-            console.log(jobAlertsData);
-                    
+            const jobAlertsData = await hasJobAlert(chatId.toString());                    
             if (jobAlertsData && jobAlertsData.length > 0) {
-                const formattedJobAlerts = jobAlertsData.join(', '); // Join the keywords with commas
-                        
+                const formattedJobAlerts = jobAlertsData.join(', ');
                 bot.sendMessage(chatId, `Your current job alerts are:\n\n ${formattedJobAlerts}`);
             } else {
                 bot.sendMessage(chatId, 'You don\'t have any job alerts set up.');

@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { Configuration, OpenAIApi } from 'openai';
 // import { userConfig } from './main';
 import fs from 'fs';
@@ -295,78 +296,38 @@ export async function fetchAndPostLatestEntries() {
             return;
         }
         console.log(`Fetched ${JSON.stringify(data)} entries from Supabase.`);
+
         for (const [index, entry] of data.entries()) {
             if (entry.fetched === true) {
                 console.log(`Entry ${entry.id} already fetched, skipping...`);
             } else {
+                // read all users chatIds from db and look at job_alerts
+                // if keywords match to entry send message
+                const jobAlertsData = await readAllJobAlerts();
+
+                if (jobAlertsData) {
+                    for (const userKeywords of jobAlertsData) {
+                        const { user_id, job_alerts } = userKeywords;
+
+                        const jobMatchesAlerts = job_alerts.some((keyword: string) => {
+                            const titleContainsKeyword = entry.title.toLowerCase().includes(keyword.toLowerCase());
+                            const descriptionContainsKeyword = entry.location.toLowerCase().includes(keyword.toLowerCase());
+                            return titleContainsKeyword || descriptionContainsKeyword;
+                        });
+
+                        if (jobMatchesAlerts) {
+                            // Job matches user's alerts, send it to the user
+                            // Send the job details to the user_id (chat_id)
+                            await sendSingleJob(user_id, entry);
+                        }
+                    }
+                }
                 try {
                     const delay = index * 50000;
                     await new Promise((resolve) => setTimeout(resolve, delay));
-
-                    let message = `
-              🟠  <a href="${entry.url}"><b>${entry.title}</b></a>\n`;
-                    if (entry.company) {
-                        message += `\nCompany: <b>${entry.company}</b>`;
-                    }
-                    // if (entry.date) {
-                    //   message += `\nDate of Publishing: <b>${entry.date}</b>`;
-                    // }
-                    if (entry.location !== null && entry.location !== '') {
-                        const input = entry.location;
-                        const location = input.replace(/[[\]"]+/g, '');
-                        message += `\nLocation: <b>${location}</b>`;
-                    }
-
-                    if (entry.salary !== null && entry.salary !== '') {
-                        message += `\nSalary: <b>${entry.salary}</b>`;
-                    }
-
-                    if (entry.category !== null && entry.category !== '') {
-                        message += `\nCategory: <b>${entry.category}</b>`;
-                    }
-                    if (entry.type !== null && entry.type !== '') {
-                        message += `\nEmployment Type: <b>${entry.type}</b>`;
-                    }
-
-                    if (entry.tags.length > 0) {
-                        // Replace spaces and hyphens with underscores, and make tags lowercase
-                        const tagElement = entry.tags
-                            .map(
-                                (tag: string) =>
-                                    `#${tag
-                                        .replace(/\s*\([^)]*\)\s*/g, '')
-                                        .trim()
-                                        .replace(/[\s-]/g, '_')
-                                        .toLowerCase()}`
-                            )
-                            .join(' ');
-
-                        // Use "Tag" for singular and "Tags" for plural
-                        const tagsLabel = entry.tags.length === 1 ? 'Tag' : 'Tags';
-
-                        message += `\n\n <b>${tagsLabel}:</b> ${tagElement}`;
-                    }
-
-                    // const urlToUse =
-                    //   entry.applyURL && entry.applyURL !== ""
-                    //     ? entry.applyURL
-                    //     : entry.url;
-
-                    const inlineKeyboard = {
-                        inline_keyboard: [[{ text: 'Learn more', url: entry.url }]],
-                    };
-
-                    const options: SendMessageOptions = {
-                        parse_mode: 'HTML',
-                        reply_markup: inlineKeyboard,
-                    };
-                    // Send the message to the first channel (channelID)
-                    await bitcovationBot.sendMessage(channelID, message, options);
-                    console.log(`Message sent to ${channelID}: ${message}`);
-
-                    // Send the message to the second channel (channelUsername)
-                    // await bot.sendMessage(channelUsername, message, options);
-                    // console.log(`Message sent to ${channelUsername}: ${message}`);
+                    //send to channel 
+                    await sendSingleJob(channelID, entry);
+                    console.log(`Message sent to ${channelID}:`);
 
                     const { data: data } = await supabase
                         .from('job_table')
@@ -408,6 +369,17 @@ export async function readUserEntry(chatId: string) {
         return true; // User with the provided chatId exists
     }
     return false;
+}
+export async function readAllJobAlerts(){
+    const { data: data, error } = await supabase
+        .from('user_config')
+        .select('user_id , job_alerts');
+
+    if (error) {
+        console.error('Error fetching user data:', error.message);
+        return false; // Handle the error as needed
+    }
+    return data;
 }
 export async function hasJobAlert(chatId: string) {
     const { data: data, error } = await supabase
@@ -474,3 +446,69 @@ export async function deleteJobAlerts(chatId: string) {
         return false;
     }
 }
+const sendSingleJob = async (chatId: string, entry: any) => {
+    try {
+        let message = `
+              🟠  <a href="${entry.url}"><b>${entry.title}</b></a>\n`;
+        if (entry.company) {
+            message += `\nCompany: <b>${entry.company}</b>`;
+        }
+        // if (entry.date) {
+        //   message += `\nDate of Publishing: <b>${entry.date}</b>`;
+        // }
+        if (entry.location !== null && entry.location !== '') {
+            const input = entry.location;
+            const location = input.replace(/[[\]"]+/g, '');
+            message += `\nLocation: <b>${location}</b>`;
+        }
+
+        if (entry.salary !== null && entry.salary !== '') {
+            message += `\nSalary: <b>${entry.salary}</b>`;
+        }
+
+        if (entry.category !== null && entry.category !== '') {
+            message += `\nCategory: <b>${entry.category}</b>`;
+        }
+        if (entry.type !== null && entry.type !== '') {
+            message += `\nEmployment Type: <b>${entry.type}</b>`;
+        }
+
+        if (entry.tags.length > 0) {
+            // Replace spaces and hyphens with underscores, and make tags lowercase
+            const tagElement = entry.tags
+                .map(
+                    (tag: string) =>
+                        `#${tag
+                            .replace(/\s*\([^)]*\)\s*/g, '')
+                            .trim()
+                            .replace(/[\s-]/g, '_')
+                            .toLowerCase()}`
+                )
+                .join(' ');
+
+            // Use "Tag" for singular and "Tags" for plural
+            const tagsLabel = entry.tags.length === 1 ? 'Tag' : 'Tags';
+
+            message += `\n\n <b>${tagsLabel}:</b> ${tagElement}`;
+        }
+
+        // const urlToUse =
+        //   entry.applyURL && entry.applyURL !== ""
+        //     ? entry.applyURL
+        //     : entry.url;
+
+        const inlineKeyboard = {
+            inline_keyboard: [[{ text: 'Learn more', url: entry.url }]],
+        };
+
+        const options: SendMessageOptions = {
+            parse_mode: 'HTML',
+            reply_markup: inlineKeyboard,
+        };
+    
+        await bitcovationBot.sendMessage(chatId, message, options);
+        console.log(`Message sent to ${chatId}: ${message}`);
+    } catch (error) {
+        console.error('Error sending job to user:', error);
+    }
+};

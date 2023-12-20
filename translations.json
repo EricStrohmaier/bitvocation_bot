@@ -17,7 +17,7 @@
             "start": "Starts the conversation",
             "donate": "Support the bot's creator",
             "checkprice": "Get the current price of Bitcoin",
-            "jobs": "Explore the latest Bitcoin jobs",
+            "jobs": "Search through the latest Bitcoin jobs",
             "jobalert": "Set up a job alert",
             "categories": "Explore jobs by category"
         },
