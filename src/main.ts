@@ -2,12 +2,11 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import TelegramBot from 'node-telegram-bot-api';
-import { formatVariables, 
-    getKeyword, getLatestJobs, getUserConfigs, removeCommandNameFromCommand,
-    sendParseMessage, switchLanguage } from './functions';
+import { createUserEntry, formatVariables, 
+    getKeyword, getLatestJobs, getUserConfigs, readUserEntry, removeCommandNameFromCommand,
+    sendParseMessage, updateJobAlerts } from './functions';
 import { PARAMETERS } from './parameters';
 import { TRANSLATIONS } from './translation';
-import axios from 'axios';
 import { setBotCommands } from './setBotCommands';
 
 if (!process.env.TELEGRAM_BOT_API_KEY) {
@@ -35,9 +34,37 @@ const botUsername = (await bot.getMe()).username;
 
 setBotCommands(bot);
 let waitingForKeywords = false;
+let setJobAlert = false;
 
 // Messages for conversations.
 bot.on('message', async (msg) => {
+    for (const command of await bot.getMyCommands()) {
+        if (msg.text?.startsWith('/' + command.command) ) {
+            return;
+        }
+    }
+    const newChat = await readUserEntry(msg.chat.id.toString());
+    if (!newChat){
+        createUserEntry(msg.chat.id);
+    }
+    if (setJobAlert && msg.text) {
+        const chatId = msg.chat.id;
+        const newKeywords = msg.text.split(',');
+
+        // Remove duplicates and empty strings
+        const uniqueNewKeywords = newKeywords
+            .map(keyword => keyword.trim())
+            .filter(keyword => keyword !== '');
+
+        const response = await updateJobAlerts(chatId.toString(), uniqueNewKeywords);
+        if (response) {
+            await bot.sendMessage(chatId, 'Job alert updated!');
+        } else {
+            await bot.sendMessage(chatId, 'Something went wrong. Please try again.');
+        }
+        setJobAlert = false;
+    }
+
     if (waitingForKeywords) {
         const chatId = msg.chat.id;
         waitingForKeywords = false;
@@ -52,11 +79,7 @@ bot.on('message', async (msg) => {
             return;
         }
     }
-    for (const command of await bot.getMyCommands()) {
-        if (msg.text?.startsWith('/' + command.command) ) {
-            return;
-        }
-    }
+    
 });
 
 bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
@@ -76,6 +99,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
             command.startsWith('/value4value') ||
             command.startsWith('/jobs') ||
             command.startsWith('/categories') ||
+            command.startsWith('/jobalert') ||
             command.startsWith('/help'))) {
             await bot.sendMessage(
                 msg.chat.id,
@@ -180,6 +204,13 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
             };  
             await bot.sendMessage(chatId, TRANSLATIONS[userLanguage].general['latest-jobs'], keyboard);
         }
+        break;
+    case '/jobalert':
+        (async () => {
+            const message =  TRANSLATIONS[userLanguage].general['job-alert'];
+            await bot.sendMessage(chatId, message);
+            setJobAlert = true;           
+        })();
         break;
     default:
         break;

@@ -11,6 +11,7 @@ export const TRANSLATIONS: {
         'help': string;
         'query-keywords': string;
         'categories': string;
+        'job-alert': string;
       };
       'command-descriptions': {
         language: string;

@@ -42,8 +42,8 @@ export function removeCommandNameFromCommand(input: string): string {
 let lastMessage = '';
 
 interface UserConfig {
-    chatId: string;
-    language: string;
+  chatId: string;
+  language: string;
 }
 /**
  * Retrieves the current user configurations from the file.
@@ -73,7 +73,11 @@ export function switchLanguage(chatId: string, language: 'en' | 'de' | string) {
 
     // Save the updated user configuration
     userConfigs[chatId] = userConfig;
-    fs.writeFileSync('./user-config.json', JSON.stringify(userConfigs, null, 2), 'utf8');
+    fs.writeFileSync(
+        './user-config.json',
+        JSON.stringify(userConfigs, null, 2),
+        'utf8'
+    );
 }
 
 /** Resets the bot's memory about previous messages. */
@@ -152,7 +156,7 @@ export async function getLatestJobs() {
         .gte('created_at', sevenDaysAgo.toISOString())
         .lte('created_at', now.toISOString())
         .order('created_at', { ascending: false });
-  
+
     if (error) {
         console.error('Error fetching latest jobs:', error.message);
         return null;
@@ -173,7 +177,7 @@ export async function getKeyword(keywords: string[]) {
         .lte('created_at', now.toISOString())
         .order('created_at', { ascending: false });
     if (jobs && jobs.length > 0) {
-        // filter out the jobs that match the keyword
+    // filter out the jobs that match the keyword
         const filteredJobs = jobs.filter((job) => {
             let isMatch = false;
 
@@ -192,12 +196,15 @@ export async function getKeyword(keywords: string[]) {
 }
 
 export async function sendParseMessage(
-    chatId: number, response: any, bot: any, keywords: string[]
+    chatId: number,
+    response: any,
+    bot: any,
+    keywords: string[]
 ) {
     if (response !== null && response !== undefined) {
         let index = 0;
         const chunkSize = 35;
-  
+
         while (index < response.length) {
             const chunk = response.slice(index, index + chunkSize);
             await sendMessagePart(chatId, chunk, bot, keywords);
@@ -205,9 +212,13 @@ export async function sendParseMessage(
         }
     }
 }
-  
 
-async function sendMessagePart(chatId: number, responsePart: any, bot: any, keywords: string[]) {
+async function sendMessagePart(
+    chatId: number,
+    responsePart: any,
+    bot: any,
+    keywords: string[]
+) {
     const catStrings = responsePart.map((entry: any) => {
         let catString = `\n <a href="${entry.url}"><b>${entry.title}</b></a>`;
 
@@ -233,17 +244,16 @@ async function sendMessagePart(chatId: number, responsePart: any, bot: any, keyw
 
     if (message) {
         const options: {
-            parse_mode?: 'Markdown' | 'HTML' | undefined;
-            disable_web_page_preview?: boolean;
-        } = {
-            parse_mode: 'HTML',
-            disable_web_page_preview: true,
-        };                          
+      parse_mode?: 'Markdown' | 'HTML' | undefined;
+      disable_web_page_preview?: boolean;
+    } = {
+        parse_mode: 'HTML',
+        disable_web_page_preview: true,
+    };
 
         await bot.sendMessage(chatId, message, options);
     }
 }
-
 
 export function calculateTimeRange() {
     const now = new Date();
@@ -251,7 +261,7 @@ export function calculateTimeRange() {
     pastDayStart.setHours(0, 0, 0, 0); // Set to the beginning of the day
     const pastDayEnd = new Date(now);
     pastDayEnd.setHours(23, 59, 59, 999); // Set to the end of the day
-  
+
     return {
         pastDayStart,
         pastDayEnd,
@@ -265,33 +275,27 @@ const fetchInterval = 3 * 60 * 60 * 1000;
 setInterval(fetchAndPostLatestEntries, fetchInterval);
 fetchAndPostLatestEntries();
 export async function fetchAndPostLatestEntries() {
-
     const channelID = '-1001969684625';
 
     console.log('--------------------New Fetch started--------------------');
     try {
         const { pastDayStart, pastDayEnd } = calculateTimeRange();
-  
+
         const { data, error } = await supabase
             .from('job_table')
             .select('*')
             .gt('created_at', pastDayStart.toISOString())
             .lt('created_at', pastDayEnd.toISOString())
             .order('created_at', { ascending: false });
-  
+
         if (error) {
-            console.error(
-                'Error fetching data from Supabase',
-                error.message
-            );
+            console.error('Error fetching data from Supabase', error.message);
         }
         if (!data || data.length === 0) {
             console.log('No data found');
             return;
         }
-        console.log(
-            `Fetched ${JSON.stringify(data)} entries from Supabase.`
-        );
+        console.log(`Fetched ${JSON.stringify(data)} entries from Supabase.`);
         for (const [index, entry] of data.entries()) {
             if (entry.fetched === true) {
                 console.log(`Entry ${entry.id} already fetched, skipping...`);
@@ -299,7 +303,7 @@ export async function fetchAndPostLatestEntries() {
                 try {
                     const delay = index * 50000;
                     await new Promise((resolve) => setTimeout(resolve, delay));
-  
+
                     let message = `
               🟠  <a href="${entry.url}"><b>${entry.title}</b></a>\n`;
                     if (entry.company) {
@@ -313,18 +317,18 @@ export async function fetchAndPostLatestEntries() {
                         const location = input.replace(/[[\]"]+/g, '');
                         message += `\nLocation: <b>${location}</b>`;
                     }
-  
+
                     if (entry.salary !== null && entry.salary !== '') {
                         message += `\nSalary: <b>${entry.salary}</b>`;
                     }
-  
+
                     if (entry.category !== null && entry.category !== '') {
                         message += `\nCategory: <b>${entry.category}</b>`;
                     }
                     if (entry.type !== null && entry.type !== '') {
                         message += `\nEmployment Type: <b>${entry.type}</b>`;
                     }
-  
+
                     if (entry.tags.length > 0) {
                         // Replace spaces and hyphens with underscores, and make tags lowercase
                         const tagElement = entry.tags
@@ -337,34 +341,34 @@ export async function fetchAndPostLatestEntries() {
                                         .toLowerCase()}`
                             )
                             .join(' ');
-  
+
                         // Use "Tag" for singular and "Tags" for plural
                         const tagsLabel = entry.tags.length === 1 ? 'Tag' : 'Tags';
-  
+
                         message += `\n\n <b>${tagsLabel}:</b> ${tagElement}`;
                     }
-  
+
                     // const urlToUse =
                     //   entry.applyURL && entry.applyURL !== ""
                     //     ? entry.applyURL
                     //     : entry.url;
-  
+
                     const inlineKeyboard = {
                         inline_keyboard: [[{ text: 'Learn more', url: entry.url }]],
                     };
-  
+
                     const options: SendMessageOptions = {
                         parse_mode: 'HTML',
                         reply_markup: inlineKeyboard,
                     };
-                        // Send the message to the first channel (channelID)
+                    // Send the message to the first channel (channelID)
                     await bitcovationBot.sendMessage(channelID, message, options);
                     console.log(`Message sent to ${channelID}: ${message}`);
-  
+
                     // Send the message to the second channel (channelUsername)
                     // await bot.sendMessage(channelUsername, message, options);
                     // console.log(`Message sent to ${channelUsername}: ${message}`);
-  
+
                     const { data: data } = await supabase
                         .from('job_table')
                         .update({ fetched: true })
@@ -379,6 +383,67 @@ export async function fetchAndPostLatestEntries() {
     }
 }
 
-export async function setJobAlert(){
-    return;
+export async function createUserEntry(chatId: number) {
+    // Insert a new user entry into the user_config table
+    const { data, error } = await supabase
+        .from('user_config')
+        .insert([{ user_id: chatId }]);
+
+    if (error) {
+        console.error('Error inserting user:', error.message);
+        return null; // Handle the error as needed
+    }
+    return data; // Return the inserted data if needed
+}
+export async function readUserEntry(chatId: string) {
+    const { data, error } = await supabase
+        .from('user_config')
+        .select()
+        .eq('user_id', chatId);
+
+    if (error) {
+        console.error('Error fetching user data:', error.message);
+        return false; // Handle the error as needed
+    }
+    if (data && data.length > 0) {
+        return true; // User with the provided chatId exists
+    }
+
+    return false;
+}
+
+export async function updateJobAlerts(chatId: string, newKeywords: string[]) {
+    if (!newKeywords || newKeywords.length === 0) {
+        return;
+    }
+
+    try {
+        const existingUserData = await supabase
+            .from('user_config')
+            .select('job_alerts')
+            .eq('user_id', chatId);
+
+        if (existingUserData.data && existingUserData.data.length > 0) {
+            // Extract current keywords array from the result
+            const currentKeywords = existingUserData.data[0].job_alerts || [];
+
+            // Combine existing and new keywords, removing duplicates
+            const combinedKeywords = [...new Set([...currentKeywords, ...newKeywords])];
+
+            const updatedUserData = await supabase
+                .from('user_config')
+                .update({ job_alerts: combinedKeywords })
+                .eq('user_id', chatId);
+
+        
+            return updatedUserData;
+
+        } else {
+            console.error('No user data found for the specified user ID:', chatId);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error updating user data:', error);
+        return false;
+    }
 }

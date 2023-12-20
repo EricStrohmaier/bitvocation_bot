@@ -4,12 +4,12 @@
             "start-message": "Hey there, I’m your friendly Bitvocation bot!\nI scrape the internet for all the latest job openings in Bitcoin and post them in the @bitvocationfeed. Click on /help to see what else I can do for you!\n\nPS - Did you get your Free Guide “How to find your first job in Bitcoin” yet? Go to bitvocation.com and download it now!",
             "help": "Here are the commands you can use: \n\n",
             "language-switch": "Language is now english.",
-            "donate": "Does my work make your life easier?\n\nSend some sats to my creators if you’d like to reward them in a value-for-value manner! They'll appreciate it and be able to provide me with more and more valuable features.",
+            "donate": "Does my work make your life easier?\n\nSend some sats to my creators if you’d like to reward them in a value-for-value manner! They'll appreciate it and be able to provide me with more and more valuable features",
             "btc-price":"The current price of Bitcoin is $price",
             "latest-jobs":"In order to see the latest Bitcoin job listings of the past 7 days, please choose one of the following options: ",
             "query-keywords": "Please enter what you are looking for, separated by commas \n\nFor example: Project Manager, UI/UX, Customer Support",
-            "set-job-alert": "Please enter your keywords, separated by commas in order to get job alerts about these topics \n\nFor example: Remote, Frontend, Operations",
-            "categories": "Please choose a category to explore Bitcoin jobs by category."
+            "job-alert": "In order to set up a job alert, please enter keywords separated by commas to receive job alerts on these topics \n\nFor example: Remote, Customer Support, Pay in Bitcoin",
+            "categories": "Please choose a category"
         },
         "command-descriptions": {
             "help": "Show this help message",
@@ -19,7 +19,7 @@
             "checkprice": "Get the current price of Bitcoin",
             "jobs": "Explore the latest Bitcoin jobs",
             "jobalert": "Set up a job alert",
-            "categories": "Explore Bitcoin jobs by category"
+            "categories": "Explore jobs by category"
         },
         "errors": {
             "generic-error": "An error occured :(\n\nPlease see our help message with /help",

@@ -23,23 +23,23 @@ export function setBotCommands(
             ].help,
         },
         {
+            command: 'jobs',
+            description: TRANSLATIONS[language][
+                'command-descriptions' 
+            ].jobs,
+        },
+        {
             command: 'categories',
             description: TRANSLATIONS[language][
                 'command-descriptions' 
             ].categories,
         },
         {
-            command: 'jobs',
+            command: 'jobalert',
             description: TRANSLATIONS[language][
                 'command-descriptions' 
-            ].jobs,
+            ].jobalert,
         },
-        // {
-        //     command: 'setjobalert',
-        //     description: TRANSLATIONS[language][
-        //         'command-descriptions' 
-        //     ].jobalert,
-        // },
         //     {
         //         command: 'language',
         //         description:
