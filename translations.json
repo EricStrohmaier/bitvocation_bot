@@ -8,7 +8,7 @@
             "btc-price":"The current price of Bitcoin is $price",
             "latest-jobs":"In order to see the latest Bitcoin job listings of the past 7 days, please choose one of the following options: ",
             "query-keywords": "Please enter what you are looking for, separated by commas \n\nFor example: Project Manager, UI/UX, Customer Support",
-            "job-alert": "In order to set up a job alert, please enter keywords separated by commas to receive job alerts on these topics \n\nFor example: Remote, Customer Support, Pay in Bitcoin",
+            "job-alert": "To set up a job alert, please enter keywords separated by commas to receive job alerts on these topics \n\nFor example: Remote, Customer Support, Pay in Bitcoin",
             "categories": "Please choose a category"
         },
         "command-descriptions": {

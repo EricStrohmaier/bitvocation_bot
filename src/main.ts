@@ -2,8 +2,8 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 import TelegramBot from 'node-telegram-bot-api';
-import { createUserEntry, formatVariables, 
-    getKeyword, getLatestJobs, getUserConfigs, readUserEntry, removeCommandNameFromCommand,
+import { createUserEntry, deleteJobAlerts, formatVariables, 
+    getKeyword, getLatestJobs, getUserConfigs, hasJobAlert, readUserEntry, removeCommandNameFromCommand,
     sendParseMessage, updateJobAlerts } from './functions';
 import { PARAMETERS } from './parameters';
 import { TRANSLATIONS } from './translation';
@@ -45,7 +45,7 @@ bot.on('message', async (msg) => {
     }
     const newChat = await readUserEntry(msg.chat.id.toString());
     if (!newChat){
-        createUserEntry(msg.chat.id);
+        createUserEntry(msg.chat.id.toString());
     }
     if (setJobAlert && msg.text) {
         const chatId = msg.chat.id;
@@ -207,9 +207,25 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
         break;
     case '/jobalert':
         (async () => {
+            const chatId = msg.chat.id.toString();
+            const response = await hasJobAlert(chatId);
+            
+            const keyboard = {
+                reply_markup: {
+                    inline_keyboard: [
+                        [
+                            { text: 'See current Alert', callback_data: 'current-alerts' },
+                            { text: 'Delete Job Alert', callback_data: 'delete-alerts' },
+                        ]
+                    ]
+                }
+            };    
             const message =  TRANSLATIONS[userLanguage].general['job-alert'];
-            await bot.sendMessage(chatId, message);
-            setJobAlert = true;           
+            const hasData = response && Array.isArray(response) && response.length > 0;
+            // Check if data is present before sending the keyboard
+            const sendKeyboard = hasData && response[0]?.job_alerts && response[0].job_alerts.length > 0 ? keyboard : undefined;
+            await bot.sendMessage(chatId, message, sendKeyboard);
+            setJobAlert = true; 
         })();
         break;
     default:
@@ -235,6 +251,34 @@ bot.on('callback_query', async (callbackQuery) => {
             await sendParseMessage(chatId, jobArray, bot, ['']);
         }
         )();
+        break;
+    case 'current-alerts':
+        (async () => {
+            const chatId = callbackQuery.message?.chat.id;
+            if (!chatId) return;
+            const jobAlertsData = await hasJobAlert(chatId.toString());
+                    
+            if (jobAlertsData && jobAlertsData.length > 0) {
+                const jobAlerts = jobAlertsData[0].job_alerts || [];
+                const formattedJobAlerts = jobAlerts.join(', '); // Join the keywords with commas
+                        
+                bot.sendMessage(chatId, `Your current job alerts are:\n\n ${formattedJobAlerts}`);
+            } else {
+                bot.sendMessage(chatId, 'You don\'t have any job alerts set up.');
+            }
+        })();
+        break;
+    case 'delete-alerts':
+        (async () => {
+            const chatId = callbackQuery.message?.chat.id;
+            if (!chatId) return;
+            const response = await deleteJobAlerts(chatId.toString());
+            if (response) {
+                await bot.sendMessage(chatId, 'Job alert deleted!');
+            } else {
+                await bot.sendMessage(chatId, 'Something went wrong. Please try again.');
+            }
+        })();
         break;
     case 'query-keyword':
         waitingForKeywords = true;

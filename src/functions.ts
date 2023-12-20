@@ -383,7 +383,7 @@ export async function fetchAndPostLatestEntries() {
     }
 }
 
-export async function createUserEntry(chatId: number) {
+export async function createUserEntry(chatId: string) {
     // Insert a new user entry into the user_config table
     const { data, error } = await supabase
         .from('user_config')
@@ -408,13 +408,29 @@ export async function readUserEntry(chatId: string) {
     if (data && data.length > 0) {
         return true; // User with the provided chatId exists
     }
-
     return false;
 }
+export async function hasJobAlert(chatId:string){
+    const { data, error } = await supabase
+        .from('user_config')
+        .select('job_alerts')
+        .eq('user_id', chatId);
 
+    if (error) {
+        console.error('Error fetching user data:', error.message);
+        return false; // Handle the error as needed
+    }
+    console.log('data', data);
+    
+    if (data && data.length > 0) {
+        return data; // User with the provided chatId exists
+    }
+    return false;
+
+}
 export async function updateJobAlerts(chatId: string, newKeywords: string[]) {
     if (!newKeywords || newKeywords.length === 0) {
-        return;
+        return false;
     }
 
     try {
@@ -442,6 +458,19 @@ export async function updateJobAlerts(chatId: string, newKeywords: string[]) {
             console.error('No user data found for the specified user ID:', chatId);
             return false;
         }
+    } catch (error) {
+        console.error('Error updating user data:', error);
+        return false;
+    }
+}
+export async function deleteJobAlerts(chatId: string) {
+    try {
+        const updatedUserData = await supabase
+            .from('user_config')
+            .update({ job_alerts: [] })
+            .eq('user_id', chatId);
+
+        return updatedUserData;
     } catch (error) {
         console.error('Error updating user data:', error);
         return false;
