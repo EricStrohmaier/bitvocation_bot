@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 import TelegramBot from 'node-telegram-bot-api';
 import { createUserEntry, deleteJobAlerts, formatVariables, 
-    getKeyword, getLatestJobs, getUserConfigs, hasJobAlert, readUserEntry, removeCommandNameFromCommand,
+    getKeyword, getLatestJobs, getUserConfigs, hasJobAlert, readUserEntry,
     sendParseMessage, updateJobAlerts } from './functions';
 import { PARAMETERS } from './parameters';
 import { TRANSLATIONS } from './translation';
@@ -240,11 +240,8 @@ bot.on('callback_query', async (callbackQuery) => {
     switch (callbackQuery.data) {
     case 'last-week':
         (async () => {
-            const chatId = callbackQuery.message?.chat.id;
-            if (!chatId) return;
-            const jobs = getLatestJobs();
-            const jobArray = await jobs;
-            await sendParseMessage(chatId, jobArray, bot, ['']);
+            const JobArray = await getLatestJobs();
+            await sendParseMessage(chatId, JobArray, bot, ['']);
         }
         )();
         break;

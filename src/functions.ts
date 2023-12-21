@@ -162,7 +162,7 @@ export async function getLatestJobs(keywords?: string[]) {
         console.error('Error fetching latest jobs:', error.message);
         return null;
     } 
-    if (jobs && jobs.length > 0) {
+    if (jobs && jobs.length > 0 && keywords) {
         // filter out the jobs that match the keyword
         const filteredJobs = jobs.filter((job) => {
             let isMatch = false;
@@ -176,7 +176,7 @@ export async function getLatestJobs(keywords?: string[]) {
         });
         return filteredJobs;
     } else {
-        return null;
+        return jobs;
     }
 }
 
@@ -216,7 +216,7 @@ export async function sendParseMessage(
     bot: any,
     keywords: string[]
 ) {
-    if (response !== null && response !== undefined) {
+    if (response !== null && response !== undefined && response.length > 0) {
         let index = 0;
         const chunkSize = 35;
 
@@ -225,6 +225,8 @@ export async function sendParseMessage(
             await sendMessagePart(chatId, chunk, bot, keywords);
             index += chunkSize;
         }
+    } else {
+        await bot.sendMessage(chatId, 'No jobs found.');
     }
 }
 
@@ -451,6 +453,9 @@ export async function updateJobAlerts(chatId: string, newKeywords: string[]) {
     }
 }
 export async function deleteJobAlerts(chatId: string) {
+    // see single job alerts and then choose with one to delete?
+    // const allAlerts = await readAllJobAlerts();
+    // const userAlerts = allAlerts?.filter((alert) => alert.user_id === chatId);
     try {
         const updatedUserData = await supabase
             .from('user_config')
