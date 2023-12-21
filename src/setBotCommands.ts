@@ -23,37 +23,31 @@ export function setBotCommands(
                 'command-descriptions' 
             ].jobs,
         },
-        // {
-        //     command: 'categories',
-        //     description: TRANSLATIONS[language][
-        //         'command-descriptions' 
-        //     ].categories,
-        // },
         {
             command: 'jobalert',
             description: TRANSLATIONS[language][
                 'command-descriptions' 
             ].jobalert,
         },
-        //     {
-        //         command: 'language',
-        //         description:
-        //   TRANSLATIONS[language][
-        //       'command-descriptions'
-        //   ].language,
-        //     },
-        // {
-        //     command: 'checkprice',
-        //     description: TRANSLATIONS[language][
-        //         'command-descriptions' 
-        //     ].checkprice
-
-        // },
         {
             command: 'value4value',
             description: TRANSLATIONS[language][
                 'command-descriptions' 
             ].donate,
+        },
+        {
+            command: 'privacy',
+            description:
+          TRANSLATIONS[language][
+              'command-descriptions'
+          ].privacy,
+        },
+        {
+            command: 'freeguide',
+            description: TRANSLATIONS[language][
+                'command-descriptions' 
+            ].freeguide,
+
         },
     ]);
 }

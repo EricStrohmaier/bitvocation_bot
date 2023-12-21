@@ -22,6 +22,8 @@ export const TRANSLATIONS: {
         help: string;
         jobalert: string
         categories: string;
+        freeguide: string;
+        privacy: string;
       };
       errors: {
         'generic-error': string;

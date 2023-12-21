@@ -1,28 +1,27 @@
 {
     "en": {
         "general": {
-            "start-message": "Hey there, I’m your friendly Bitvocation bot!\nI scrape the internet for all the latest job openings in Bitcoin and post them in the @bitvocationfeed. Click on /help to see what else I can do for you!\n\nPS - Did you get your Free Guide “How to find your first job in Bitcoin” yet? Go to bitvocation.com and download it now!",
-            "help": "Here are the commands you can use: \n\n",
+            "start-message": "Hey there, I’m your friendly Bitvocation bot! 👋 \nI scrape the internet for all the latest job openings in Bitcoin and post them in the @bitvocationfeed.\n",
+            "help": "Here are the commands you can use to work with me: \n\n",
             "language-switch": "Language is now english.",
             "donate": "Does my work make your life easier?\n\nSend some sats to my creators if you’d like to reward them in a value-for-value manner! They'll appreciate it and be able to provide me with more and more valuable features",
-            "btc-price":"The current price of Bitcoin is $price",
-            "latest-jobs":"In order to see the latest Bitcoin job listings of the past 7 days, please choose one of the following options: ",
+            "latest-jobs":"In order to see the latest Bitcoin job listings, please choose one of the following options: ",
             "query-keywords": "Please enter what you are looking for, separated by commas \n\nFor example: Project Manager, UI/UX, Customer Support",
             "job-alert": "To set up a job alert, please enter keywords separated by commas to receive job alerts on these topics \n\nFor example: Remote, Customer Support, Pay in Bitcoin",
             "categories": "Please choose a category"
         },
         "command-descriptions": {
-            "help": "Show this help message",
+            "help": "Here are the commands you can use to work with me:\n\n",
             "language": "Changes the bot's language choose",
-            "start": "Starts the conversation",
-            "donate": "Support the bot's creator",
-            "checkprice": "Get the current price of Bitcoin",
-            "jobs": "Search through the latest Bitcoin jobs",
-            "jobalert": "Set up a job alert",
-            "categories": "Explore jobs by category"
+            "start": "Introduction to me",
+            "donate": "Support my creators",
+            "jobs": "Search through the latest Bitcoin jobs by category and keyword",
+            "jobalert": "Set up (or delete) a job alert",
+            "privacy": "Learn what data I use from you",
+            "freeguide":"Download “How to find your first job in Bitcoin"
         },
         "errors": {
-            "generic-error": "An error occured :(\n\nPlease see our help message with /help",
+            "generic-error": "An error occured :( \n\nPlease see our help message with /help.",
             "image-safety": "Your image could not be made because it violates the safety regulations",
             "no-parameter-command": "Please provide a parameter for the $command command",
             "invalid-language": "\"$language\" is not a valid language"
