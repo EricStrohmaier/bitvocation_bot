@@ -146,7 +146,7 @@ const supabaseUrl = process.env.SUPABASE_URL as string;
 const supabaseServiceKey = process.env.SUPABASE_KEY as string;
 export const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-export async function getLatestJobs() {
+export async function getLatestJobs(keywords?: string[]) {
     const now = new Date();
     const sevenDaysAgo = new Date(now);
     sevenDaysAgo.setDate(now.getDate() - 7);
@@ -161,15 +161,29 @@ export async function getLatestJobs() {
     if (error) {
         console.error('Error fetching latest jobs:', error.message);
         return null;
+    } 
+    if (jobs && jobs.length > 0) {
+        // filter out the jobs that match the keyword
+        const filteredJobs = jobs.filter((job) => {
+            let isMatch = false;
+    
+            keywords?.forEach((keyword) => {
+                if (job.title.toLowerCase().includes(keyword.toLowerCase())) {
+                    isMatch = true;
+                }
+            });
+            return isMatch;
+        });
+        return filteredJobs;
+    } else {
+        return null;
     }
-
-    return jobs;
 }
 
-export async function getKeyword(keywords: string[]) {
+export async function getKeyword(keywords?: string[]) {
     const now = new Date();
     const sevenDaysAgo = new Date(now);
-    sevenDaysAgo.setDate(now.getDate() - 7);
+    sevenDaysAgo.setDate(now.getDate() - 30);
 
     const { data: jobs } = await supabase
         .from('job_table')
@@ -182,7 +196,7 @@ export async function getKeyword(keywords: string[]) {
         const filteredJobs = jobs.filter((job) => {
             let isMatch = false;
 
-            keywords.forEach((keyword) => {
+            keywords?.forEach((keyword) => {
                 if (job.title.toLowerCase().includes(keyword.toLowerCase())) {
                     isMatch = true;
                 }
@@ -191,7 +205,7 @@ export async function getKeyword(keywords: string[]) {
         });
         return filteredJobs;
     } else {
-        console.log('No result found.');
+        
         return null;
     }
 }
@@ -308,27 +322,30 @@ export async function fetchAndPostLatestEntries() {
                 if (jobAlertsData) {
                     for (const userKeywords of jobAlertsData) {
                         const { user_id, job_alerts } = userKeywords;
-
-                        const jobMatchesAlerts = job_alerts.some((keyword: string) => {
-                            const titleContainsKeyword = entry.title.toLowerCase().includes(keyword.toLowerCase());
-                            const descriptionContainsKeyword = entry.location.toLowerCase().includes(keyword.toLowerCase());
-                            return titleContainsKeyword || descriptionContainsKeyword;
-                        });
-
-                        if (jobMatchesAlerts) {
-                            // Job matches user's alerts, send it to the user
-                            // Send the job details to the user_id (chat_id)
-                            await sendSingleJob(user_id, entry);
+                
+                        // Add a check to ensure job_alerts is not null before using some
+                        if (job_alerts && Array.isArray(job_alerts)) {
+                            const jobMatchesAlerts = job_alerts.some((keyword: string) => {
+                                const titleContainsKeyword = entry.title.toLowerCase().includes(keyword.toLowerCase());
+                                const descriptionContainsKeyword = entry.location.toLowerCase().includes(keyword.toLowerCase());
+                                //add more here!!
+                                return titleContainsKeyword || descriptionContainsKeyword;
+                            });
+                
+                            if (jobMatchesAlerts) {
+                                // timeout? 
+                                await sendSingleJob(user_id, entry);
+                            }
                         }
                     }
                 }
+                
                 try {
                     const delay = index * 50000;
                     await new Promise((resolve) => setTimeout(resolve, delay));
                     //send to channel 
                     await sendSingleJob(channelID, entry);
-                    console.log(`Message sent to ${channelID}:`);
-
+                    //only when send to channel set to true.... nice
                     const { data: data } = await supabase
                         .from('job_table')
                         .update({ fetched: true })

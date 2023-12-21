@@ -70,8 +70,8 @@ bot.on('message', async (msg) => {
         waitingForKeywords = false;
         
         const keywords = msg.text?.split(',') || [];
-        const response = await getKeyword(keywords);
-        if (response) {
+        const response = await getKeyword(keywords);        
+        if (response && response?.length > 0) {
             await sendParseMessage(chatId, response, bot, ['with ' + keywords.join(', ')]);
             return;
         } else {
@@ -102,9 +102,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
             command.startsWith('/start') || 
             command.startsWith('/value4value') ||
             command.startsWith('/jobs') ||
-            command.startsWith('/categories') ||
-            command.startsWith('/jobalert') ||
-            command.startsWith('/help'))) {
+            command.startsWith('/jobalert'))) {
             await bot.sendMessage(
                 msg.chat.id,
                 formatVariables(
@@ -124,34 +122,31 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
     } else if (msg.chat.type != 'private') {
         return;
     }
-    const input = removeCommandNameFromCommand(match.input);
     const chatId = msg.chat.id.toString();
     const userConfigs = getUserConfigs();
     const userLanguage = userConfigs[chatId]?.language || PARAMETERS.LANGUAGE;
 
-
     switch (command) {
     case '/start':
-        await bot.sendMessage(
-            msg.chat.id,
-            formatVariables(
-                TRANSLATIONS[userLanguage].general[
-                    'start-message'
-                ]
-            ),
-        );
-        break;
-    case '/help':
         (async () => {
             const getCommands = await bot.getMyCommands();
             const commands = getCommands.map((command) => {
                 return `/${command.command} - ${command.description}`;
             });
+        
             const header = TRANSLATIONS[userLanguage].general['help'];
-            const message = header + commands.join('\n');
-            await bot.sendMessage(msg.chat.id, message);
+            const commandsMessage = header + commands.join('\n');
+        
+            const startMessage = formatVariables(
+                TRANSLATIONS[userLanguage].general['start-message']
+            );
+        
+            const combinedMessage = startMessage + '\n\n' +  commandsMessage;
+        
+            await bot.sendMessage(msg.chat.id, combinedMessage);
         })();
         break;
+        
     case '/value4value':
         (async () => {
             const keyboard = {
@@ -311,31 +306,31 @@ bot.on('callback_query', async (callbackQuery) => {
         break;
     case 'design':
         (async () => {
-            const catArray = await getKeyword(['design', 'ui', 'ux', 'graphic', 'product']);
+            const catArray = await getLatestJobs(['design', 'ui', 'ux', 'graphic', 'product']);
             await sendParseMessage(chatId, catArray, bot, ['in UI/UX Design']);
         })();
         break;
     case 'sales':
         (async () => {
-            const catArray = await getKeyword(['sales', 'business', 'account', 'account executive', 'account manager']);
+            const catArray = await getLatestJobs(['sales', 'business', 'account', 'account executive', 'account manager']);
             await sendParseMessage(chatId, catArray, bot, ['in Sales']);
         })();
         break;
     case 'marketing':
         (async () => {
-            const catArray = await getKeyword(['marketing', 'growth', 'seo', 'social', 'media']);
+            const catArray = await getLatestJobs(['marketing', 'growth', 'seo', 'social', 'media']);
             await sendParseMessage(chatId, catArray, bot, ['in Marketing']);
         })();
         break;
     case 'engineering':
         (async () => {
-            const catArray = await getKeyword(['engineering', 'software', 'developer', 'devops', 'backend', 'frontend']);
+            const catArray = await getLatestJobs(['engineering', 'software', 'developer', 'devops', 'backend', 'frontend']);
             await sendParseMessage(chatId, catArray, bot, ['in Engineering']);
         })();
         break;
     case 'customer-op':
         (async () => {
-            const catArray = await getKeyword(['customer', 'support', 'success', 'operations']);
+            const catArray = await getLatestJobs(['customer', 'support', 'success', 'operations']);
             await sendParseMessage(chatId, catArray, bot, ['in Customer Operations']);
         })();
         break;

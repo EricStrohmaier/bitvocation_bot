@@ -17,23 +17,18 @@ export function setBotCommands(
           'command-descriptions'
       ].start,
         },
-        {   command: 'help',
-            description: TRANSLATIONS[language][
-                'command-descriptions' 
-            ].help,
-        },
         {
             command: 'jobs',
             description: TRANSLATIONS[language][
                 'command-descriptions' 
             ].jobs,
         },
-        {
-            command: 'categories',
-            description: TRANSLATIONS[language][
-                'command-descriptions' 
-            ].categories,
-        },
+        // {
+        //     command: 'categories',
+        //     description: TRANSLATIONS[language][
+        //         'command-descriptions' 
+        //     ].categories,
+        // },
         {
             command: 'jobalert',
             description: TRANSLATIONS[language][
