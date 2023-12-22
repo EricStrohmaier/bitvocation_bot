@@ -18,7 +18,7 @@
             "jobs": "Search through the latest Bitcoin jobs by category and keyword",
             "jobalert": "Set up (or delete) a job alert",
             "privacy": "Learn what data I use from you",
-            "freeguide":"Download “How to find your first job in Bitcoin"
+            "freeguide":"Download the FREE GUIDE 'How to find your first job in Bitcoin'"
         },
         "errors": {
             "generic-error": "An error occured :( \n\nPlease see our help message with /help.",

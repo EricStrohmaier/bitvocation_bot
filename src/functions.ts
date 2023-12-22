@@ -226,7 +226,7 @@ export async function sendParseMessage(
             index += chunkSize;
         }
     } else {
-        await bot.sendMessage(chatId, 'No jobs found.');
+        await bot.sendMessage(chatId, `No jobs found ${keywords}`);
     }
 }
 

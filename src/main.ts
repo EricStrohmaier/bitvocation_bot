@@ -147,7 +147,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                 return `/${command.command} - ${command.description}`;
             });
             const startMessage =
-          'Hey there, I’m your friendly Bitvocation bot! 👋\n\nI scrape the internet for all the latest job openings in Bitcoin and post them in the @bitvocationfeed.\n\nI was thought of <a href="https://twitter.com/connecteconomy"><b>by Anja</b></a> and created <b> by @ericstrohmaier</b>.';
+          'Hey there, I’m your friendly Bitvocation bot! 👋\n\nI scrape the internet for all the latest job openings in Bitcoin and post them in the @bitvocationfeed.\n\nI was thought up <a href="https://twitter.com/connecteconomy"><b>by Anja</b></a> and created <a href="https://njump.me/strohstacks@getalby.com"><b>by Eric</b></a>';
 
             const boldHeader =
           '<b>Here are the commands you can use to work with me: \n</b>';
@@ -190,30 +190,39 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
         })();
 
         break;
-    case '/categories':
-        (async () => {
-            const keyboard = {
-                reply_markup: {
-                    inline_keyboard: [
-                        [
-                            { text: 'UI/UX Design', callback_data: 'design' },
-                            { text: 'Sales', callback_data: 'sales' },
-                            { text: 'Marketing', callback_data: 'marketing' },
-                        ],
-                        [
-                            { text: 'Engineering', callback_data: 'engineering' },
-                            { text: 'Customer Operations', callback_data: 'customer-op' },
-                        ],
-                    ],
-                },
-            };
-            await bot.sendMessage(
-                chatId,
-                TRANSLATIONS[userLanguage].general.categories,
-                keyboard
-            );
-        })();
-        break;
+    // case '/categories':
+    //     (async () => {
+    //         const keyboard = {
+    //             reply_markup: {
+    //                 inline_keyboard: [
+    //                     [
+    //                         { text: 'Operations/Finance', callback_data: 'finance' },
+    //                         { text: 'Sales/Marketing', callback_data: 'sales' },
+    //                     ],
+    //                     [
+    //                         { text: 'Engineering/IT', callback_data: 'engineering' },
+    //                         { text: 'Customer Support', callback_data: 'customer-op' },
+    //                     ],
+    //                     [
+    //                         { text: 'Legal', callback_data: 'legal' },
+    //                         { text: 'Design', callback_data: 'design' },
+    //                         { text: 'Marketing', callback_data: 'marketing' },
+    //                     ],
+    //                     [
+    //                         { text: 'HR', callback_data: 'hr' },
+    //                         { text: 'Creative', callback_data: 'creative' },
+    //                         { text: 'Voluneering', callback_data: 'volunteering' },
+    //                     ],
+    //                 ],
+    //             },
+    //         };
+    //         await bot.sendMessage(
+    //             chatId,
+    //             TRANSLATIONS[userLanguage].general.categories,
+    //             keyboard
+    //         );
+    //     })();
+    //     break;
     case '/jobs':
         if (msg.chat.id) {
             const chatId = msg.chat.id.toString();
@@ -298,13 +307,19 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                 },
             };
             const message = 'Hey there, I’m Anja, the founder of Bitvocation.\n\nI made a free guide “How to find your first job in Bitcoin” for you, which you can get on the Bitvocation website.\nEnjoy!';
-            await bot.sendMessage(msg.chat.id, message, keyboard);
+            const anjaIMG = './public/anja-img.jpg';
+            await bot.sendPhoto(msg.chat.id, anjaIMG, {
+                caption: message,
+                parse_mode: 'HTML',
+                reply_markup: keyboard.reply_markup,
+
+            });
         })();
         break;
     case '/privacy':
         (async () => {
             const message =
-          '<b>🔴 IMPORTANT INFO REGARDING YOUR DATA & PRIVACY 🔴</b>\n\nI know that as a Bitcoiner you want to know what happens with your data. In order to chat with you and send you the requested information, I need to store some data from you, like the user id and job alerts.\n\n<b>I do not know who you are or what your telegram handle is.</b>\nIf you are not comfortable with this, please do not use me!';
+          '<b>🔴 IMPORTANT INFO REGARDING YOUR DATA & PRIVACY 🔴</b>\n\nI know that as a Bitcoiner you want to know what happens with your data. In order to chat with you and send you the requested information, I need to store some data from you, like the user id and job alerts.\n\n<b>I do not know who you are or what your telegram handle is.</b>\n\nIf you are not comfortable with this, please do not use me!';
             await bot.sendMessage(chatId, message, { parse_mode: 'HTML' });
         })();
         break;
@@ -375,13 +390,22 @@ bot.on('callback_query', async (callbackQuery) => {
                 reply_markup: {
                     inline_keyboard: [
                         [
-                            { text: 'UI/UX Design', callback_data: 'design' },
-                            { text: 'Sales', callback_data: 'sales' },
+                            { text: 'Engineering/IT', callback_data: 'engineering' },
+                            { text: 'Customer Support', callback_data: 'customer-op' },
+                        ],
+                        [
+                            { text: 'Legal', callback_data: 'legal' },
+                            { text: 'Design', callback_data: 'design' },
                             { text: 'Marketing', callback_data: 'marketing' },
                         ],
                         [
-                            { text: 'Engineering', callback_data: 'engineering' },
-                            { text: 'Customer Operations', callback_data: 'customer-op' },
+                            { text: 'Operations/Finance', callback_data: 'finance' },
+                            { text: 'Sales/Marketing', callback_data: 'sales' },
+                        ],
+                        [
+                            { text: 'HR', callback_data: 'hr' },
+                            { text: 'Creative', callback_data: 'creative' },
+                            { text: 'Voluneering', callback_data: 'volunteering' },
                         ],
                     ],
                 },
@@ -400,7 +424,7 @@ bot.on('callback_query', async (callbackQuery) => {
                 'ui',
                 'ux',
                 'graphic',
-                'product',
+                'web design',
             ]);
             await sendParseMessage(chatId, catArray, bot, ['in UI/UX Design']);
         })();
@@ -409,24 +433,31 @@ bot.on('callback_query', async (callbackQuery) => {
         (async () => {
             const catArray = await getLatestJobs([
                 'sales',
-                'business',
-                'account',
-                'account executive',
-                'account manager',
+                'marketing',
+                'Business Development',
+                'BizDev',
+                'Sales Development',
+                'Inside Sales Representative',
+                'Capital Raiser',
+                'Fundraising',
+                'Paid Acquisition',
+                'Event Management'
             ]);
             await sendParseMessage(chatId, catArray, bot, ['in Sales']);
         })();
         break;
-    case 'marketing':
+    case 'legal':
         (async () => {
             const catArray = await getLatestJobs([
-                'marketing',
-                'growth',
-                'seo',
-                'social',
-                'media',
+                'Lawyer',
+                'Counsel',
+                'Compliance',
+                'Regulatory',
+                'AML',
+                'KYC',
+                'risk analyst'
             ]);
-            await sendParseMessage(chatId, catArray, bot, ['in Marketing']);
+            await sendParseMessage(chatId, catArray, bot, ['in Legal']);
         })();
         break;
     case 'engineering':
@@ -436,29 +467,85 @@ bot.on('callback_query', async (callbackQuery) => {
                 'software',
                 'developer',
                 'devops',
-                'backend',
-                'frontend',
+                'Mobile App,',
+                'Security',
+                'Technician',
+                'QA'
             ]);
-            await sendParseMessage(chatId, catArray, bot, ['in Engineering']);
+            await sendParseMessage(chatId, catArray, bot, ['in Engineering/IT']);
         })();
         break;
     case 'customer-op':
         (async () => {
             const catArray = await getLatestJobs([
-                'customer',
-                'support',
-                'success',
-                'operations',
+                'Customer Success',
+                'Customer Happiness',
+                ' Customer Service',
+                'Technical Support',
+                'Helpdesk',
+                'Onboarding',
+                'Community Manager'
             ]);
             await sendParseMessage(chatId, catArray, bot, [
-                'in Customer Operations',
+                'in Customer Support',
             ]);
         })();
         break;
-    case 'jobalert':
-        messageText = 'Job Alert';
+    case 'finance':
+        (async ()=> {
+            const catArray = await getLatestJobs([
+                'Personal Assistant',
+                'Office Manager',
+                ' Customer Service',
+                'risk analyst,',
+                'trading',
+                'fund manager',
+            ]);
+            await sendParseMessage(chatId, catArray, bot, [
+                'in Operations/Finance',
+            ]);
+        })();
         break;
-
+    case 'hr':
+        (async ()=> {
+            const catArray = await getLatestJobs([
+                'Human Resources',
+                'People Operations',
+                'People Business Partner',
+                'Recruiter',
+            ]);
+            console.log(catArray);
+            
+            await sendParseMessage(chatId, catArray, bot, [
+                'in HR',
+            ]);
+        })();
+        break;
+    case 'creative':
+        (async ()=> {
+            const catArray = await getLatestJobs([
+                'Content Creator',
+                'Copywriter',
+                'video editor',
+            ]);
+            await sendParseMessage(chatId, catArray, bot, [
+                'in Creative',
+            ]);
+        })();
+        break;
+    case 'volunteering':
+        (async ()=> {
+            const catArray = await getLatestJobs([
+                'volunteer',
+                'intern',
+                'apprentice',
+                'volunteering'
+            ]);
+            await sendParseMessage(chatId, catArray, bot, [
+                'in Volunteering',
+            ]);
+        })();
+        break;
     default:
         break;
     }
