@@ -2,7 +2,7 @@
   "name": "telegram-chatbot",
   "version": "0.1",
   "description": "",
-  "main": "src/main.ts",
+  "main": "src/main.mts",
   "scripts": {
     "start": "tsx src/main.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,13 +13,12 @@
   "license": "MIT",
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
-    "axios": "^1.6.2",
-    "base64-img": "^1.0.4",
     "date-fns": "^2.30.0",
     "dotenv": "^16.0.3",
     "node-fetch": "^3.3.2",
     "node-telegram-bot-api": "^0.61.0",
-    "openai": "^3.1.0"
+    "openai": "^3.1.0",
+    "tsx": "^3.12.2"
   },
   "devDependencies": {
     "@types/node-telegram-bot-api": "^0.57.6",

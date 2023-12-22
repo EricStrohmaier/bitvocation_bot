@@ -1,11 +1,10 @@
 /* eslint-disable max-len */
 import { Configuration, OpenAIApi } from 'openai';
-// import { userConfig } from './main';
 import fs from 'fs';
 import { createClient } from '@supabase/supabase-js';
 import { format } from 'date-fns';
 import * as dotenv from 'dotenv';
-import TelegramBot, { SendMessageOptions } from 'node-telegram-bot-api';
+import  { SendMessageOptions } from 'node-telegram-bot-api';
 import { bot } from './main';
 dotenv.config();
 

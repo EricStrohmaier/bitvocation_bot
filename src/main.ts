@@ -17,6 +17,7 @@ import {
 import { PARAMETERS } from './parameters';
 import { TRANSLATIONS } from './translation';
 import { setBotCommands } from './setBotCommands';
+import { set } from 'date-fns';
 
 if (!process.env.BITVOCATION_BOT_TOKEN) {
     console.error('Please provide your bot\'s API key on the .env file.');
@@ -26,34 +27,26 @@ const token = process.env.BITVOCATION_BOT_TOKEN;
 export const bot = new TelegramBot(token, { polling: true });
 const botUsername = (await bot.getMe()).username;
 
-// export let userConfig: { chatId: string;  language: string };
-// if (fs.existsSync('./user-config.json')) {
-//     userConfig = JSON.parse(fs.readFileSync('./user-config.json').toString());
-// } else {
-//     userConfig = {
-//         chatId: '',
-//         language: '',
-//     };
-// }
-
 setBotCommands(bot);
 let waitingForKeywords = false;
 let setJobAlert = false;
 
 // Messages for conversations.
 bot.on('message', async (msg) => {
-    for (const command of await bot.getMyCommands()) {
-        if (msg.text?.startsWith('/' + command.command)) {
-            return;
-        }
-    }
+    const chatId = msg.chat.id;
     const newChat = await readUserEntry(msg.chat.id.toString());
     if (!newChat) {
         createUserEntry(msg.chat.id.toString());
     }
-    if (setJobAlert && msg.text) {
-        const chatId = msg.chat.id;
-        const newKeywords = msg.text.split(',');
+    if (setJobAlert && msg.text?.startsWith('/') ) {
+        setJobAlert = false;
+        await bot.sendMessage(
+            chatId,
+            'Something went wrong. Please try again to set up a /jobalert.'
+        );
+    }
+    if (setJobAlert) {
+        const newKeywords = msg.text?.split(',') ?? [];
 
         // Remove duplicates and empty strings
         const uniqueNewKeywords = newKeywords
@@ -64,13 +57,19 @@ bot.on('message', async (msg) => {
             chatId.toString(),
             uniqueNewKeywords
         );
+
         if (response) {
             await bot.sendMessage(chatId, 'Job alert updated!');
         } else {
-            await bot.sendMessage(chatId, 'Something went wrong. Please try again.');
+            await bot.sendMessage(
+                chatId,
+                'Something went wrong. Please try again to set up a /jobalert.'
+            );
         }
+
         setJobAlert = false;
     }
+    
 
     if (waitingForKeywords) {
         const chatId = msg.chat.id;
@@ -135,7 +134,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
     const chatId = msg.chat.id.toString();
     const userConfigs = getUserConfigs();
     const userLanguage = userConfigs[chatId]?.language || PARAMETERS.LANGUAGE;
-
+    setJobAlert = false;
     switch (command) {
     case '/start':
         (async () => {
@@ -160,7 +159,6 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
             await bot.sendPhoto(msg.chat.id, imageFilePath, {
                 caption: combinedMessage,
                 parse_mode: 'HTML',
-                
             });
         })();
         break;
@@ -227,8 +225,10 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
         (async () => {
             const chatId = msg.chat.id.toString();
             const response = await hasJobAlert(chatId);
-            const messageSetup = 'To set up a job alert, enter keywords separated by commas.\n\nFor example:  Remote, Customer Support, Pay in Bitcoin';
-            const messageUpdate = 'Simply add keywords, separated by commas, to receive job alerts.\n ';
+            const messageSetup =
+          'To set up a job alert, enter keywords separated by commas.\n\nFor example:  Remote, Customer Support, Pay in Bitcoin';
+            const messageUpdate =
+          'Simply add keywords, separated by commas, to receive job alerts.\n ';
             const keyboard = {
                 reply_markup: {
                     inline_keyboard: [
@@ -239,9 +239,9 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                     ],
                 },
             };
-            const sendKeyboard = response.length > 0 ?  keyboard : undefined;
+            const sendKeyboard = response.length > 0 ? keyboard : undefined;
             const sendMessage = response.length > 0 ? messageUpdate : messageSetup;
-           
+
             await bot.sendMessage(chatId, sendMessage, sendKeyboard);
             setJobAlert = true;
         })();
@@ -312,20 +312,21 @@ bot.on('callback_query', async (callbackQuery) => {
     case 'current-alerts':
         (async () => {
             const jobAlertsData = await hasJobAlert(chatId.toString());
-        
+
             if (jobAlertsData && jobAlertsData.length > 0) {
                 const formattedJobAlerts = jobAlertsData.join(', ');
-        
-                const message = jobAlertsData.length === 1
-                    ? `Your current job alert is:\n\n ${formattedJobAlerts}`
-                    : `Your current job alerts are:\n\n ${formattedJobAlerts}`;
-        
+
+                const message =
+            jobAlertsData.length === 1
+                ? `Your current job alert is:\n\n ${formattedJobAlerts}`
+                : `Your current job alerts are:\n\n ${formattedJobAlerts}`;
+
                 bot.sendMessage(chatId, message);
             } else {
                 bot.sendMessage(chatId, 'You don\'t have any job alerts set up.');
             }
         })();
-        
+
         break;
     case 'delete-alerts':
         (async () => {
@@ -364,16 +365,15 @@ bot.on('callback_query', async (callbackQuery) => {
                         [
                             { text: 'Legal', callback_data: 'legal' },
                             { text: 'Design', callback_data: 'design' },
-                            { text: 'Marketing', callback_data: 'marketing' },
                         ],
                         [
-                            { text: 'Operations/Finance', callback_data: 'finance' },
+                            { text: 'Finance', callback_data: 'finance' },
                             { text: 'Sales/Marketing', callback_data: 'sales' },
                         ],
                         [
                             { text: 'HR', callback_data: 'hr' },
                             { text: 'Creative', callback_data: 'creative' },
-                            { text: 'Voluneering', callback_data: 'volunteering' },
+                            { text: 'Volunteering', callback_data: 'volunteering' },
                         ],
                     ],
                 },
@@ -411,7 +411,7 @@ bot.on('callback_query', async (callbackQuery) => {
                 'Paid Acquisition',
                 'Event Management',
             ]);
-            await sendParseMessage(chatId, catArray, bot, ['in Sales']);
+            await sendParseMessage(chatId, catArray, bot, ['in Sales/Marketing']);
         })();
         break;
     case 'legal':
@@ -453,6 +453,7 @@ bot.on('callback_query', async (callbackQuery) => {
                 'Helpdesk',
                 'Onboarding',
                 'Community Manager',
+                'Operations',
             ]);
             await sendParseMessage(chatId, catArray, bot, ['in Customer Support']);
         })();
@@ -461,12 +462,9 @@ bot.on('callback_query', async (callbackQuery) => {
         (async () => {
             const catArray = await getLatestJobs([
                 'Personal Assistant',
-                'Office Manager',
-                'Customer Service',
                 'risk analyst,',
                 'trading',
                 'fund manager',
-                'Operations',
                 'Finance',
             ]);
             await sendParseMessage(chatId, catArray, bot, [
