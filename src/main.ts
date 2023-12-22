@@ -158,12 +158,12 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
           '\n\n' +
           commandsMessage +
           '\n\n' +
-          'Before we chat, I want you to be aware of what data I use from you. Please click on /privacy now to confirm. ';
-
+          'Before we chat, I want you to be aware of what data I use from you. Please click on /privacy now to to learn more about it.';
             const imageFilePath = './public/bot-img.jpg';
             await bot.sendPhoto(msg.chat.id, imageFilePath, {
                 caption: combinedMessage,
                 parse_mode: 'HTML',
+                
             });
         })();
         break;
@@ -190,39 +190,6 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
         })();
 
         break;
-    // case '/categories':
-    //     (async () => {
-    //         const keyboard = {
-    //             reply_markup: {
-    //                 inline_keyboard: [
-    //                     [
-    //                         { text: 'Operations/Finance', callback_data: 'finance' },
-    //                         { text: 'Sales/Marketing', callback_data: 'sales' },
-    //                     ],
-    //                     [
-    //                         { text: 'Engineering/IT', callback_data: 'engineering' },
-    //                         { text: 'Customer Support', callback_data: 'customer-op' },
-    //                     ],
-    //                     [
-    //                         { text: 'Legal', callback_data: 'legal' },
-    //                         { text: 'Design', callback_data: 'design' },
-    //                         { text: 'Marketing', callback_data: 'marketing' },
-    //                     ],
-    //                     [
-    //                         { text: 'HR', callback_data: 'hr' },
-    //                         { text: 'Creative', callback_data: 'creative' },
-    //                         { text: 'Voluneering', callback_data: 'volunteering' },
-    //                     ],
-    //                 ],
-    //             },
-    //         };
-    //         await bot.sendMessage(
-    //             chatId,
-    //             TRANSLATIONS[userLanguage].general.categories,
-    //             keyboard
-    //         );
-    //     })();
-    //     break;
     case '/jobs':
         if (msg.chat.id) {
             const chatId = msg.chat.id.toString();
@@ -263,6 +230,8 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
         (async () => {
             const chatId = msg.chat.id.toString();
             const response = await hasJobAlert(chatId);
+            const messageSetup = 'To set up a job alert, enter keywords separated by commas.\n\nFor example:  Remote, Customer Support, Pay in Bitcoin';
+            const messageUpdate = 'Simply add keywords, separated by commas, to receive job alerts.\n ';
             const keyboard = {
                 reply_markup: {
                     inline_keyboard: [
@@ -273,10 +242,10 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                     ],
                 },
             };
-            const message = TRANSLATIONS[userLanguage].general['job-alert'];
-            const sendKeyboard =
-          response && response.length > 0 ? keyboard : undefined;
-            await bot.sendMessage(chatId, message, sendKeyboard);
+            const sendKeyboard = response.length > 0 ?  keyboard : undefined;
+            const sendMessage = response.length > 0 ? messageUpdate : messageSetup;
+           
+            await bot.sendMessage(chatId, sendMessage, sendKeyboard);
             setJobAlert = true;
         })();
         break;
@@ -306,20 +275,20 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                     ],
                 },
             };
-            const message = 'Hey there, I’m Anja, the founder of Bitvocation.\n\nI made a free guide “How to find your first job in Bitcoin” for you, which you can get on the Bitvocation website.\nEnjoy!';
+            const message =
+          'Hey there, I’m Anja, the founder of Bitvocation.\n\nI made a free guide “How to find your first job in Bitcoin” for you, which you can get on the Bitvocation website.\nEnjoy!';
             const anjaIMG = './public/anja-img.jpg';
             await bot.sendPhoto(msg.chat.id, anjaIMG, {
                 caption: message,
                 parse_mode: 'HTML',
                 reply_markup: keyboard.reply_markup,
-
             });
         })();
         break;
     case '/privacy':
         (async () => {
             const message =
-          '<b>🔴 IMPORTANT INFO REGARDING YOUR DATA & PRIVACY 🔴</b>\n\nI know that as a Bitcoiner you want to know what happens with your data. In order to chat with you and send you the requested information, I need to store some data from you, like the user id and job alerts.\n\n<b>I do not know who you are or what your telegram handle is.</b>\n\nIf you are not comfortable with this, please do not use me!';
+          '<b>🔴 IMPORTANT INFO REGARDING YOUR DATA & PRIVACY 🔴</b>\n\nI understand that as a Bitcoiner, you want to know what happens with your data. To provide you with personalized job alerts, we need to securely store your chosen keywords and the associated chat ID.\n\n<b>I do not know who you are or what your Telegram handle is.</b>\n\nIf you are not comfortable with this, please do not use this feature!';
             await bot.sendMessage(chatId, message, { parse_mode: 'HTML' });
         })();
         break;
@@ -345,19 +314,21 @@ bot.on('callback_query', async (callbackQuery) => {
         break;
     case 'current-alerts':
         (async () => {
-            const chatId = callbackQuery.message?.chat.id;
-            if (!chatId) return;
             const jobAlertsData = await hasJobAlert(chatId.toString());
+        
             if (jobAlertsData && jobAlertsData.length > 0) {
                 const formattedJobAlerts = jobAlertsData.join(', ');
-                bot.sendMessage(
-                    chatId,
-                    `Your current job alerts are:\n\n ${formattedJobAlerts}`
-                );
+        
+                const message = jobAlertsData.length === 1
+                    ? `Your current job alert is: ${formattedJobAlerts}`
+                    : `Your current job alerts are: ${formattedJobAlerts}`;
+        
+                bot.sendMessage(chatId, message);
             } else {
                 bot.sendMessage(chatId, 'You don\'t have any job alerts set up.');
             }
         })();
+        
         break;
     case 'delete-alerts':
         (async () => {
@@ -441,7 +412,7 @@ bot.on('callback_query', async (callbackQuery) => {
                 'Capital Raiser',
                 'Fundraising',
                 'Paid Acquisition',
-                'Event Management'
+                'Event Management',
             ]);
             await sendParseMessage(chatId, catArray, bot, ['in Sales']);
         })();
@@ -455,7 +426,7 @@ bot.on('callback_query', async (callbackQuery) => {
                 'Regulatory',
                 'AML',
                 'KYC',
-                'risk analyst'
+                'risk analyst',
             ]);
             await sendParseMessage(chatId, catArray, bot, ['in Legal']);
         })();
@@ -470,7 +441,7 @@ bot.on('callback_query', async (callbackQuery) => {
                 'Mobile App,',
                 'Security',
                 'Technician',
-                'QA'
+                'QA',
             ]);
             await sendParseMessage(chatId, catArray, bot, ['in Engineering/IT']);
         })();
@@ -484,15 +455,13 @@ bot.on('callback_query', async (callbackQuery) => {
                 'Technical Support',
                 'Helpdesk',
                 'Onboarding',
-                'Community Manager'
+                'Community Manager',
             ]);
-            await sendParseMessage(chatId, catArray, bot, [
-                'in Customer Support',
-            ]);
+            await sendParseMessage(chatId, catArray, bot, ['in Customer Support']);
         })();
         break;
     case 'finance':
-        (async ()=> {
+        (async () => {
             const catArray = await getLatestJobs([
                 'Personal Assistant',
                 'Office Manager',
@@ -507,43 +476,35 @@ bot.on('callback_query', async (callbackQuery) => {
         })();
         break;
     case 'hr':
-        (async ()=> {
+        (async () => {
             const catArray = await getLatestJobs([
                 'Human Resources',
                 'People Operations',
                 'People Business Partner',
                 'Recruiter',
             ]);
-            console.log(catArray);
-            
-            await sendParseMessage(chatId, catArray, bot, [
-                'in HR',
-            ]);
+            await sendParseMessage(chatId, catArray, bot, ['in HR']);
         })();
         break;
     case 'creative':
-        (async ()=> {
+        (async () => {
             const catArray = await getLatestJobs([
                 'Content Creator',
                 'Copywriter',
                 'video editor',
             ]);
-            await sendParseMessage(chatId, catArray, bot, [
-                'in Creative',
-            ]);
+            await sendParseMessage(chatId, catArray, bot, ['in Creative']);
         })();
         break;
     case 'volunteering':
-        (async ()=> {
+        (async () => {
             const catArray = await getLatestJobs([
                 'volunteer',
                 'intern',
                 'apprentice',
-                'volunteering'
+                'volunteering',
             ]);
-            await sendParseMessage(chatId, catArray, bot, [
-                'in Volunteering',
-            ]);
+            await sendParseMessage(chatId, catArray, bot, ['in Volunteering']);
         })();
         break;
     default:
@@ -568,10 +529,10 @@ process.on('SIGTERM', () => {
     process.exit(0);
 });
 //on error restart bot
-process.on('uncaughtException', function (err) {
-    console.log('SYSTEM: uncaughtExpection', err);
-    bot.stopPolling();
-    setTimeout(() => {
-        bot.startPolling();
-    }, 5000);
-});
+// process.on('uncaughtException', function (err) {
+//     console.log('SYSTEM: uncaughtExpection', err);
+//     bot.stopPolling();
+//     setTimeout(() => {
+//         bot.startPolling();
+//     }, 5000);
+// });

@@ -35,13 +35,13 @@ export function setBotCommands(
                 'command-descriptions' 
             ].donate,
         },
-        {
-            command: 'privacy',
-            description:
-          TRANSLATIONS[language][
-              'command-descriptions'
-          ].privacy,
-        },
+        // {
+        //     command: 'privacy',
+        //     description:
+        //   TRANSLATIONS[language][
+        //       'command-descriptions'
+        //   ].privacy,
+        // },
         {
             command: 'freeguide',
             description: TRANSLATIONS[language][
