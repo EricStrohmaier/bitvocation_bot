@@ -13,10 +13,10 @@ import {
     readUserEntry,
     sendParseMessage,
     updateJobAlerts,
-} from './functions.js';
-import { PARAMETERS } from './parameters.js';
-import { TRANSLATIONS } from './translation.js';
-import { setBotCommands } from './setBotCommands.js';
+} from './functions';
+import { PARAMETERS } from './parameters';
+import { TRANSLATIONS } from './translation';
+import { setBotCommands } from './setBotCommands';
 
 if (!process.env.BITVOCATION_BOT_TOKEN) {
     console.error('Please provide your bot\'s API key on the .env file.');
