@@ -320,8 +320,8 @@ bot.on('callback_query', async (callbackQuery) => {
                 const formattedJobAlerts = jobAlertsData.join(', ');
         
                 const message = jobAlertsData.length === 1
-                    ? `Your current job alert is: ${formattedJobAlerts}`
-                    : `Your current job alerts are: ${formattedJobAlerts}`;
+                    ? `Your current job alert is:\n\n ${formattedJobAlerts}`
+                    : `Your current job alerts are:\n\n ${formattedJobAlerts}`;
         
                 bot.sendMessage(chatId, message);
             } else {
@@ -451,7 +451,7 @@ bot.on('callback_query', async (callbackQuery) => {
             const catArray = await getLatestJobs([
                 'Customer Success',
                 'Customer Happiness',
-                ' Customer Service',
+                'Customer Service',
                 'Technical Support',
                 'Helpdesk',
                 'Onboarding',
@@ -465,10 +465,12 @@ bot.on('callback_query', async (callbackQuery) => {
             const catArray = await getLatestJobs([
                 'Personal Assistant',
                 'Office Manager',
-                ' Customer Service',
+                'Customer Service',
                 'risk analyst,',
                 'trading',
                 'fund manager',
+                'Operations',
+                'Finance',
             ]);
             await sendParseMessage(chatId, catArray, bot, [
                 'in Operations/Finance',
@@ -482,6 +484,7 @@ bot.on('callback_query', async (callbackQuery) => {
                 'People Operations',
                 'People Business Partner',
                 'Recruiter',
+                'Talent Acquisition',
             ]);
             await sendParseMessage(chatId, catArray, bot, ['in HR']);
         })();
@@ -492,6 +495,8 @@ bot.on('callback_query', async (callbackQuery) => {
                 'Content Creator',
                 'Copywriter',
                 'video editor',
+                'Social Media',
+                'Writer',
             ]);
             await sendParseMessage(chatId, catArray, bot, ['in Creative']);
         })();

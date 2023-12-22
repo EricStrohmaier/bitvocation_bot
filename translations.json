@@ -5,7 +5,7 @@
             "help": "Here are the commands you can use to work with me: \n\n",
             "language-switch": "Language is now english.",
             "donate": "Does my work make your life easier?\n\nSend some sats to my creators if you’d like to reward them in a value-for-value manner! They'll appreciate it and be able to provide me with more and more valuable features",
-            "latest-jobs":"Job Search Filters",
+            "latest-jobs":"In order to see the latest Bitcoin job listings, please choose one of the following options: ",
             "query-keywords": "Please enter what you are looking for, separated by commas \n\nFor example: Project Manager, UI/UX, Customer Support",
             "job-alert": "To set up a job alert, please enter keywords separated by commas to receive job alerts on these topics \n\nFor example: Remote, Customer Support, Pay in Bitcoin",
             "categories": "Please choose a category"
@@ -15,7 +15,7 @@
             "language": "Changes the bot's language choose",
             "start": "Introduction to me",
             "donate": "Support my creators",
-            "jobs": "Search through the latest Bitcoin jobs by category and keyword",
+            "jobs": "Job Search Filters",
             "jobalert": "Set up (or delete) a job alert",
             "privacy": "Learn what data I use from you",
             "freeguide":"Download the FREE GUIDE 'How to find your first job in Bitcoin'"
