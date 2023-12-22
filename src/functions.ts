@@ -6,6 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 import { format } from 'date-fns';
 import * as dotenv from 'dotenv';
 import TelegramBot, { SendMessageOptions } from 'node-telegram-bot-api';
+import { bot } from './main';
 dotenv.config();
 
 const openai = new OpenAIApi(
@@ -285,9 +286,6 @@ export function calculateTimeRange() {
     };
 }
 
-const token = process.env.BITVOCATION_BOT_TOKEN!;
-const bitcovationBot = new TelegramBot(token, { polling: true });
-
 const fetchInterval = 3 * 60 * 60 * 1000;
 setInterval(fetchAndPostLatestEntries, fetchInterval);
 fetchAndPostLatestEntries();
@@ -528,7 +526,7 @@ const sendSingleJob = async (chatId: string, entry: any) => {
             reply_markup: inlineKeyboard,
         };
     
-        await bitcovationBot.sendMessage(chatId, message, options);
+        await bot.sendMessage(chatId, message, options);
         console.log(`Message sent to ${chatId}: ${message}`);
     } catch (error) {
         console.error('Error sending job to user:', error);

@@ -18,15 +18,12 @@ import { PARAMETERS } from './parameters';
 import { TRANSLATIONS } from './translation';
 import { setBotCommands } from './setBotCommands';
 
-if (!process.env.TELEGRAM_BOT_API_KEY) {
+if (!process.env.BITVOCATION_BOT_TOKEN) {
     console.error('Please provide your bot\'s API key on the .env file.');
     process.exit();
-} else if (!process.env.OPENAI_API_KEY) {
-    console.error('Please provide your openAI API key on the .env file.');
-    process.exit();
 }
-const token = process.env.TELEGRAM_BOT_API_KEY;
-const bot = new TelegramBot(token, { polling: true });
+const token = process.env.BITVOCATION_BOT_TOKEN;
+export const bot = new TelegramBot(token, { polling: true });
 const botUsername = (await bot.getMe()).username;
 
 // export let userConfig: { chatId: string;  language: string };

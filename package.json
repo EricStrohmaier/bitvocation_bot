@@ -17,14 +17,9 @@
     "base64-img": "^1.0.4",
     "date-fns": "^2.30.0",
     "dotenv": "^16.0.3",
-    "https": "^1.0.0",
-    "lnurl": "^0.25.1",
     "node-fetch": "^3.3.2",
     "node-telegram-bot-api": "^0.61.0",
-    "openai": "^3.1.0",
-    "qrcode": "^1.5.3",
-    "tesseract.js": "^5.0.3",
-    "tsx": "^3.12.2"
+    "openai": "^3.1.0"
   },
   "devDependencies": {
     "@types/node-telegram-bot-api": "^0.57.6",
