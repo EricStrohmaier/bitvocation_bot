@@ -1,6 +1,5 @@
 /* eslint-disable max-len */
 import { Configuration, OpenAIApi } from 'openai';
-// import { userConfig } from './main';
 import fs from 'fs';
 import { createClient } from '@supabase/supabase-js';
 import { format } from 'date-fns';
@@ -533,3 +532,32 @@ const sendSingleJob = async (chatId: string, entry: any) => {
         console.error('Error sending job to user:', error);
     }
 };
+
+export async function handlePrivacy(chatId: number, event: boolean) {
+    const { data, error } = await supabase
+        .from('user_config')
+        .select('privacy')
+        .eq('user_id', chatId);
+
+    if (error) {
+        console.error('Error fetching user data:', error.message);
+        return false;
+    }
+    if (data && data.length > 0) {
+        const privacy = data[0].privacy;
+        if (event === true) {
+            await supabase
+                .from('user_config')
+                .update({ privacy: true })
+                .eq('user_id', chatId);
+            await bot.sendMessage(chatId, 'Thanks for accepting our privacy policy');
+        } 
+        if (event === false) {
+            await supabase
+                .from('user_config')
+                .update({ privacy: false })
+                .eq('user_id', chatId);
+            await bot.sendMessage(chatId, 'Ok, no problem, if you change your mind, just type /privacy');
+        }
+    }
+}

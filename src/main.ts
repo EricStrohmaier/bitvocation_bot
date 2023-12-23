@@ -9,6 +9,7 @@ import {
     getKeyword,
     getLatestJobs,
     getUserConfigs,
+    handlePrivacy,
     hasJobAlert,
     readUserEntry,
     sendParseMessage,
@@ -284,7 +285,23 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
     case '/privacy':
         (async () => {
             const message =
-          '<b>🔴 IMPORTANT INFO REGARDING YOUR DATA & PRIVACY 🔴</b>\n\nI understand that as a Bitcoiner, you want to know what happens with your data. To provide you with personalized job alerts, we need to securely store your chosen keywords and the associated chat ID.\n\n<b>I do not know who you are or what your Telegram handle is.</b>\n\nIf you are not comfortable with this, please do not use this feature!';
+          '<b>🔴 IMPORTANT INFO REGARDING YOUR DATA & PRIVACY 🔴</b>\n\nI understand that as a Bitcoiner, you want to know what happens with your data. To provide you with personalized job alerts, I need to store your chosen keywords and the associated chat ID.\n\n<b>I do not know who you are or what your Telegram handle is.</b>\n\nIf you are not comfortable with this, please do not chat with me. By engaging with me, you acknowledge that you have read this message.';
+            // const keyboard = {
+            //     reply_markup: {
+            //         inline_keyboard: [
+            //             [
+            //                 {
+            //                     text: 'Accept',
+            //                     callback_data: 'accept-privacy',
+            //                 },
+            //                 {
+            //                     text: 'Decline',
+            //                     callback_data: 'decline-privacy',
+            //                 },
+            //             ],
+            //         ],
+            //     },
+            // };
             await bot.sendMessage(chatId, message, { parse_mode: 'HTML' });
         })();
         break;
@@ -302,6 +319,16 @@ bot.on('callback_query', async (callbackQuery) => {
     let messageText = '';
 
     switch (callbackQuery.data) {
+    case 'accept-privacy':
+        (async () => {
+            handlePrivacy(chatId, true);
+        })();
+        break;
+    case 'decline-privacy':
+        (async () => {
+            handlePrivacy(chatId, false);
+        })();
+        break;
     case 'last-week':
         (async () => {
             const JobArray = await getLatestJobs();
