@@ -5,7 +5,6 @@ import { createClient } from '@supabase/supabase-js';
 import { format } from 'date-fns';
 import * as dotenv from 'dotenv';
 import  { SendMessageOptions } from 'node-telegram-bot-api';
-import { bot } from './main';
 
 dotenv.config();
 
@@ -286,10 +285,8 @@ export function calculateTimeRange() {
     };
 }
 
-const fetchInterval = 3 * 60 * 60 * 1000;
-setInterval(fetchAndPostLatestEntries, fetchInterval);
-fetchAndPostLatestEntries();
-export async function fetchAndPostLatestEntries() {
+
+export async function fetchAndPostLatestEntries(bot: any) {
     const channelID = '-1001969684625';
     console.log('--------------------New Fetch started--------------------');
     try {
@@ -334,7 +331,7 @@ export async function fetchAndPostLatestEntries() {
                 
                             if (jobMatchesAlerts) {
                                 // timeout? 
-                                await sendSingleJob(user_id, entry);
+                                await sendSingleJob(user_id, entry, bot);
                             }
                         }
                     }
@@ -344,7 +341,7 @@ export async function fetchAndPostLatestEntries() {
                     const delay = index * 50000;
                     await new Promise((resolve) => setTimeout(resolve, delay));
                     //send to channel 
-                    await sendSingleJob(channelID, entry);
+                    await sendSingleJob(channelID, entry,bot);
                     //only when send to channel set to true.... nice
                     const { data: data } = await supabase
                         .from('job_table')
@@ -466,7 +463,7 @@ export async function deleteJobAlerts(chatId: string) {
         return false;
     }
 }
-const sendSingleJob = async (chatId: string, entry: any) => {
+const sendSingleJob = async (chatId: string, entry: any, bot:any) => {
     try {
         let message = `
               🟠  <a href="${entry.url}"><b>${entry.title}</b></a>\n`;
@@ -550,14 +547,14 @@ export async function handlePrivacy(chatId: number, event: boolean) {
                 .from('user_config')
                 .update({ privacy: true })
                 .eq('user_id', chatId);
-            await bot.sendMessage(chatId, 'Thanks for accepting our privacy policy');
+            // await bot.sendMessage(chatId, 'Thanks for accepting our privacy policy');
         } 
         if (event === false) {
             await supabase
                 .from('user_config')
                 .update({ privacy: false })
                 .eq('user_id', chatId);
-            await bot.sendMessage(chatId, 'Ok, no problem, if you change your mind, just type /privacy');
+            // await bot.sendMessage(chatId, 'Ok, no problem, if you change your mind, just type /privacy');
         }
     }
 }
