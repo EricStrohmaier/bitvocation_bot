@@ -42,7 +42,7 @@ bot.on('message', async (msg) => {
     if (!newChat) {
         createUserEntry(msg.chat.id.toString());
     }
-    if (setJobAlert && msg.text?.startsWith('/') ) {
+    if (setJobAlert && msg.text?.startsWith('/') && !msg.text.startsWith('/jobalert')) {
         setJobAlert = false;
         await bot.sendMessage(
             chatId,
@@ -70,10 +70,8 @@ bot.on('message', async (msg) => {
                 'Something went wrong. Please try again to set up a /jobalert.'
             );
         }
-
         setJobAlert = false;
     }
-    
 
     if (waitingForKeywords) {
         const chatId = msg.chat.id;
