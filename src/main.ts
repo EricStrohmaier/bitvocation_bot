@@ -241,8 +241,8 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
                     ],
                 },
             };
-            const sendKeyboard = response.length > 0 ? keyboard : undefined;
-            const sendMessage = response.length > 0 ? messageUpdate : messageSetup;
+            const sendKeyboard = response?.length > 0 ? keyboard : undefined;
+            const sendMessage = response?.length > 0 ? messageUpdate : messageSetup;
 
             await bot.sendMessage(chatId, sendMessage, sendKeyboard);
             setJobAlert = true;

@@ -324,9 +324,15 @@ export async function fetchAndPostLatestEntries(bot: any) {
                         if (job_alerts && Array.isArray(job_alerts)) {
                             const jobMatchesAlerts = job_alerts.some((keyword: string) => {
                                 const titleContainsKeyword = entry.title.toLowerCase().includes(keyword.toLowerCase());
-                                const descriptionContainsKeyword = entry.location.toLowerCase().includes(keyword.toLowerCase());
-                                //add more here!!
-                                return titleContainsKeyword || descriptionContainsKeyword;
+                                const location = entry.location.toLowerCase().includes(keyword.toLowerCase());
+                                const company = entry.company.toLowerCase().includes(keyword.toLowerCase());
+                                const category = entry.category.toLowerCase().includes(keyword.toLowerCase());
+                                const type = entry.type.toLowerCase().includes(keyword.toLowerCase());
+                                const tags = entry.tags.toLowerCase().includes(keyword.toLowerCase());
+                                const description = entry.description.toLowerCase().includes(keyword.toLowerCase());
+
+
+                                return titleContainsKeyword || location || company || category || type || tags || description;
                             });
                 
                             if (jobMatchesAlerts) {
