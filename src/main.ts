@@ -38,10 +38,10 @@ fetchAndPostLatestEntries(bot);
 // Messages for conversations.
 bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
-    const newChat = await readUserEntry(msg.chat.id.toString());
-    if (!newChat) {
-        createUserEntry(msg.chat.id.toString());
-    }
+    // const newChat = await readUserEntry(msg.chat.id.toString());
+    // if (!newChat) {
+    //     createUserEntry(msg.chat.id.toString());
+    // }
     if (setJobAlert && msg.text?.startsWith('/') && !msg.text.startsWith('/jobalert')) {
         setJobAlert = false;
         await bot.sendMessage(
@@ -529,6 +529,7 @@ bot.on('callback_query', async (callbackQuery) => {
             const catArray = await getLatestJobs([
                 'volunteer',
                 'intern',
+                'internship',
                 'apprentice',
                 'volunteering',
             ]);
