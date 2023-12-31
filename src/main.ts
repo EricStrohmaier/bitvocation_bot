@@ -419,10 +419,11 @@ bot.on('callback_query', async (callbackQuery) => {
                 'design',
                 'ui',
                 'ux',
+                'UI/UX',
                 'graphic',
                 'web design',
             ]);
-            await sendParseMessage(chatId, catArray, bot, ['in UI/UX Design']);
+            await sendParseMessage(chatId, catArray, bot, ['in Design']);
         })();
         break;
     case 'sales':

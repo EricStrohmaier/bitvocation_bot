@@ -167,9 +167,9 @@ export async function getLatestJobs(keywords?: string[]) {
             return null;
         }
 
-        // if (!keywords) {
-        //     return jobs;
-        // }
+        if (!keywords) {
+            return jobs;
+        }
 
         const filteredJobs = jobs.filter((job) =>
             keywords?.some((keyword) =>
