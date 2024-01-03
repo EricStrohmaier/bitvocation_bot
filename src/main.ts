@@ -32,7 +32,10 @@ setBotCommands(bot);
 let waitingForKeywords = false;
 let setJobAlert = false;
 const fetchInterval = 3 * 60 * 60 * 1000;
-setInterval(fetchAndPostLatestEntries, fetchInterval);
+setInterval(() => {
+    fetchAndPostLatestEntries(bot)
+}, fetchInterval);
+
 fetchAndPostLatestEntries(bot);
 
 // Messages for conversations.
