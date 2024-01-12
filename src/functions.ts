@@ -334,7 +334,15 @@ export async function fetchAndPostLatestEntries(bot: any) {
                 if (jobAlertsData) {
                     for (const userKeywords of jobAlertsData) {
                         const { user_id, job_alerts } = userKeywords;
-
+                        
+                    //     const filteredJobs = entry.filter((job: { [s: string]: unknown; } | ArrayLike<unknown>) =>
+                    //     job_alerts?.some((keyword: string) =>
+                    //         Object.values(job)
+                    //             .filter((value) => typeof value === 'string' || Array.isArray(value))
+                    //             .map((value) => (Array.isArray(value) ? value.join(' ') : value))
+                    //             .some((value) => (value as string).toLowerCase().includes(keyword.toLowerCase()))
+                    //     )
+                    // );
                         // Add a check to ensure job_alerts is not null before using some
                         if (job_alerts && Array.isArray(job_alerts)) {
                             const jobMatchesAlerts = job_alerts.some((keyword: string) => {
@@ -372,14 +380,10 @@ export async function fetchAndPostLatestEntries(bot: any) {
                                 );
                             });
 
-                            if (jobMatchesAlerts) {
-                                // timeout?
-                                await sendSingleJob(user_id, entry, bot);
-                            }
+                            
                         }
                     }
                 }
-
                 try {
                     const delay = index * 50000;
                     await new Promise((resolve) => setTimeout(resolve, delay));
