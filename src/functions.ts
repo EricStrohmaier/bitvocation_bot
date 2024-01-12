@@ -533,7 +533,7 @@ const sendSingleJob = async (chatId: string, entry: any, bot: any) => {
             message += `\nEmployment Type: <b>${entry.type}</b>`;
         }
 
-        if (entry.tags.length > 0) {
+        if ( entry.tags &&  entry.tags.length > 0 ) {
             // Replace spaces and hyphens with underscores, and make tags lowercase
             const tagElement = entry.tags
                 .map(
@@ -546,7 +546,6 @@ const sendSingleJob = async (chatId: string, entry: any, bot: any) => {
                 )
                 .join(' ');
 
-            // Use "Tag" for singular and "Tags" for plural
             const tagsLabel = entry.tags.length === 1 ? 'Tag' : 'Tags';
 
             message += `\n\n <b>${tagsLabel}:</b> ${tagElement}`;
