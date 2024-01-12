@@ -329,65 +329,58 @@ export async function fetchAndPostLatestEntries(bot: any) {
             } else {
                 // read all users chatIds from db and look at job_alerts
                 // if keywords match to entry send message
-                const jobAlertsData = await readAllJobAlerts();
-
-                if (jobAlertsData) {
-                    for (const userKeywords of jobAlertsData) {
-                        const { user_id, job_alerts } = userKeywords;
-                        
-                    //     const filteredJobs = entry.filter((job: { [s: string]: unknown; } | ArrayLike<unknown>) =>
-                    //     job_alerts?.some((keyword: string) =>
-                    //         Object.values(job)
-                    //             .filter((value) => typeof value === 'string' || Array.isArray(value))
-                    //             .map((value) => (Array.isArray(value) ? value.join(' ') : value))
-                    //             .some((value) => (value as string).toLowerCase().includes(keyword.toLowerCase()))
-                    //     )
-                    // );
-                        // Add a check to ensure job_alerts is not null before using some
-                        if (job_alerts && Array.isArray(job_alerts)) {
-                            const jobMatchesAlerts = job_alerts.some((keyword: string) => {
-                                const titleContainsKeyword = entry.title
-                                    .toLowerCase()
-                                    .includes(keyword.toLowerCase());
-                                const location = entry.location
-                                    .toLowerCase()
-                                    .includes(keyword.toLowerCase());
-                                const company = entry.company
-                                    .toLowerCase()
-                                    .includes(keyword.toLowerCase());
-                                const category = entry.category
-                                    ? entry.category.toLowerCase().includes(keyword.toLowerCase())
-                                    : '';
-                                const type = entry.type
-                                    ? entry.type.toLowerCase().includes(keyword.toLowerCase())
-                                    : '';
-                                const tags = entry.tags
-                                    ? entry.tags.includes(keyword.toLowerCase())
-                                    : '';
-                                const description = entry.description
-                                    ? entry.description
-                                        .toLowerCase()
-                                        .includes(keyword.toLowerCase())
-                                    : '';
-                                return (
-                                    titleContainsKeyword ||
-                  location ||
-                  company ||
-                  category ||
-                  type ||
-                  tags ||
-                  description
-                                );
-                            });
-
-                            
-                        }
-                    }
-                }
+               
                 try {
                     const delay = index * 50000;
                     await new Promise((resolve) => setTimeout(resolve, delay));
-                    //send to channel
+                    const jobAlertsData = await readAllJobAlerts();
+
+                    if (jobAlertsData) {
+                        for (const userKeywords of jobAlertsData) {
+                            const { user_id, job_alerts } = userKeywords;
+                            // Add a check to ensure job_alerts is not null before using some
+                            if (job_alerts && Array.isArray(job_alerts)) {
+                                const jobMatchesAlerts = job_alerts.some((keyword: string) => {
+                                    const titleContainsKeyword = entry.title
+                                        .toLowerCase()
+                                        .includes(keyword.toLowerCase());
+                                    const location = entry.location
+                                        .toLowerCase()
+                                        .includes(keyword.toLowerCase());
+                                    const company = entry.company
+                                        .toLowerCase()
+                                        .includes(keyword.toLowerCase());
+                                    const category = entry.category
+                                        ? entry.category.toLowerCase().includes(keyword.toLowerCase())
+                                        : '';
+                                    const type = entry.type
+                                        ? entry.type.toLowerCase().includes(keyword.toLowerCase())
+                                        : '';
+                                    const tags = entry.tags
+                                        ? entry.tags.includes(keyword.toLowerCase())
+                                        : '';
+                                    const description = entry.description
+                                        ? entry.description
+                                            .toLowerCase()
+                                            .includes(keyword.toLowerCase())
+                                        : '';
+                                    return (
+                                        titleContainsKeyword ||
+                      location ||
+                      company ||
+                      category ||
+                      type ||
+                      tags ||
+                      description
+                                    );
+                                });
+                                if (jobMatchesAlerts) {
+                                    // timeout?
+                                    await sendSingleJob(user_id, entry, bot);
+                                }
+                            }
+                        }
+                    }
                     await sendSingleJob(channelID, entry, bot);
                     //only when send to channel set to true.... nice
                     const { data: data } = await supabase
