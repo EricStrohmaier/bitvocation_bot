@@ -533,7 +533,7 @@ const sendSingleJob = async (chatId: string, entry: any, bot: any) => {
             message += `\nEmployment Type: <b>${entry.type}</b>`;
         }
 
-        if ( entry.tags &&  entry.tags.length > 0 ) {
+        if ( entry.tags !== null &&  entry.tags.length > 0 ) {
             // Replace spaces and hyphens with underscores, and make tags lowercase
             const tagElement = entry.tags
                 .map(
