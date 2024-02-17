@@ -43,8 +43,8 @@ export function removeCommandNameFromCommand(input: string): string {
 let lastMessage = '';
 
 interface UserConfig {
-  chatId: string;
-  language: string;
+    chatId: string;
+    language: string;
 }
 /**
  * Retrieves the current user configurations from the file.
@@ -130,9 +130,9 @@ export function buildLastMessage(
 export function formatVariables(
     input: string,
     optionalParameters?: {
-    username?: string;
-    command?: string;
-  }
+        username?: string;
+        command?: string;
+    }
 ): string {
     return input
         .replace('$username', optionalParameters?.username || 'user')
@@ -277,12 +277,12 @@ async function sendMessagePart(
 
     if (message) {
         const options: {
-      parse_mode?: 'Markdown' | 'HTML' | undefined;
-      disable_web_page_preview?: boolean;
-    } = {
-        parse_mode: 'HTML',
-        disable_web_page_preview: true,
-    };
+            parse_mode?: 'Markdown' | 'HTML' | undefined;
+            disable_web_page_preview?: boolean;
+        } = {
+            parse_mode: 'HTML',
+            disable_web_page_preview: true,
+        };
 
         await bot.sendMessage(chatId, message, options);
     }
@@ -329,7 +329,7 @@ export async function fetchAndPostLatestEntries(bot: any) {
             } else {
                 // read all users chatIds from db and look at job_alerts
                 // if keywords match to entry send message
-               
+
                 try {
                     const delay = index * 50000;
                     await new Promise((resolve) => setTimeout(resolve, delay));
@@ -341,48 +341,29 @@ export async function fetchAndPostLatestEntries(bot: any) {
                             // Add a check to ensure job_alerts is not null before using some
                             if (job_alerts && Array.isArray(job_alerts)) {
                                 const jobMatchesAlerts = job_alerts.some((keyword: string) => {
-                                    const titleContainsKeyword = entry.title
-                                        .toLowerCase()
-                                        .includes(keyword.toLowerCase());
-                                    const location = entry.location
-                                        .toLowerCase()
-                                        .includes(keyword.toLowerCase());
-                                    const company = entry.company
-                                        .toLowerCase()
-                                        .includes(keyword.toLowerCase());
-                                    const category = entry.category
-                                        ? entry.category.toLowerCase().includes(keyword.toLowerCase())
-                                        : '';
-                                    const type = entry.type
-                                        ? entry.type.toLowerCase().includes(keyword.toLowerCase())
-                                        : '';
-                                    const tags = entry.tags
-                                        ? entry.tags.includes(keyword.toLowerCase())
-                                        : '';
-                                    const description = entry.description
-                                        ? entry.description
-                                            .toLowerCase()
-                                            .includes(keyword.toLowerCase())
-                                        : '';
-                                    return (
-                                        titleContainsKeyword ||
-                      location ||
-                      company ||
-                      category ||
-                      type ||
-                      tags ||
-                      description
-                                    );
+                                    const titleContainsKeyword = entry.title && entry.title.toLowerCase().includes(keyword.toLowerCase());
+                                    const location = entry.location && entry.location.toLowerCase().includes(keyword.toLowerCase());
+                                    const company = entry.company && entry.company.toLowerCase().includes(keyword.toLowerCase());
+                                    const category = entry.category ? entry.category.toLowerCase().includes(keyword.toLowerCase()) : false;
+                                    const type = entry.type ? entry.type.toLowerCase().includes(keyword.toLowerCase()) : false;
+                                    const tags = entry.tags ? entry.tags.some((tag: string) => tag.toLowerCase().includes(keyword.toLowerCase())) : false;
+                                    const description = entry.description ? entry.description.toLowerCase().includes(keyword.toLowerCase()) : false;
+                                    return titleContainsKeyword || location || company || category || type || tags || description;
                                 });
+
                                 if (jobMatchesAlerts) {
                                     // timeout?
+                                    console.log(`Entry: ${JSON.stringify(entry, null, 2)} matches keyword ${JSON.stringify(userKeywords, null, 2)} to user ${user_id}`);
+
                                     await sendSingleJob(user_id, entry, bot);
                                 }
                             }
                         }
                     }
+                    // console.log(`Entry ${entry} sent to all users`,);
+
                     await sendSingleJob(channelID, entry, bot);
-                    //only when send to channel set to true.... nice
+                    // only when send to channel set to true.... nice
                     const { data: data } = await supabase
                         .from('job_table')
                         .update({ fetched: true })
@@ -404,7 +385,7 @@ export async function createUserEntry(chatId: string) {
         .insert([{ user_id: chatId }]);
 
     if (error) {
-        console.error('Error inserting user:', error.message);
+        console.error('Error inserting new user:', error.message);
         return null; // Handle the error as needed
     }
     return data; // Return the inserted data if needed
@@ -416,7 +397,7 @@ export async function readUserEntry(chatId: string) {
         .eq('user_id', chatId);
 
     if (error) {
-        console.error('Error fetching user data:', error.message);
+        console.error('Error fetching reading user data:', error.message);
         return false; // Handle the error as needed
     }
     if (data && data.length > 0) {
@@ -430,7 +411,7 @@ export async function readAllJobAlerts() {
         .select('user_id , job_alerts');
 
     if (error) {
-        console.error('Error fetching user data:', error.message);
+        console.error('Error fetching all job alerts:', error.message);
         return false; // Handle the error as needed
     }
     return data;
@@ -442,7 +423,7 @@ export async function hasJobAlert(chatId: string) {
         .eq('user_id', chatId);
 
     if (error) {
-        console.error('Error fetching user data:', error.message);
+        console.error('Error fetching user has a job alert:', error.message);
         return false; // Handle the error as needed
     }
     // console.log('data', data);
@@ -530,7 +511,7 @@ const sendSingleJob = async (chatId: string, entry: any, bot: any) => {
             message += `\nEmployment Type: <b>${entry.type}</b>`;
         }
 
-        if ( entry.tags !== null &&  entry.tags.length > 0 ) {
+        if (entry.tags !== null && entry.tags.length > 0) {
             // Replace spaces and hyphens with underscores, and make tags lowercase
             const tagElement = entry.tags
                 .map(
@@ -576,7 +557,7 @@ export async function handlePrivacy(chatId: number, event: boolean) {
         .eq('user_id', chatId);
 
     if (error) {
-        console.error('Error fetching user data:', error.message);
+        console.error('Error fetching user privacy data:', error.message);
         return false;
     }
     if (data && data.length > 0) {
