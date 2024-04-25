@@ -1,0 +1,84 @@
+{
+    "en": {
+        "general": {
+            "start-message": "Hey there, I’m your friendly Bitvocation bot! 👋 \nI scrape the internet for all the latest job openings in Bitcoin and post them in the @bitvocationfeed.\n",
+            "help": "Here are the commands you can use to work with me: \n\n",
+            "language-switch": "Language is now english.",
+            "donate": "Does my work make your life easier?\n\nSend some sats to my creators if you’d like to reward them in a value-for-value manner! They'll appreciate it and be able to provide me with more and more valuable features",
+            "latest-jobs":"In order to see the latest Bitcoin job listings, please choose one of the following options: ",
+            "query-keywords": "Please enter what you are looking for, separated by commas \n\nFor example: Project Manager, UI/UX, Customer Support",
+            "job-alert": "To set up a job alert, please enter keywords separated by commas to receive job alerts on these topics \n\nFor example: Remote, Customer Support, Pay in Bitcoin",
+            "categories": "Please choose a category"
+        },
+        "command-descriptions": {
+            "help": "Here are the commands you can use to work with me:\n\n",
+            "language": "Changes the bot's language choose",
+            "start": "Introduction to me",
+            "donate": "Support my creators",
+            "jobs": "Job Search Filters",
+            "jobalert": "Set up (or delete) a job alert",
+            "privacy": "Learn what data I use from you",
+            "freeguide":"Download the FREE GUIDE 'How to find your first job in Bitcoin'"
+        },
+        "errors": {
+            "generic-error": "An error occured :( \n\nPlease see our help message with /help.",
+            "image-safety": "Your image could not be made because it violates the safety regulations",
+            "no-parameter-command": "Please provide a parameter for the $command command",
+            "invalid-language": "\"$language\" is not a valid language"
+        }
+    },
+    "de": {
+        "general": {
+            "start-message": "Hallo, dies ist die Standard-Startnachricht.\n\nSchauen Sie sich den Befehl /help an, um zu sehen, was ich tun kann.\n\nViel Spaß!",
+            "help": "Hier sind die Befehle, die Sie verwenden können: \n\n",
+            "memory-reset": "Ich habe gerade alles vergessen.",
+            "language-switch": "Die Sprache ist jetzt Deutsch.",
+            "donate": "Wenn Ihnen dieses Projekt gefällt, können Sie uns hier unterstützen\n\nVielen Dank für Ihre Unterstützung!",
+            "btc-price":"Der aktuelle Preis von Bitcoin ist $price",
+            "latest-jobs":"Um die neuesten Bitcoin-Jobs zu sehen, wählen Sie bitte eine der folgenden Optionen: ",
+            "query-keywords": "Bitte geben Sie ein, wonach Sie suchen, getrennt durch Kommas \n\nZum Beispiel: Projektmanager, UI/UX, Kundensupport",
+            "set-job-alert": "Bitte geben Sie Schlüsselwörter, durch Kommas getrennt ein, um Jobbenachrichtigungen zu diesen Themen zu erhalten \n\nZum Beispiel: Remote, Frontend, Full-time"
+        },
+        "command-descriptions": {
+            "help": "Zeigt diese Hilfemeldung an.",
+            "language": "Ändere die Sprache des Bots, wählen Sie",
+            "start": "Startet die Unterhaltung.",
+            "donate": "Unterstützt die Ersteller des Bots.",
+            "checkprice": "Gibt den aktuellen Preis von Bitcoin aus.",
+            "jobs": "Erkunden Sie die neuesten Bitcoin-Jobs.",
+            "jobalert": "Richten Sie eine Jobbenachrichtigung ein."
+        },
+        "errors": {
+            "generic-error": "Ein Fehler ist aufgetreten :(\n\nBitte sehen Sie unsere Hilfemeldung mit /help.",
+            "image-safety": "Ihr Bild konnte nicht erstellt werden, da es gegen die Sicherheitsbestimmungen verstößt.",
+            "no-parameter-command": "Bitte geben Sie einen Parameter für den Befehl $command an.",
+            "invalid-language": "\"$language\" ist keine gültige Sprache."
+        }
+    },
+    "fr": {
+        "general": {
+            "start-message": "Salut! Ceci est un message pré-généré.\n\nVos prochains messages (à l'exception des commandes) seront tous répondu par une IA.\n\nSi la variable CONTINUOUS_CONVERSATION est définie sur true, vous voudrez peut-être m'envoyer la commande /reset de temps en temps pour réinitialiser ma mémoire et consommer moins de jetons API.\n\nVous pouvez changer la langue avec la commande /language (actuellement seuls l'anglais [en] et l'allemand [de] sont disponibles). \n\nAmusez-vous bien!",
+            "name-switch": "Maintenant, je m'appelle \"$name\".",
+            "default-start": "Conversation avec $personality.",
+            "default-personality": "une IA",
+            "memory-reset": "Je viens d'oublier tout.",
+            "language-switch": "La langue est maintenant le français.",
+            "donate": "Si vous aimez ce bot, vous pouvez nous soutenir ici: 'comming soon!!"
+        },
+        "command-descriptions": {
+            "name": "Définit le nom de l'IA.",
+            "reset": "Faites oublier à l'IA les messages passés.",
+            "imagine": "Génère une image de 512x512.",
+            "language": "Modifie la langue du bot choisissez:",
+            "start": "Démarre la conversation.",
+            "donate": "Soutenez le créateur du bot."
+        },
+        "errors": {
+            "generic-error": "Une erreur s'est produite :(",
+            "image-safety": "Votre image n'a pas pu être créée car elle viole les règles de sécurité.",
+            "no-parameter-command": "Veuillez fournir un paramètre pour la commande $command.",
+            "invalid-language": "\"$language\" n'est pas une langue valide."
+        }
+    }
+    
+}
