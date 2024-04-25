@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.bot = void 0;
+exports.handler = exports.bot = void 0;
 /* eslint-disable max-len */
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
@@ -41,7 +41,8 @@ if (!process.env.BITVOCATION_BOT_TOKEN) {
 }
 const token = process.env.BITVOCATION_BOT_TOKEN;
 exports.bot = new node_telegram_bot_api_1.default(token, { polling: true });
-exports.handler = async (event) => {
+const handler = async (event) => {
+    console.log("Received event:", event);
     // const botUsername = (await bot.getMe()).username;
     (0, setBotCommands_1.setBotCommands)(exports.bot);
     let waitingForKeywords = false;
@@ -520,32 +521,45 @@ exports.handler = async (event) => {
         }
     });
     console.log("Bot Started!");
-    await exports.bot.processUpdate(event.body);
-    return {
-        statusCode: 200,
-        body: JSON.stringify({
-            message: "Bot processed the message",
-        }),
-    };
+    process.on("uncaughtException", (error) => {
+        console.error("Uncaught Exception:", error);
+        process.exit(1); // exit application when there is an uncaught exception
+    });
+    process.on("unhandledRejection", (reason, promise) => {
+        console.error("Unhandled Rejection at:", promise, "reason:", reason);
+        // Application specific logging, throwing an error, or other logic here
+    });
+    process.on("SIGINT", () => {
+        console.log("\nExiting...");
+        exports.bot.stopPolling();
+        process.exit(0);
+    });
+    process.on("SIGTERM", () => {
+        console.log("\nExiting...");
+        exports.bot.stopPolling();
+        process.exit(0);
+    });
+    try {
+        const update = JSON.parse(event.body);
+        await exports.bot.processUpdate(update);
+        return {
+            statusCode: 200,
+            body: JSON.stringify({
+                message: "Update processed",
+            }),
+        };
+    }
+    catch (error) {
+        console.error("Error processing update:", error);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({
+                message: "Error processing your request",
+            }),
+        };
+    }
 };
-process.on("uncaughtException", (error) => {
-    console.error("Uncaught Exception:", error);
-    process.exit(1); // exit application when there is an uncaught exception
-});
-process.on("unhandledRejection", (reason, promise) => {
-    console.error("Unhandled Rejection at:", promise, "reason:", reason);
-    // Application specific logging, throwing an error, or other logic here
-});
-process.on("SIGINT", () => {
-    console.log("\nExiting...");
-    exports.bot.stopPolling();
-    process.exit(0);
-});
-process.on("SIGTERM", () => {
-    console.log("\nExiting...");
-    exports.bot.stopPolling();
-    process.exit(0);
-});
+exports.handler = handler;
 //on error restart bot
 // process.on('uncaughtException', function (err) {
 //     console.log('SYSTEM: uncaughtExpection', err);

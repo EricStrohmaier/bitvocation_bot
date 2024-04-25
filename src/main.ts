@@ -27,7 +27,9 @@ if (!process.env.BITVOCATION_BOT_TOKEN) {
 const token = process.env.BITVOCATION_BOT_TOKEN;
 export const bot = new TelegramBot(token, { polling: true });
 
-exports.handler = async (event: any) => {
+export const handler = async (event: any) => {
+  console.log("Received event:", event);
+
   // const botUsername = (await bot.getMe()).username;
 
   setBotCommands(bot);
@@ -564,36 +566,47 @@ exports.handler = async (event: any) => {
   });
 
   console.log("Bot Started!");
-  await bot.processUpdate(event.body);
+  process.on("uncaughtException", (error) => {
+    console.error("Uncaught Exception:", error);
+    process.exit(1); // exit application when there is an uncaught exception
+  });
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: "Bot processed the message",
-    }),
-  };
+  process.on("unhandledRejection", (reason, promise) => {
+    console.error("Unhandled Rejection at:", promise, "reason:", reason);
+    // Application specific logging, throwing an error, or other logic here
+  });
+
+  process.on("SIGINT", () => {
+    console.log("\nExiting...");
+    bot.stopPolling();
+    process.exit(0);
+  });
+
+  process.on("SIGTERM", () => {
+    console.log("\nExiting...");
+    bot.stopPolling();
+    process.exit(0);
+  });
+  try {
+    const update = JSON.parse(event.body);
+    await bot.processUpdate(update);
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: "Update processed",
+      }),
+    };
+  } catch (error) {
+    console.error("Error processing update:", error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        message: "Error processing your request",
+      }),
+    };
+  }
 };
-process.on("uncaughtException", (error) => {
-  console.error("Uncaught Exception:", error);
-  process.exit(1); // exit application when there is an uncaught exception
-});
 
-process.on("unhandledRejection", (reason, promise) => {
-  console.error("Unhandled Rejection at:", promise, "reason:", reason);
-  // Application specific logging, throwing an error, or other logic here
-});
-
-process.on("SIGINT", () => {
-  console.log("\nExiting...");
-  bot.stopPolling();
-  process.exit(0);
-});
-
-process.on("SIGTERM", () => {
-  console.log("\nExiting...");
-  bot.stopPolling();
-  process.exit(0);
-});
 //on error restart bot
 // process.on('uncaughtException', function (err) {
 //     console.log('SYSTEM: uncaughtExpection', err);
