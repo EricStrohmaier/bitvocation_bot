@@ -1,19 +1,49 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.handlePrivacy = exports.deleteJobAlerts = exports.updateJobAlerts = exports.hasJobAlert = exports.readAllJobAlerts = exports.readUserEntry = exports.createUserEntry = exports.fetchAndPostLatestEntries = exports.calculateTimeRange = exports.sendParseMessage = exports.getKeyword = exports.getLatestJobs = exports.supabase = exports.formatVariables = exports.buildLastMessage = exports.generatePicture = exports.resetBotMemory = exports.switchLanguage = exports.getUserConfigs = exports.removeCommandNameFromCommand = exports.sleep = void 0;
 /* eslint-disable max-len */
-import { Configuration, OpenAIApi } from 'openai';
-import fs from 'fs';
-import { createClient } from '@supabase/supabase-js';
-import { format } from 'date-fns';
-import * as dotenv from 'dotenv';
+const openai_1 = require("openai");
+const fs_1 = __importDefault(require("fs"));
+const supabase_js_1 = require("@supabase/supabase-js");
+const date_fns_1 = require("date-fns");
+const dotenv = __importStar(require("dotenv"));
 dotenv.config();
-const openai = new OpenAIApi(new Configuration({ apiKey: process.env.OPENAI_API_KEY }));
+const openai = new openai_1.OpenAIApi(new openai_1.Configuration({ apiKey: process.env.OPENAI_API_KEY }));
 /** A simple async sleep function.
  * @example
  * await sleep(2000);
  * console.log('Two seconds have passed.');
  */
-export function sleep(time) {
+function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
 }
+exports.sleep = sleep;
 // /** Escapes a string for it to be used in a markdown message.
 //  * @param {string} input - The input message.
 //  * @returns {string} The escaped message.
@@ -29,48 +59,52 @@ export function sleep(time) {
  * @param {string} input - The raw message.
  * @returns {string} The message without the `/command`.
  */
-export function removeCommandNameFromCommand(input) {
+function removeCommandNameFromCommand(input) {
     const ar = input.split(' ');
     ar.shift();
     return ar.join(' ');
 }
+exports.removeCommandNameFromCommand = removeCommandNameFromCommand;
 let lastMessage = '';
 /**
  * Retrieves the current user configurations from the file.
  * @returns {Record<string, UserConfig>} - The user configurations.
  */
-export function getUserConfigs() {
-    return fs.existsSync('./user-config.json')
-        ? JSON.parse(fs.readFileSync('./user-config.json').toString())
+function getUserConfigs() {
+    return fs_1.default.existsSync('./user-config.json')
+        ? JSON.parse(fs_1.default.readFileSync('./user-config.json').toString())
         : {};
 }
+exports.getUserConfigs = getUserConfigs;
 /**
  * Switches bot's language for a specific user.
  * @param {string} chatId - The unique identifier for the user.
  * @param {'en' | 'de' | string} language - The language the bot will now speak.
  */
-export function switchLanguage(chatId, language) {
+function switchLanguage(chatId, language) {
     // Retrieve the current user configuration
     let userConfigs = {};
-    if (fs.existsSync('./user-config.json')) {
-        userConfigs = JSON.parse(fs.readFileSync('./user-config.json').toString());
+    if (fs_1.default.existsSync('./user-config.json')) {
+        userConfigs = JSON.parse(fs_1.default.readFileSync('./user-config.json').toString());
     }
     const userConfig = userConfigs[chatId] || { chatId, language: '' };
     // Update the language for the specific user
     userConfig.language = language;
     // Save the updated user configuration
     userConfigs[chatId] = userConfig;
-    fs.writeFileSync('./user-config.json', JSON.stringify(userConfigs, null, 2), 'utf8');
+    fs_1.default.writeFileSync('./user-config.json', JSON.stringify(userConfigs, null, 2), 'utf8');
 }
+exports.switchLanguage = switchLanguage;
 /** Resets the bot's memory about previous messages. */
-export function resetBotMemory() {
+function resetBotMemory() {
     lastMessage = '';
 }
+exports.resetBotMemory = resetBotMemory;
 /** Generates a picture using DALL·E 2.
  * @param {string} input - The prompt for the picture.
  * @returns {Promise<string>} The URL of the generated image.
  */
-export async function generatePicture(input) {
+async function generatePicture(input) {
     return new Promise((resolve, reject) => {
         openai
             .createImage({
@@ -83,6 +117,7 @@ export async function generatePicture(input) {
             .catch((e) => reject(e));
     });
 }
+exports.generatePicture = generatePicture;
 /** Formats the data about a message to be used later as a history for the AI in case
  * CONTINUOUS_CONVERSATION is `true`.
  * @param {string} lastUser - The username.
@@ -90,9 +125,10 @@ export async function generatePicture(input) {
  * @param {string} lastAnswer - The AI's completion.
  * @returns {string} The formatted message.
  */
-export function buildLastMessage(lastUser, lastInput, lastAnswer) {
+function buildLastMessage(lastUser, lastInput, lastAnswer) {
     return formatVariables(`${lastUser}: ###${lastInput}###\n$name: ###${lastAnswer}###\n`);
 }
+exports.buildLastMessage = buildLastMessage;
 /** Replace `$placeholders` for the actual values of the variables.
  * @example formatVariables("Hello, $username.", { username: "john" }) // "Hello, john."
  * @param {string} input - The unformatted string.
@@ -100,23 +136,24 @@ export function buildLastMessage(lastUser, lastInput, lastAnswer) {
  * The `username` or the `command` variables.
  * @returns {string} The formatted string.
  */
-export function formatVariables(input, optionalParameters) {
+function formatVariables(input, optionalParameters) {
     return input
         .replace('$username', (optionalParameters === null || optionalParameters === void 0 ? void 0 : optionalParameters.username) || 'user')
         .replace('$command', (optionalParameters === null || optionalParameters === void 0 ? void 0 : optionalParameters.command) || 'command');
 }
+exports.formatVariables = formatVariables;
 if (!process.env.SUPABASE_URL && !process.env.SUPABASE_KEY) {
     throw new Error('No Supabase URL provided.');
 }
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_KEY;
-export const supabase = createClient(supabaseUrl, supabaseServiceKey);
-export async function getLatestJobs(keywords) {
+exports.supabase = (0, supabase_js_1.createClient)(supabaseUrl, supabaseServiceKey);
+async function getLatestJobs(keywords) {
     try {
         const now = new Date();
         const sevenDaysAgo = new Date(now);
         sevenDaysAgo.setDate(now.getDate() - 7);
-        const { data: jobs, error } = await supabase
+        const { data: jobs, error } = await exports.supabase
             .from('job_table')
             .select('*')
             .gte('created_at', sevenDaysAgo.toISOString())
@@ -142,12 +179,13 @@ export async function getLatestJobs(keywords) {
         return null;
     }
 }
-export async function getKeyword(keywords) {
+exports.getLatestJobs = getLatestJobs;
+async function getKeyword(keywords) {
     try {
         const now = new Date();
         const thirtyDaysAgo = new Date(now);
         thirtyDaysAgo.setDate(now.getDate() - 30);
-        const { data: jobs } = await supabase
+        const { data: jobs } = await exports.supabase
             .from('job_table')
             .select()
             .gte('created_at', thirtyDaysAgo.toISOString())
@@ -170,7 +208,8 @@ export async function getKeyword(keywords) {
         return null;
     }
 }
-export async function sendParseMessage(chatId, response, bot, keywords) {
+exports.getKeyword = getKeyword;
+async function sendParseMessage(chatId, response, bot, keywords) {
     if (response !== null && response !== undefined && response.length > 0) {
         let index = 0;
         const chunkSize = 35;
@@ -184,10 +223,11 @@ export async function sendParseMessage(chatId, response, bot, keywords) {
         await bot.sendMessage(chatId, `No jobs found ${keywords}`);
     }
 }
+exports.sendParseMessage = sendParseMessage;
 async function sendMessagePart(chatId, responsePart, bot, keywords) {
     const catStrings = responsePart.map((entry) => {
         let catString = `\n <a href="${entry.url}"><b>${entry.title}</b></a>`;
-        catString += `\n 📅 From the: <b>${format(new Date(entry.created_at), 'dd.MM.yyyy')}</b>`;
+        catString += `\n 📅 From the: <b>${(0, date_fns_1.format)(new Date(entry.created_at), 'dd.MM.yyyy')}</b>`;
         if (entry.company) {
             catString += `\n 🏢 Company: <b>${entry.company}</b>`;
         }
@@ -207,7 +247,7 @@ async function sendMessagePart(chatId, responsePart, bot, keywords) {
         await bot.sendMessage(chatId, message, options);
     }
 }
-export function calculateTimeRange() {
+function calculateTimeRange() {
     const now = new Date();
     const pastDayStart = new Date(now);
     pastDayStart.setHours(0, 0, 0, 0); // Set to the beginning of the day
@@ -218,12 +258,13 @@ export function calculateTimeRange() {
         pastDayEnd,
     };
 }
-export async function fetchAndPostLatestEntries(bot) {
+exports.calculateTimeRange = calculateTimeRange;
+async function fetchAndPostLatestEntries(bot) {
     const channelID = '-1001969684625';
     console.log('--------------------New Fetch started--------------------');
     try {
         const { pastDayStart, pastDayEnd } = calculateTimeRange();
-        const { data, error } = await supabase
+        const { data, error } = await exports.supabase
             .from('job_table')
             .select('*')
             .gt('created_at', pastDayStart.toISOString())
@@ -274,7 +315,7 @@ export async function fetchAndPostLatestEntries(bot) {
                     // console.log(`Entry ${entry} sent to all users`,);
                     await sendSingleJob(channelID, entry, bot);
                     // only when send to channel set to true.... nice
-                    const { data: data } = await supabase
+                    const { data: data } = await exports.supabase
                         .from('job_table')
                         .update({ fetched: true })
                         .eq('id', entry.id);
@@ -289,9 +330,10 @@ export async function fetchAndPostLatestEntries(bot) {
         console.error('Error fetching data:', fetchError);
     }
 }
-export async function createUserEntry(chatId) {
+exports.fetchAndPostLatestEntries = fetchAndPostLatestEntries;
+async function createUserEntry(chatId) {
     // Insert a new user entry into the user_config table
-    const { data, error } = await supabase
+    const { data, error } = await exports.supabase
         .from('user_config')
         .insert([{ user_id: chatId }]);
     if (error) {
@@ -300,8 +342,9 @@ export async function createUserEntry(chatId) {
     }
     return data; // Return the inserted data if needed
 }
-export async function readUserEntry(chatId) {
-    const { data, error } = await supabase
+exports.createUserEntry = createUserEntry;
+async function readUserEntry(chatId) {
+    const { data, error } = await exports.supabase
         .from('user_config')
         .select()
         .eq('user_id', chatId);
@@ -314,8 +357,9 @@ export async function readUserEntry(chatId) {
     }
     return false;
 }
-export async function readAllJobAlerts() {
-    const { data: data, error } = await supabase
+exports.readUserEntry = readUserEntry;
+async function readAllJobAlerts() {
+    const { data: data, error } = await exports.supabase
         .from('user_config')
         .select('user_id , job_alerts');
     if (error) {
@@ -324,8 +368,9 @@ export async function readAllJobAlerts() {
     }
     return data;
 }
-export async function hasJobAlert(chatId) {
-    const { data: data, error } = await supabase
+exports.readAllJobAlerts = readAllJobAlerts;
+async function hasJobAlert(chatId) {
+    const { data: data, error } = await exports.supabase
         .from('user_config')
         .select('job_alerts')
         .eq('user_id', chatId);
@@ -339,12 +384,13 @@ export async function hasJobAlert(chatId) {
     }
     return false;
 }
-export async function updateJobAlerts(chatId, newKeywords) {
+exports.hasJobAlert = hasJobAlert;
+async function updateJobAlerts(chatId, newKeywords) {
     if (!newKeywords || newKeywords.length === 0) {
         return false;
     }
     try {
-        const existingUserData = await supabase
+        const existingUserData = await exports.supabase
             .from('user_config')
             .select('job_alerts')
             .eq('user_id', chatId);
@@ -355,7 +401,7 @@ export async function updateJobAlerts(chatId, newKeywords) {
             const combinedKeywords = [
                 ...new Set([...currentKeywords, ...newKeywords]),
             ];
-            const updatedUserData = await supabase
+            const updatedUserData = await exports.supabase
                 .from('user_config')
                 .update({ job_alerts: combinedKeywords })
                 .eq('user_id', chatId);
@@ -371,12 +417,13 @@ export async function updateJobAlerts(chatId, newKeywords) {
         return false;
     }
 }
-export async function deleteJobAlerts(chatId) {
+exports.updateJobAlerts = updateJobAlerts;
+async function deleteJobAlerts(chatId) {
     // see single job alerts and then choose with one to delete?
     // const allAlerts = await readAllJobAlerts();
     // const userAlerts = allAlerts?.filter((alert) => alert.user_id === chatId);
     try {
-        const updatedUserData = await supabase
+        const updatedUserData = await exports.supabase
             .from('user_config')
             .update({ job_alerts: [] })
             .eq('user_id', chatId);
@@ -387,6 +434,7 @@ export async function deleteJobAlerts(chatId) {
         return false;
     }
 }
+exports.deleteJobAlerts = deleteJobAlerts;
 const sendSingleJob = async (chatId, entry, bot) => {
     try {
         let message = `
@@ -441,8 +489,8 @@ const sendSingleJob = async (chatId, entry, bot) => {
         console.error('Error sending job to user:', error);
     }
 };
-export async function handlePrivacy(chatId, event) {
-    const { data, error } = await supabase
+async function handlePrivacy(chatId, event) {
+    const { data, error } = await exports.supabase
         .from('user_config')
         .select('privacy')
         .eq('user_id', chatId);
@@ -453,14 +501,14 @@ export async function handlePrivacy(chatId, event) {
     if (data && data.length > 0) {
         const privacy = data[0].privacy;
         if (event === true) {
-            await supabase
+            await exports.supabase
                 .from('user_config')
                 .update({ privacy: true })
                 .eq('user_id', chatId);
             // await bot.sendMessage(chatId, 'Thanks for accepting our privacy policy');
         }
         if (event === false) {
-            await supabase
+            await exports.supabase
                 .from('user_config')
                 .update({ privacy: false })
                 .eq('user_id', chatId);
@@ -468,3 +516,4 @@ export async function handlePrivacy(chatId, event) {
         }
     }
 }
+exports.handlePrivacy = handlePrivacy;

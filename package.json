@@ -2,13 +2,11 @@
   "name": "telegram-chatbot",
   "version": "0.1",
   "description": "",
-  "main": "src/main.ts",
   "scripts": {
     "start": "tsx dist/main.js",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "type": "module",
   "license": "MIT",
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

@@ -1,4 +1,7 @@
-export const PARAMETERS = {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PARAMETERS = void 0;
+exports.PARAMETERS = {
     PROMPT_START: 'Conversation with $username.',
     PERSONALITY: 'an AI',
     BOT_NAME: 'openAI',
