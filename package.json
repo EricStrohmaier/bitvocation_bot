@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "start": "tsx dist/main.js",
-    "build": "tsc",
+    "build": "tsc && cp translations.json dist/translations.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "license": "MIT",
