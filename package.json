@@ -5,6 +5,7 @@
   "main": "src/main.ts",
   "scripts": {
     "start": "tsx src/main.ts",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "type": "module",
