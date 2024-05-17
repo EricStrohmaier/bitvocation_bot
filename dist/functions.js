@@ -60,19 +60,19 @@ exports.sleep = sleep;
  * @returns {string} The message without the `/command`.
  */
 function removeCommandNameFromCommand(input) {
-    const ar = input.split(' ');
+    const ar = input.split(" ");
     ar.shift();
-    return ar.join(' ');
+    return ar.join(" ");
 }
 exports.removeCommandNameFromCommand = removeCommandNameFromCommand;
-let lastMessage = '';
+let lastMessage = "";
 /**
  * Retrieves the current user configurations from the file.
  * @returns {Record<string, UserConfig>} - The user configurations.
  */
 function getUserConfigs() {
-    return fs_1.default.existsSync('./user-config.json')
-        ? JSON.parse(fs_1.default.readFileSync('./user-config.json').toString())
+    return fs_1.default.existsSync("./user-config.json")
+        ? JSON.parse(fs_1.default.readFileSync("./user-config.json").toString())
         : {};
 }
 exports.getUserConfigs = getUserConfigs;
@@ -84,20 +84,20 @@ exports.getUserConfigs = getUserConfigs;
 function switchLanguage(chatId, language) {
     // Retrieve the current user configuration
     let userConfigs = {};
-    if (fs_1.default.existsSync('./user-config.json')) {
-        userConfigs = JSON.parse(fs_1.default.readFileSync('./user-config.json').toString());
+    if (fs_1.default.existsSync("./user-config.json")) {
+        userConfigs = JSON.parse(fs_1.default.readFileSync("./user-config.json").toString());
     }
-    const userConfig = userConfigs[chatId] || { chatId, language: '' };
+    const userConfig = userConfigs[chatId] || { chatId, language: "" };
     // Update the language for the specific user
     userConfig.language = language;
     // Save the updated user configuration
     userConfigs[chatId] = userConfig;
-    fs_1.default.writeFileSync('./user-config.json', JSON.stringify(userConfigs, null, 2), 'utf8');
+    fs_1.default.writeFileSync("./user-config.json", JSON.stringify(userConfigs, null, 2), "utf8");
 }
 exports.switchLanguage = switchLanguage;
 /** Resets the bot's memory about previous messages. */
 function resetBotMemory() {
-    lastMessage = '';
+    lastMessage = "";
 }
 exports.resetBotMemory = resetBotMemory;
 /** Generates a picture using DALL·E 2.
@@ -109,10 +109,10 @@ async function generatePicture(input) {
         openai
             .createImage({
             prompt: input,
-            response_format: 'url',
+            response_format: "url",
         })
             .then((data) => {
-            resolve(data.data.data[0].url || '');
+            resolve(data.data.data[0].url || "");
         })
             .catch((e) => reject(e));
     });
@@ -138,12 +138,12 @@ exports.buildLastMessage = buildLastMessage;
  */
 function formatVariables(input, optionalParameters) {
     return input
-        .replace('$username', (optionalParameters === null || optionalParameters === void 0 ? void 0 : optionalParameters.username) || 'user')
-        .replace('$command', (optionalParameters === null || optionalParameters === void 0 ? void 0 : optionalParameters.command) || 'command');
+        .replace("$username", (optionalParameters === null || optionalParameters === void 0 ? void 0 : optionalParameters.username) || "user")
+        .replace("$command", (optionalParameters === null || optionalParameters === void 0 ? void 0 : optionalParameters.command) || "command");
 }
 exports.formatVariables = formatVariables;
 if (!process.env.SUPABASE_URL && !process.env.SUPABASE_KEY) {
-    throw new Error('No Supabase URL provided.');
+    throw new Error("No Supabase URL provided.");
 }
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_KEY;
@@ -154,11 +154,11 @@ async function getLatestJobs(keywords) {
         const sevenDaysAgo = new Date(now);
         sevenDaysAgo.setDate(now.getDate() - 7);
         const { data: jobs, error } = await exports.supabase
-            .from('job_table')
-            .select('*')
-            .gte('created_at', sevenDaysAgo.toISOString())
-            .lte('created_at', now.toISOString())
-            .order('created_at', { ascending: false });
+            .from("job_table")
+            .select("*")
+            .gte("created_at", sevenDaysAgo.toISOString())
+            .lte("created_at", now.toISOString())
+            .order("created_at", { ascending: false });
         if (error) {
             throw new Error(`Error fetching latest jobs: ${error.message}`);
         }
@@ -169,8 +169,8 @@ async function getLatestJobs(keywords) {
             return jobs;
         }
         const filteredJobs = jobs.filter((job) => keywords === null || keywords === void 0 ? void 0 : keywords.some((keyword) => Object.values(job)
-            .filter((value) => typeof value === 'string' || Array.isArray(value))
-            .map((value) => (Array.isArray(value) ? value.join(' ') : value))
+            .filter((value) => typeof value === "string" || Array.isArray(value))
+            .map((value) => (Array.isArray(value) ? value.join(" ") : value))
             .some((value) => value.toLowerCase().includes(keyword.toLowerCase()))));
         return filteredJobs;
     }
@@ -186,11 +186,11 @@ async function getKeyword(keywords) {
         const thirtyDaysAgo = new Date(now);
         thirtyDaysAgo.setDate(now.getDate() - 30);
         const { data: jobs } = await exports.supabase
-            .from('job_table')
+            .from("job_table")
             .select()
-            .gte('created_at', thirtyDaysAgo.toISOString())
-            .lte('created_at', now.toISOString())
-            .order('created_at', { ascending: false });
+            .gte("created_at", thirtyDaysAgo.toISOString())
+            .lte("created_at", now.toISOString())
+            .order("created_at", { ascending: false });
         if (!jobs || jobs.length === 0) {
             return null;
         }
@@ -198,8 +198,8 @@ async function getKeyword(keywords) {
             return jobs;
         }
         const filteredJobs = jobs.filter((job) => keywords.some((keyword) => Object.values(job)
-            .filter((value) => typeof value === 'string' || Array.isArray(value))
-            .map((value) => (Array.isArray(value) ? value.join(' ') : value))
+            .filter((value) => typeof value === "string" || Array.isArray(value))
+            .map((value) => (Array.isArray(value) ? value.join(" ") : value))
             .some((value) => value.toLowerCase().includes(keyword.toLowerCase()))));
         return filteredJobs;
     }
@@ -227,21 +227,21 @@ exports.sendParseMessage = sendParseMessage;
 async function sendMessagePart(chatId, responsePart, bot, keywords) {
     const catStrings = responsePart.map((entry) => {
         let catString = `\n <a href="${entry.url}"><b>${entry.title}</b></a>`;
-        catString += `\n 📅 From the: <b>${(0, date_fns_1.format)(new Date(entry.created_at), 'dd.MM.yyyy')}</b>`;
+        catString += `\n 📅 From the: <b>${(0, date_fns_1.format)(new Date(entry.created_at), "dd.MM.yyyy")}</b>`;
         if (entry.company) {
             catString += `\n 🏢 Company: <b>${entry.company}</b>`;
         }
-        if (entry.location !== null && entry.location !== '') {
+        if (entry.location !== null && entry.location !== "") {
             catString += `\n 📍 Location: <b>${entry.location}</b>`;
         }
-        catString += '\n';
+        catString += "\n";
         return catString;
     });
     const message = `${responsePart.length} Jobs ${keywords}:
-        ${catStrings.join('')}`;
+        ${catStrings.join("")}`;
     if (message) {
         const options = {
-            parse_mode: 'HTML',
+            parse_mode: "HTML",
             disable_web_page_preview: true,
         };
         await bot.sendMessage(chatId, message, options);
@@ -260,21 +260,21 @@ function calculateTimeRange() {
 }
 exports.calculateTimeRange = calculateTimeRange;
 async function fetchAndPostLatestEntries(bot) {
-    const channelID = '-1001969684625';
-    console.log('--------------------New Fetch started--------------------');
+    const channelID = "-1001969684625";
+    console.log("--------------------New Fetch started--------------------");
     try {
         const { pastDayStart, pastDayEnd } = calculateTimeRange();
         const { data, error } = await exports.supabase
-            .from('job_table')
-            .select('*')
-            .gt('created_at', pastDayStart.toISOString())
-            .lt('created_at', pastDayEnd.toISOString())
-            .order('created_at', { ascending: false });
+            .from("job_table")
+            .select("*")
+            .gt("created_at", pastDayStart.toISOString())
+            .lt("created_at", pastDayEnd.toISOString())
+            .order("created_at", { ascending: false });
         if (error) {
-            console.error('Error fetching data from Supabase', error.message);
+            console.error("Error fetching data from Supabase", error.message);
         }
         if (!data || data.length === 0) {
-            console.log('No data found');
+            console.log("No data found");
             return;
         }
         console.log(`Fetched ${JSON.stringify(data)} entries from Supabase.`);
@@ -295,18 +295,41 @@ async function fetchAndPostLatestEntries(bot) {
                             // Add a check to ensure job_alerts is not null before using some
                             if (job_alerts && Array.isArray(job_alerts)) {
                                 const jobMatchesAlerts = job_alerts.some((keyword) => {
-                                    const titleContainsKeyword = entry.title && entry.title.toLowerCase().includes(keyword.toLowerCase());
-                                    const location = entry.location && entry.location.toLowerCase().includes(keyword.toLowerCase());
-                                    const company = entry.company && entry.company.toLowerCase().includes(keyword.toLowerCase());
-                                    const category = entry.category ? entry.category.toLowerCase().includes(keyword.toLowerCase()) : false;
-                                    const type = entry.type ? entry.type.toLowerCase().includes(keyword.toLowerCase()) : false;
-                                    const tags = entry.tags ? entry.tags.some((tag) => tag.toLowerCase().includes(keyword.toLowerCase())) : false;
-                                    const description = entry.description ? entry.description.toLowerCase().includes(keyword.toLowerCase()) : false;
-                                    return titleContainsKeyword || location || company || category || type || tags || description;
+                                    const titleContainsKeyword = entry.title &&
+                                        entry.title.toLowerCase().includes(keyword.toLowerCase());
+                                    const location = entry.location &&
+                                        entry.location
+                                            .toLowerCase()
+                                            .includes(keyword.toLowerCase());
+                                    const company = entry.company &&
+                                        entry.company.toLowerCase().includes(keyword.toLowerCase());
+                                    const category = entry.category
+                                        ? entry.category
+                                            .toLowerCase()
+                                            .includes(keyword.toLowerCase())
+                                        : false;
+                                    const type = entry.type
+                                        ? entry.type.toLowerCase().includes(keyword.toLowerCase())
+                                        : false;
+                                    const tags = entry.tags
+                                        ? entry.tags.some((tag) => tag.toLowerCase().includes(keyword.toLowerCase()))
+                                        : false;
+                                    const description = entry.description
+                                        ? entry.description
+                                            .toLowerCase()
+                                            .includes(keyword.toLowerCase())
+                                        : false;
+                                    return (titleContainsKeyword ||
+                                        location ||
+                                        company ||
+                                        category ||
+                                        type ||
+                                        tags ||
+                                        description);
                                 });
                                 if (jobMatchesAlerts) {
                                     // timeout?
-                                    console.log(`Entry: ${JSON.stringify(entry, null, 2)} matches keyword ${JSON.stringify(userKeywords, null, 2)} to user ${user_id}`);
+                                    console.log(`Entry: ${JSON.stringify(entry.title, null, 2)} matches keyword ${JSON.stringify(userKeywords, null, 2)}`);
                                     await sendSingleJob(user_id, entry, bot);
                                 }
                             }
@@ -316,28 +339,28 @@ async function fetchAndPostLatestEntries(bot) {
                     await sendSingleJob(channelID, entry, bot);
                     // only when send to channel set to true.... nice
                     const { data: data } = await exports.supabase
-                        .from('job_table')
+                        .from("job_table")
                         .update({ fetched: true })
-                        .eq('id', entry.id);
+                        .eq("id", entry.id);
                 }
                 catch (messageError) {
-                    console.error('Error sending message:', messageError);
+                    console.error("Error sending message:", messageError);
                 }
             }
         }
     }
     catch (fetchError) {
-        console.error('Error fetching data:', fetchError);
+        console.error("Error fetching data:", fetchError);
     }
 }
 exports.fetchAndPostLatestEntries = fetchAndPostLatestEntries;
 async function createUserEntry(chatId) {
     // Insert a new user entry into the user_config table
     const { data, error } = await exports.supabase
-        .from('user_config')
+        .from("user_config")
         .insert([{ user_id: chatId }]);
     if (error) {
-        console.error('Error inserting new user:', error.message);
+        console.error("Error inserting new user:", error.message);
         return null; // Handle the error as needed
     }
     return data; // Return the inserted data if needed
@@ -345,11 +368,11 @@ async function createUserEntry(chatId) {
 exports.createUserEntry = createUserEntry;
 async function readUserEntry(chatId) {
     const { data, error } = await exports.supabase
-        .from('user_config')
+        .from("user_config")
         .select()
-        .eq('user_id', chatId);
+        .eq("user_id", chatId);
     if (error) {
-        console.error('Error fetching reading user data:', error.message);
+        console.error("Error fetching reading user data:", error.message);
         return false; // Handle the error as needed
     }
     if (data && data.length > 0) {
@@ -360,10 +383,10 @@ async function readUserEntry(chatId) {
 exports.readUserEntry = readUserEntry;
 async function readAllJobAlerts() {
     const { data: data, error } = await exports.supabase
-        .from('user_config')
-        .select('user_id , job_alerts');
+        .from("user_config")
+        .select("user_id , job_alerts");
     if (error) {
-        console.error('Error fetching all job alerts:', error.message);
+        console.error("Error fetching all job alerts:", error.message);
         return false; // Handle the error as needed
     }
     return data;
@@ -371,11 +394,11 @@ async function readAllJobAlerts() {
 exports.readAllJobAlerts = readAllJobAlerts;
 async function hasJobAlert(chatId) {
     const { data: data, error } = await exports.supabase
-        .from('user_config')
-        .select('job_alerts')
-        .eq('user_id', chatId);
+        .from("user_config")
+        .select("job_alerts")
+        .eq("user_id", chatId);
     if (error) {
-        console.error('Error fetching user has a job alert:', error.message);
+        console.error("Error fetching user has a job alert:", error.message);
         return false; // Handle the error as needed
     }
     // console.log('data', data);
@@ -391,9 +414,9 @@ async function updateJobAlerts(chatId, newKeywords) {
     }
     try {
         const existingUserData = await exports.supabase
-            .from('user_config')
-            .select('job_alerts')
-            .eq('user_id', chatId);
+            .from("user_config")
+            .select("job_alerts")
+            .eq("user_id", chatId);
         if (existingUserData.data && existingUserData.data.length > 0) {
             // Extract current keywords array from the result
             const currentKeywords = existingUserData.data[0].job_alerts || [];
@@ -402,18 +425,18 @@ async function updateJobAlerts(chatId, newKeywords) {
                 ...new Set([...currentKeywords, ...newKeywords]),
             ];
             const updatedUserData = await exports.supabase
-                .from('user_config')
+                .from("user_config")
                 .update({ job_alerts: combinedKeywords })
-                .eq('user_id', chatId);
+                .eq("user_id", chatId);
             return updatedUserData;
         }
         else {
-            console.error('No user data found for the specified user ID:', chatId);
+            console.error("No user data found for the specified user ID:", chatId);
             return false;
         }
     }
     catch (error) {
-        console.error('Error updating user data:', error);
+        console.error("Error updating user data:", error);
         return false;
     }
 }
@@ -424,13 +447,13 @@ async function deleteJobAlerts(chatId) {
     // const userAlerts = allAlerts?.filter((alert) => alert.user_id === chatId);
     try {
         const updatedUserData = await exports.supabase
-            .from('user_config')
+            .from("user_config")
             .update({ job_alerts: [] })
-            .eq('user_id', chatId);
+            .eq("user_id", chatId);
         return updatedUserData;
     }
     catch (error) {
-        console.error('Error updating user data:', error);
+        console.error("Error updating user data:", error);
         return false;
     }
 }
@@ -445,30 +468,30 @@ const sendSingleJob = async (chatId, entry, bot) => {
         // if (entry.date) {
         //   message += `\nDate of Publishing: <b>${entry.date}</b>`;
         // }
-        if (entry.location !== null && entry.location !== '') {
+        if (entry.location !== null && entry.location !== "") {
             const input = entry.location;
-            const location = input.replace(/[[\]"]+/g, '');
+            const location = input.replace(/[[\]"]+/g, "");
             message += `\nLocation: <b>${location}</b>`;
         }
-        if (entry.salary !== null && entry.salary !== '') {
+        if (entry.salary !== null && entry.salary !== "") {
             message += `\nSalary: <b>${entry.salary}</b>`;
         }
-        if (entry.category !== null && entry.category !== '') {
+        if (entry.category !== null && entry.category !== "") {
             message += `\nCategory: <b>${entry.category}</b>`;
         }
-        if (entry.type !== null && entry.type !== '') {
+        if (entry.type !== null && entry.type !== "") {
             message += `\nEmployment Type: <b>${entry.type}</b>`;
         }
         if (entry.tags !== null && entry.tags.length > 0) {
             // Replace spaces and hyphens with underscores, and make tags lowercase
             const tagElement = entry.tags
                 .map((tag) => `#${tag
-                .replace(/\s*\([^)]*\)\s*/g, '')
+                .replace(/\s*\([^)]*\)\s*/g, "")
                 .trim()
-                .replace(/[\s-]/g, '_')
+                .replace(/[\s-]/g, "_")
                 .toLowerCase()}`)
-                .join(' ');
-            const tagsLabel = entry.tags.length === 1 ? 'Tag' : 'Tags';
+                .join(" ");
+            const tagsLabel = entry.tags.length === 1 ? "Tag" : "Tags";
             message += `\n\n <b>${tagsLabel}:</b> ${tagElement}`;
         }
         // const urlToUse =
@@ -476,42 +499,42 @@ const sendSingleJob = async (chatId, entry, bot) => {
         //     ? entry.applyURL
         //     : entry.url;
         const inlineKeyboard = {
-            inline_keyboard: [[{ text: 'Learn more', url: entry.url }]],
+            inline_keyboard: [[{ text: "Learn more", url: entry.url }]],
         };
         const options = {
-            parse_mode: 'HTML',
+            parse_mode: "HTML",
             reply_markup: inlineKeyboard,
         };
         await bot.sendMessage(chatId, message, options);
         console.log(`Message sent to ${chatId}: ${message}`);
     }
     catch (error) {
-        console.error('Error sending job to user:', error);
+        console.error("Error sending job to user:", error);
     }
 };
 async function handlePrivacy(chatId, event) {
     const { data, error } = await exports.supabase
-        .from('user_config')
-        .select('privacy')
-        .eq('user_id', chatId);
+        .from("user_config")
+        .select("privacy")
+        .eq("user_id", chatId);
     if (error) {
-        console.error('Error fetching user privacy data:', error.message);
+        console.error("Error fetching user privacy data:", error.message);
         return false;
     }
     if (data && data.length > 0) {
         const privacy = data[0].privacy;
         if (event === true) {
             await exports.supabase
-                .from('user_config')
+                .from("user_config")
                 .update({ privacy: true })
-                .eq('user_id', chatId);
+                .eq("user_id", chatId);
             // await bot.sendMessage(chatId, 'Thanks for accepting our privacy policy');
         }
         if (event === false) {
             await exports.supabase
-                .from('user_config')
+                .from("user_config")
                 .update({ privacy: false })
-                .eq('user_id', chatId);
+                .eq("user_id", chatId);
             // await bot.sendMessage(chatId, 'Ok, no problem, if you change your mind, just type /privacy');
         }
     }

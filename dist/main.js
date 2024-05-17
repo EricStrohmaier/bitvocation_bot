@@ -35,6 +35,18 @@ const functions_1 = require("./functions");
 const parameters_1 = require("./parameters");
 const translation_1 = require("./translation");
 const setBotCommands_1 = require("./setBotCommands");
+const express_1 = __importDefault(require("express"));
+const app = (0, express_1.default)();
+const port = process.env.PORT || 3000;
+// Health check route
+app.get("/health", (req, res) => {
+    res.status(200).send("OK");
+});
+// Start the server
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+    console.log("Bot is operational and ready to receive messages.");
+});
 if (!process.env.BITVOCATION_BOT_TOKEN) {
     console.error("Please provide your bot's API key on the .env file.");
     process.exit();

@@ -20,6 +20,25 @@ import { PARAMETERS } from "./parameters";
 import { TRANSLATIONS } from "./translation";
 import { setBotCommands } from "./setBotCommands";
 
+import express from "express";
+const app = express();
+const port = process.env.PORT || 3000;
+
+// Health check route
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
+app.get("/", (req, res) => {
+  res.status(200).send("Hello World!");
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+  console.log("Bot is operational and ready to receive messages.");
+});
+
 if (!process.env.BITVOCATION_BOT_TOKEN) {
   console.error("Please provide your bot's API key on the .env file.");
   process.exit();

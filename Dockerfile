@@ -1,5 +1,5 @@
-# Use an official Node.js runtime as a parent image
-FROM node:16
+# Use an official Node.js runtime as a parent image, specifying the platform
+FROM --platform=linux/amd64 node:16
 
 # Set the working directory in the container
 WORKDIR /app
@@ -14,7 +14,9 @@ RUN npm install
 COPY . .
 
 # Build TypeScript (assuming your build script is configured in package.json)
-# RUN npm run build
+RUN npm run build
+
+EXPOSE 8080
 
 # Specify the command to run on container start
 CMD ["npm", "start"]
