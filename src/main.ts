@@ -25,19 +25,6 @@ import { callUrl } from "./callUrl";
 const app = express();
 const port = process.env.PORT || 3000;
 
-const start = async () => {
-  try {
-    app.listen(port, async () => {
-      // Schedule the function to run every 14 minutes
-      setInterval(callUrl, 14 * 60 * 1000);
-      console.log(`Server is listening on port ${port}`);
-    });
-  } catch (e) {
-    console.log(e);
-  }
-};
-
-start();
 // Health check route
 app.get("/health", (req, res) => {
   res.status(200).send("OK");
@@ -45,6 +32,8 @@ app.get("/health", (req, res) => {
 
 app.get("/", (req, res) => {
   res.status(200).send("Hello World!");
+  setInterval(callUrl, 14 * 60 * 1000);
+  console.log(`Server is listening on port ${port}`);
 });
 
 // Start the server
