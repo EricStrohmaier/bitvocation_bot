@@ -32,15 +32,20 @@ const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 const node_telegram_bot_api_1 = __importDefault(require("node-telegram-bot-api"));
 const functions_1 = require("./functions");
-const parameters_1 = require("./parameters");
 const translation_1 = require("./translation");
 const setBotCommands_1 = require("./setBotCommands");
 const express_1 = __importDefault(require("express"));
+const callUrl_1 = require("./callUrl");
 const app = (0, express_1.default)();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3030;
 // Health check route
 app.get("/health", (req, res) => {
     res.status(200).send("OK");
+});
+app.get("/", (req, res) => {
+    res.status(200).send("Hello World!");
+    setInterval(callUrl_1.callUrl, 14 * 60 * 1000);
+    console.log(`Server is listening on port ${port}`);
 });
 // Start the server
 app.listen(port, () => {
@@ -51,14 +56,15 @@ if (!process.env.BITVOCATION_BOT_TOKEN) {
     console.error("Please provide your bot's API key on the .env file.");
     process.exit();
 }
-const token = process.env.BITVOCATION_BOT_TOKEN;
-exports.bot = new node_telegram_bot_api_1.default(token, { polling: true });
-// const botUsername = (await bot.getMe()).username;
+exports.bot = new node_telegram_bot_api_1.default(process.env.BITVOCATION_BOT_TOKEN, {
+    polling: true,
+});
 (0, setBotCommands_1.setBotCommands)(exports.bot);
 let waitingForKeywords = false;
 let setJobAlert = false;
 const fetchInterval = 3 * 60 * 60 * 1000;
 setInterval(() => {
+    // this is the bread and butter
     (0, functions_1.fetchAndPostLatestEntries)(exports.bot);
 }, fetchInterval);
 (0, functions_1.fetchAndPostLatestEntries)(exports.bot);
@@ -66,10 +72,6 @@ setInterval(() => {
 exports.bot.on("message", async (msg) => {
     var _a, _b, _c, _d;
     const chatId = msg.chat.id;
-    // const newChat = await readUserEntry(msg.chat.id.toString());
-    // if (!newChat) {
-    //     createUserEntry(msg.chat.id.toString());
-    // }
     if (setJobAlert &&
         ((_a = msg.text) === null || _a === void 0 ? void 0 : _a.startsWith("/")) &&
         !msg.text.startsWith("/jobalert")) {
@@ -109,7 +111,6 @@ exports.bot.on("message", async (msg) => {
     }
 });
 exports.bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
-    var _a, _b;
     if (!match)
         return;
     let command;
@@ -118,8 +119,7 @@ exports.bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
     }
     else {
         const chatId = msg.chat.id.toString();
-        const userConfigs = (0, functions_1.getUserConfigs)();
-        const userLanguage = ((_a = userConfigs[chatId]) === null || _a === void 0 ? void 0 : _a.language) || parameters_1.PARAMETERS.LANGUAGE;
+        const userLanguage = "en";
         const newChat = await (0, functions_1.readUserEntry)(chatId);
         if (!newChat) {
             (0, functions_1.createUserEntry)(chatId);
@@ -138,14 +138,8 @@ exports.bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
             return;
         }
     }
-    // if (command?.endsWith('@' + botUsername)) {
-    //     command = command.replace('@' + botUsername, '');
-    // } else if (msg.chat.type != 'private') {
-    //     return;
-    // }
     const chatId = msg.chat.id.toString();
-    const userConfigs = (0, functions_1.getUserConfigs)();
-    const userLanguage = ((_b = userConfigs[chatId]) === null || _b === void 0 ? void 0 : _b.language) || parameters_1.PARAMETERS.LANGUAGE;
+    const userLanguage = "en";
     setJobAlert = false;
     switch (command) {
         case "/start":
@@ -189,7 +183,6 @@ exports.bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
         case "/jobs":
             if (msg.chat.id) {
                 const chatId = msg.chat.id.toString();
-                //check how it where it presses explore categories
                 const keyboard = {
                     reply_markup: {
                         inline_keyboard: [
@@ -300,12 +293,10 @@ exports.bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
     }
 });
 exports.bot.on("callback_query", async (callbackQuery) => {
-    var _a;
     if (!callbackQuery.message)
         return;
     const chatId = callbackQuery.message.chat.id;
-    const userConfigs = (0, functions_1.getUserConfigs)();
-    const userLanguage = ((_a = userConfigs[chatId]) === null || _a === void 0 ? void 0 : _a.language) || parameters_1.PARAMETERS.LANGUAGE;
+    const userLanguage = "en";
     let messageText = "";
     switch (callbackQuery.data) {
         case "accept-privacy":
@@ -525,30 +516,12 @@ exports.bot.on("callback_query", async (callbackQuery) => {
         await exports.bot.sendMessage(chatId, messageText);
     }
 });
-console.log("Bot Started!");
 process.on("uncaughtException", (error) => {
     console.error("Uncaught Exception:", error);
     process.exit(1); // exit application when there is an uncaught exception
-});
-process.on("unhandledRejection", (reason, promise) => {
-    console.error("Unhandled Rejection at:", promise, "reason:", reason);
-    // Application specific logging, throwing an error, or other logic here
 });
 process.on("SIGINT", () => {
     console.log("\nExiting...");
     exports.bot.stopPolling();
     process.exit(0);
 });
-process.on("SIGTERM", () => {
-    console.log("\nExiting...");
-    exports.bot.stopPolling();
-    process.exit(0);
-});
-//on error restart bot
-// process.on('uncaughtException', function (err) {
-//     console.log('SYSTEM: uncaughtExpection', err);
-//     bot.stopPolling();
-//     setTimeout(() => {
-//         bot.startPolling();
-//     }, 5000);
-// });

@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 
 export type Translations = {
-  [key in "en" | "de" | string]: {
+  [key in "en" | string]: {
     general: {
       "language-switch": string;
       "start-message": string;

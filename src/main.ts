@@ -16,14 +16,13 @@ import {
   sendParseMessage,
   updateJobAlerts,
 } from "./functions";
-import { PARAMETERS } from "./parameters";
 import { TRANSLATIONS } from "./translation";
 import { setBotCommands } from "./setBotCommands";
-
 import express from "express";
 import { callUrl } from "./callUrl";
+
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3030;
 
 // Health check route
 app.get("/health", (req, res) => {
@@ -46,16 +45,17 @@ if (!process.env.BITVOCATION_BOT_TOKEN) {
   console.error("Please provide your bot's API key on the .env file.");
   process.exit();
 }
-const token = process.env.BITVOCATION_BOT_TOKEN;
 
-export const bot = new TelegramBot(token, { polling: true });
-// const botUsername = (await bot.getMe()).username;
+export const bot = new TelegramBot(process.env.BITVOCATION_BOT_TOKEN, {
+  polling: true,
+});
 
 setBotCommands(bot);
 let waitingForKeywords = false;
 let setJobAlert = false;
 const fetchInterval = 3 * 60 * 60 * 1000;
 setInterval(() => {
+  // this is the bread and butter
   fetchAndPostLatestEntries(bot);
 }, fetchInterval);
 
@@ -64,10 +64,6 @@ fetchAndPostLatestEntries(bot);
 // Messages for conversations.
 bot.on("message", async (msg) => {
   const chatId = msg.chat.id;
-  // const newChat = await readUserEntry(msg.chat.id.toString());
-  // if (!newChat) {
-  //     createUserEntry(msg.chat.id.toString());
-  // }
   if (
     setJobAlert &&
     msg.text?.startsWith("/") &&
@@ -129,8 +125,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
     command = match.input.split(" ").shift();
   } else {
     const chatId = msg.chat.id.toString();
-    const userConfigs = getUserConfigs();
-    const userLanguage = userConfigs[chatId]?.language || PARAMETERS.LANGUAGE;
+    const userLanguage = "en";
     const newChat = await readUserEntry(chatId);
     if (!newChat) {
       createUserEntry(chatId);
@@ -158,14 +153,8 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
     }
   }
 
-  // if (command?.endsWith('@' + botUsername)) {
-  //     command = command.replace('@' + botUsername, '');
-  // } else if (msg.chat.type != 'private') {
-  //     return;
-  // }
   const chatId = msg.chat.id.toString();
-  const userConfigs = getUserConfigs();
-  const userLanguage = userConfigs[chatId]?.language || PARAMETERS.LANGUAGE;
+  const userLanguage = "en";
   setJobAlert = false;
   switch (command) {
     case "/start":
@@ -220,7 +209,6 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
     case "/jobs":
       if (msg.chat.id) {
         const chatId = msg.chat.id.toString();
-        //check how it where it presses explore categories
         const keyboard = {
           reply_markup: {
             inline_keyboard: [
@@ -345,9 +333,7 @@ bot.onText(/^\/(\w+)(@\w+)?(?:\s.\*)?/, async (msg, match) => {
 bot.on("callback_query", async (callbackQuery) => {
   if (!callbackQuery.message) return;
   const chatId = callbackQuery.message.chat.id;
-  const userConfigs = getUserConfigs();
-  const userLanguage = userConfigs[chatId]?.language || PARAMETERS.LANGUAGE;
-
+  const userLanguage = "en";
   let messageText = "";
 
   switch (callbackQuery.data) {
@@ -575,16 +561,9 @@ bot.on("callback_query", async (callbackQuery) => {
   }
 });
 
-console.log("Bot Started!");
-
 process.on("uncaughtException", (error) => {
   console.error("Uncaught Exception:", error);
   process.exit(1); // exit application when there is an uncaught exception
-});
-
-process.on("unhandledRejection", (reason, promise) => {
-  console.error("Unhandled Rejection at:", promise, "reason:", reason);
-  // Application specific logging, throwing an error, or other logic here
 });
 
 process.on("SIGINT", () => {
@@ -592,17 +571,3 @@ process.on("SIGINT", () => {
   bot.stopPolling();
   process.exit(0);
 });
-
-process.on("SIGTERM", () => {
-  console.log("\nExiting...");
-  bot.stopPolling();
-  process.exit(0);
-});
-//on error restart bot
-// process.on('uncaughtException', function (err) {
-//     console.log('SYSTEM: uncaughtExpection', err);
-//     bot.stopPolling();
-//     setTimeout(() => {
-//         bot.startPolling();
-//     }, 5000);
-// });
