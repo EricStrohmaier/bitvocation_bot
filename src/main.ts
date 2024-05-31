@@ -9,7 +9,6 @@ import {
   formatVariables,
   getKeyword,
   getLatestJobs,
-  getUserConfigs,
   handlePrivacy,
   hasJobAlert,
   readUserEntry,
