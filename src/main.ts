@@ -30,14 +30,13 @@ app.get("/health", (req, res) => {
 
 app.get("/", (req, res) => {
   res.status(200).send("Hello World!");
-  setInterval(callUrl, 14 * 60 * 1000);
-  console.log(`Server is listening on port ${port}`);
 });
 
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
   console.log("Bot is operational and ready to receive messages.");
+  setInterval(callUrl, 14 * 60 * 1000);
 });
 
 if (!process.env.BITVOCATION_BOT_TOKEN) {
